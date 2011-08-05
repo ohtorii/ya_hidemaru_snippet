@@ -1,28 +1,28 @@
-GŠÛƒGƒfƒBƒ^‚ÌƒXƒjƒyƒbƒg
+ï»¿ç§€ä¸¸ã‚¨ãƒ‡ã‚£ã‚¿ã®ã‚¹ãƒ‹ãƒšãƒƒãƒˆ
 ========
 
-GŠÛƒGƒfƒBƒ^‚Í‘½‚­‚ÌƒXƒjƒyƒbƒgƒ}ƒNƒ‚ªŒöŠJ‚³‚ê‚Ä‚¢‚Ü‚·‚ªAŽ©•ª‚ÌŽg‚¢•û‚É‚ ‚Á
-‚½‚à‚Ì‚ª–³‚©‚Á‚½‚Ì‚Åƒ}ƒNƒ‚ð‘‚«‚Ü‚µ‚½B
+ç§€ä¸¸ã‚¨ãƒ‡ã‚£ã‚¿ã¯å¤šãã®ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒžã‚¯ãƒ­ãŒå…¬é–‹ã•ã‚Œã¦ã„ã¾ã™ãŒã€è‡ªåˆ†ã®ä½¿ã„æ–¹ã«ã‚ã£
+ãŸã‚‚ã®ãŒç„¡ã‹ã£ãŸã®ã§ãƒžã‚¯ãƒ­ã‚’æ›¸ãã¾ã—ãŸã€‚
 
-###“Á’¥
-ƒXƒjƒyƒbƒg‚Ì¶¬‚Éu’èŒ^•¶EGŠÛƒ}ƒNƒEPythonEVBScriptEJavaScriptEBATv‚ð
-Žg—p‰Â”\‚È‚Ì‚ÅAƒ†[ƒU[‚Ì“ü—Í‚É‰ž‚¶‚½**“®“I‚ÈƒXƒjƒyƒbƒg**‚ð¶¬‚Å‚«‚Ü‚·B
-“®“I‚ÈƒXƒjƒyƒbƒg‚Íclass‚Ìƒƒ“ƒo•Ï”¶¬‚ÅŽg—p‚µ‚Ä‚¢‚Ü‚·Bi‰º‹LƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg‚ÅŠm”F‚Å‚«‚Ü‚·j
+###ç‰¹å¾´
+ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ç”Ÿæˆã«ã€Œå®šåž‹æ–‡ãƒ»ç§€ä¸¸ãƒžã‚¯ãƒ­ãƒ»Pythonãƒ»VBScriptãƒ»JavaScriptãƒ»BATã€ã‚’
+ä½¿ç”¨å¯èƒ½ãªã®ã§ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼ã®å…¥åŠ›ã«å¿œã˜ãŸ**å‹•çš„ãªã‚¹ãƒ‹ãƒšãƒƒãƒˆ**ã‚’ç”Ÿæˆã§ãã¾ã™ã€‚
+å‹•çš„ãªã‚¹ãƒ‹ãƒšãƒƒãƒˆã¯classã®ãƒ¡ãƒ³ãƒå¤‰æ•°ç”Ÿæˆã§ä½¿ç”¨ã—ã¦ã„ã¾ã™ã€‚ï¼ˆä¸‹è¨˜ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚·ãƒ§ãƒƒãƒˆã§ç¢ºèªã§ãã¾ã™ï¼‰
 
 
-### ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg(‚»‚Ì1 C/C++ basic)
+### ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚·ãƒ§ãƒƒãƒˆ(ãã®1 C/C++ basic)
 ![cpp main](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181101.gif?1312535670 "cpp snippet")
 
-### ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg(‚»‚Ì2 C/C++ class)
+### ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚·ãƒ§ãƒƒãƒˆ(ãã®2 C/C++ class)
 ![cpp class](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181100.gif?1312535644 "cpp snippet")
 
-### ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg(‚»‚Ì3 C/C++ include guarder)
+### ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚·ãƒ§ãƒƒãƒˆ(ãã®3 C/C++ include guarder)
 ![cpp once](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181059.gif?1312535961 "cpp snippet")
 
-### ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg(‚»‚Ì4 Python class)
+### ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚·ãƒ§ãƒƒãƒˆ(ãã®4 Python class)
 ![python snippet](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181058.gif?1312535978 "python snippet")
 
-### XV—š—ð
-‚Æ‚è‚ ‚¦‚¸Agithube‚ÖŒöŠJB
+### æ›´æ–°å±¥æ­´
+ã¨ã‚Šã‚ãˆãšã€githubeã¸å…¬é–‹ã€‚
 
 
