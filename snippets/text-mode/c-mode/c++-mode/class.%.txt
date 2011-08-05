@@ -1,0 +1,11 @@
+%0 %1%|{
+public:
+	%1(){
+	}
+	~%1(){
+	}
+protected:
+private:
+	%1(const %1&);
+	%1 &operator=(const %1&);
+};

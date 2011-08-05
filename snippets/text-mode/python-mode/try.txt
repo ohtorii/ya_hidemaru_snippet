@@ -1,0 +1,10 @@
+try:
+	%|
+except IOError, (errno, strerror):
+	pass
+except:
+	pass
+else:
+	pass
+finally:
+	pass

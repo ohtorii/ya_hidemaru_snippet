@@ -1,0 +1,584 @@
+/* Yet another snippet for hidemaru editor.
+
+
+メモ：
+	・スニペットのコマンド数は１６個まで。($0-$15)
+	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
+*/
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//		ユーザーカスタマイズ
+////////////////////////////////////////////////////////////////////////////
+//新規ファイル(拡張子なし)で使う拡張子
+$g_new_file_ext			= ".c";
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//		内部処理
+////////////////////////////////////////////////////////////////////////////
+$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
+$g_snippets_dir_name 	= "snippets";
+$g_snippets_abs_dir		= currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
+$g_ini_abs_path 		= $g_snippets_abs_dir + "config.ini";
+$g_ini_section_name		= "config";
+
+////////////////////////////////////////////
+//		拡張子毎の処理マクロ登録
+////////////////////////////////////////////
+#g_expand_files_num=0;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_txt.mac";
+$g_expand_files_ext[#g_expand_files_num]=".txt";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_mac.mac";
+$g_expand_files_ext[#g_expand_files_num]=".mac";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_py.mac";
+$g_expand_files_ext[#g_expand_files_num]=".py";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_bat.mac";
+$g_expand_files_ext[#g_expand_files_num]=".bat";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_vbs.mac";
+$g_expand_files_ext[#g_expand_files_num]=".vbs";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_hidemaru_snippet_js.mac";
+$g_expand_files_ext[#g_expand_files_num]=".js";
+#g_expand_files_num=#g_expand_files_num+1;
+////////////////////////////////////////////
+
+
+$g_file_attr_arg	= ".%";
+$g_file_attr_varg	= "._";
+$g_cursor_marker	= "%|";
+
+$g_args[0]	= "";
+#g_args_num	= 0;
+
+/*スニペットファイルへの絶対パス
+	(ex)
+	[0]="c:/hidemaru_macro/snippets/.c.cpp/for.txt"
+	[1]="c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
+	[2]="c:/hidemaru_macro/snippets/.c.cpp/for.%.%.txt"
+*/
+$g_snippet_file[0]			= "";
+
+/*スニペットファイルのパスと拡張子を取り除いたベース名
+	(ex)
+	[0]="for"
+	[1]="for.%"
+	[2]="for.%.%"
+
+（備考）検索で利用。
+*/
+$g_snippet_file_basename[0]	= "";
+
+/* $g_snippet_file と $g_snippet_file_basename の長さ。
+*/
+#g_snippet_file_num	= 0;
+
+$_g_old_searchbuffer = searchbuffer;
+#_g_searchoption 	 = searchoption;
+disablehistory 0xff;
+//動作環境を固定化する。
+//折りたたみを維持,部分編集を維持,範囲選択,最後に移動
+//マクロ終了時に元に戻る。
+setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
+call LoadDengaku;
+if(result){
+	call Main;
+	setsearch $_g_old_searchbuffer, #_g_searchoption;
+	freedll;
+}
+endmacro;
+
+
+Main:
+	//disabledraw;
+	//disableinvert;
+	/*if(rectselecting){
+		message("矩形選択は未対応です。\n");
+		return false;
+	}*/
+	call ParseLine;
+	if(! ##return){
+		return false;
+	}
+
+	call GetCurrentFileExt;
+	$$ext=$$return;
+
+	
+	call ParseIni $$ext;
+	$$abs_snippets_dir = $$return;
+	if(""==$$abs_snippets_dir){
+		return false;
+	}
+	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
+	$$abs_snippet_filename = $$return;
+	if("" == $$abs_snippet_filename){
+		return false;
+	}
+	call InsertSnippet $$abs_snippet_filename;
+	return ##return;
+
+
+InsertSnippet:
+	$$abs_snippet_filename=$$1;
+
+	call GetHeadSpace;
+	$$head_str=$$return;
+	
+	//
+	//新しい秀丸を非表示で開き、そこへスニペットを展開する。
+	//
+	##old_hidemaru = hidemaruhandle(0);
+	openfile "/h ", noaddhist;
+	if(! result){
+		message("非表示状態で秀丸エディタを開けませんでした。");
+		return false;
+	}
+	##cur_hidemaru = hidemaruhandle(0);
+	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
+	##result=##return;
+	call InsertHeadStr $$head_str;
+	selectall;
+	$$expand_text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno);
+	setactivehidemaru ##old_hidemaru;
+	closehidemaruforced ##cur_hidemaru;
+	if(! ##result){
+		return false;
+	}
+	
+	disabledraw;
+	begingroupundo;
+	
+	/*コマンド行を削除する
+	(before)
+		prev-line
+		|current-line	<-- この行を削除
+		next-line
+		
+	(after)
+		prev-line
+		|				<-- 空行を作る
+		next-line
+	*/
+	deleteline2;
+	insertfix("\n");
+	
+	##old_linecount2=linecount2;
+	insertfix($$expand_text);
+	//挿入された行数を計算する。
+	##num_insert_lineno = linecount2 - ##old_linecount2;
+	call  AdjustCursorPos, ##num_insert_lineno;
+	endgroupundo;
+	return ##result;
+
+
+/*全ての先頭行に文字を挿入する。
+memo:インデントを合わせている。*/
+InsertHeadStr:
+	$$head_str=$$1;
+	##i=1;
+	##n=linecount2;
+	while(##i<=##n){
+		movetolineno 1,##i;
+		insert($$head_str);
+		##i=##i+1;
+	}
+	return ;
+
+
+/*先頭の空白行を取得する*/
+GetHeadSpace:
+	##old_column=column;
+	##old_lineno=lineno;
+	escape;
+	golinetop2;
+	searchdown2 "[^ \\t]+",regular;
+	if(result){
+		//pass
+	}else{
+		return "";
+	}
+	
+	//先頭行の空白を取得する。
+	/*escape;
+	beginsel;
+	golinetop2;
+	endsel;
+	$$head=gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
+	*/
+	$$head=gettext2(0,##old_lineno,seltopcolumn,##old_lineno);
+	movetolineno ##old_column+1, ##old_lineno;
+	return $$head;
+	
+
+ExpandSnippetFile:
+	$$abs_snippet_filename	= $$1;
+	##old_hidemaru_handle	= ##2;
+
+	call GetSnippetFileExt $$abs_snippet_filename;
+	$$ext = tolower($$return);
+
+	$$filename 	= "";
+	##i			= 0;
+	while(##i < #g_expand_files_num){
+		if($$ext == $g_expand_files_ext[##i]){
+			$$filename = $g_expand_files[##i];
+			break;
+		}
+		##i=##i+1;
+	}
+	if(""==$$filename){
+		message("未対応の拡張子です。\n" + $$abs_snippet_filename);
+		return false;
+	}
+
+	//
+	//拡張子毎の展開マクロを呼ぶ。
+	//
+	$$abs_expand_file = currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\" + $$filename;
+
+	$$reserve="";
+	execmacro 	$$abs_expand_file,
+				$$abs_snippet_filename,		//[0]
+				str(##old_hidemaru_handle),	//[1]
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,					//[10]
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				str(#g_args_num),			//[14]
+				$g_args[0],
+				$g_args[1],
+				$g_args[2],
+				$g_args[3],
+				$g_args[4],
+				$g_args[5],					//[20]
+				$g_args[6],
+				$g_args[7],
+				$g_args[8],
+				$g_args[9],
+				$g_args[10],
+				$g_args[11],
+				$g_args[12],
+				$g_args[13],
+				$g_args[14],
+				$g_args[15];				//[30]
+
+	##result = val(getresultex(-1));
+	if(! ##result){
+		message("execmacro関数が失敗しました。\nfile=" + $$abs_expand_file);
+		return false;
+	}
+	return ##result;
+
+/* スニペットファイルを探す
+return
+	"c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
+*/
+FindSnippetFile:
+	$$abs_snippets_dir=$$1;
+	$$cmd=$$2;
+	##num=##3;
+
+	##count=32;//無限ループ防止（念のため）
+	while((0 < ##count) && (""!=$$abs_snippets_dir)){
+		call FindSnippetFileInternal $$abs_snippets_dir+"\\", $$cmd, ##num;
+		if("" != $$return){
+			return $$return;
+		}
+
+		call GetParentFolderName $$abs_snippets_dir;
+		$$abs_snippets_dir = $$return;
+
+		call IsFolderFinish $$abs_snippets_dir;
+		if(##return){
+			break;
+		}
+		##count=##count-1;
+	}
+	return "";
+
+
+FindSnippetFileInternal:
+	$$abs_snippets_dir=$$1;
+	$$cmd=$$2;
+	##num=##3;
+
+	//
+	//$$cmd にマッチするファイルを列挙する。
+	//
+	call EnumeSnippetFileNames $$abs_snippets_dir, $$cmd;
+	if(! ##return){
+		return "";
+	}
+
+	//
+	//完全一致を探す
+	//
+	call MakeSnippetBaseFileName $$cmd,##num-1;
+	$$result=$$return;
+	call MatchSnippetFileName $$result;
+	$$result = $$return;
+	if(""!=$$result){
+		return $$result;
+	}
+
+	//
+	//_を使ったパターンを探す。
+	//(ex) 	hoge.%._
+	//		hoge._
+	//
+	##i=##num-1;
+	while(0 <= ##i){
+		call MakeSnippetBaseFileName $$cmd,##i;
+		$$result = $$return + $g_file_attr_varg;
+		call MatchSnippetFileName $$result;
+		$$result = $$return;
+		if(""!=$$result){
+			return $$result;
+		}
+		##i=##i-1;
+	}
+	return "";
+
+
+MatchSnippetFileName:
+	$$basename = $$1;
+	##i=0;
+	while(##i < #g_snippet_file_num){
+		if($g_snippet_file_basename[##i] == $$basename){
+			return $g_snippet_file[##i];
+		}
+		##i=##i+1;
+	}
+	return "";
+
+
+/*ファイルのベース名を作る
+(ex)
+	$$cmd	= for
+	##num	= 3
+	return	= for.%.%.%
+*/
+MakeSnippetBaseFileName:
+	$$cmd 	= $$1;
+	##num 	= ##2;
+	$$result= $$cmd;
+	##i=0;
+	while(##i < ##num){
+		$$result=$$result+$g_file_attr_arg;
+		##i=##i+1;
+	}
+	return $$result;
+
+EnumeSnippetFileNames:
+	$$abs_snippets_dir	= $$1;
+	$$cmd 				= $$2;
+	$$pattern 			= $$abs_snippets_dir + $$cmd + "*.*";
+
+	#g_snippet_file_num=0;
+	##r = dllfunc("ENUMFILE",$$pattern);
+	if(! ##r){
+		return false;
+	}
+
+	##count = 1000;
+	while (##count) {
+		$$file = dllfuncstr("FINDNEXT");
+		if ($$file == "") {
+			break
+		}
+		$g_snippet_file[#g_snippet_file_num]=$$abs_snippets_dir + $$file;
+		call MakeSnippetBaseName $$file;
+		$g_snippet_file_basename[#g_snippet_file_num]=$$return;
+		#g_snippet_file_num=#g_snippet_file_num+1;
+		##count=##count-1;
+	}
+	if(#g_snippet_file_num){
+		return true;
+	}
+	return false;
+
+/*スニペットファイルのベース名を作る
+"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt" → "for.%"
+*/
+MakeSnippetBaseName:
+	$$name 	= $$1;
+	##len 	= strlen($$name);
+
+	//
+	//拡張子の削除
+	//
+	##index=strrstr($$name,".");
+	if(0 == ##index){
+		//全部拡張子。とりあえず無視する。
+		return "";
+	}
+	if(0 < ##index){
+		$$name = leftstr($$name,##index);
+	}
+	if(0){
+		//ディレクトリは無いのでコメントアウト
+
+		//
+		//ディレクトリの削除
+		//
+		##index_0=strrstr($$name,"/");
+		##index_1=strrstr($$name,"\\");
+		if(##index_0 < ##index_1){
+			##index = ##index_1;
+		}else{
+			##index = ##index_0;
+		}
+		if(-1 != ##index){
+			$$name=rightstr($$name,(##len-##index)+1);
+		}
+	}
+	return $$name;
+
+GetCurrentFileExt:
+	$$ext=filetype;
+	if(0==strstr($$ext,".")){
+		return $$ext;
+	}
+	return $g_new_file_ext;
+
+
+/*１行を空白文字列(space/tab/全角空白)で分割して取り出す。
+*/
+ParseLine:
+	##old_column=column;
+	##old_lineno=lineno;
+	//一行の文字列を取得
+	$$linetext = gettext2(0,##old_lineno,linelen2,##old_lineno);
+	$$linetext = dllfuncstr("RTRIM",$$linetext);
+	$$linetext = dllfuncstr("LTRIM",$$linetext);
+
+	#g_args_num=0;
+	$$tok = " ";
+	$$tmp = dllfuncstr("GETTOKEN",$$linetext,$$tok);
+	$$tmp = dllfuncstr("RTRIM",$$tmp);
+	$$tmp = dllfuncstr("LTRIM",$$tmp);
+	if(""!=$$tmp){
+		$g_args[#g_args_num]=$$tmp;
+		#g_args_num=1;
+	}
+	while (1) {
+	    if (dllfunc("HASMORETOKENS") == 0) {
+			break;
+		}
+
+	    $$tmp = dllfuncstr("GETTOKEN","",$$tok);
+	    $$tmp = dllfuncstr("RTRIM",$$tmp);
+		$$tmp = dllfuncstr("LTRIM",$$tmp);
+		if(""!=$$tmp){
+			$g_args[#g_args_num]=$$tmp;
+			#g_args_num = #g_args_num+1;
+		}
+	}
+//	movetolineno ##old_column+1, ##old_lineno;
+	if(#g_args_num){
+		return true;
+	}
+	return false;
+
+
+/*ファイル拡張子を取得する
+(ex)hoge.ext1.ext2.txt -> .txt
+*/
+GetSnippetFileExt:
+	$$fn	= $$1;
+	##index = strrstr($$fn,".");
+	if(0 < ##index){
+		$$fn = rightstr($$fn,strlen($$fn)-##index);
+	}
+	return $$fn;
+
+
+/*	%| へカーソルを移動する。
+*/
+AdjustCursorPos:
+	##num_insert_lineno = ##1;
+	##old_column = column;
+	##old_lineno = lineno;
+
+	searchdown2 $g_cursor_marker,word,nocasesense,nohilight;
+	if(result && (lineno <= (##old_lineno + ##num_insert_lineno))){
+		//"%|" を消す。
+		delete;
+	}else{
+		//検索失敗、または、マーカーが見つからない。
+		movetolineno 1+##old_column, ##old_lineno;
+	}
+	return true;
+
+
+ParseIni:
+	$$ext 		= $$1;
+	$$dir_name 	= getinistr($g_ini_abs_path, $g_ini_section_name,$$ext);
+	$$abs_dir 	= $g_snippets_abs_dir + $$dir_name ;
+	call IsFolderExists $$abs_dir;
+	if(! ##return){
+		message("iniファイルに記述されているディレクトリが存在しません。\nディレクトリ="+$$dir_name);
+		return "";
+	}
+	return $$abs_dir;
+
+
+/*スニペットが置いてあるディレクトリかどうか
+memo:「パス区切り(/\)・大文字小文字」の違いがあるのでファイルシステムに任せる。
+*/
+IsFolderFinish:
+	$$dir = $$1;
+	##obj 	= createobject("Scripting.FileSystemObject");
+	##fld0 	= callmethod_returnobj( ##obj, "GetFolder", $g_snippets_abs_dir);
+	##fld1 	= callmethod_returnobj( ##obj, "GetFolder", $$dir);
+	$$path0	= getpropstr(##fld0,"Path");
+	$$path1	= getpropstr(##fld1,"Path");
+	releaseobject ##fld0;
+	releaseobject ##fld1;
+	releaseobject ##obj;
+	return $$path0 == $$path1;
+
+/*フォルダの存在検査*/
+IsFolderExists:
+	$$dir = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	##result = callmethod_returnnum( ##obj, "FolderExists", $$dir);
+	releaseobject ##obj;
+	return ##result;
+
+/*親フォルダを返す*/
+GetParentFolderName:
+	$$dir = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	$$result = callmethod_returnstr( ##obj, "GetParentFolderName", $$dir);
+	releaseobject ##obj;
+	return $$result;
+
+LoadDengaku:
+	loaddll $g_dll_dengaku_abs_path;
+	if (!result) {
+		message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
+		return false;
+	}
+	return true;

@@ -1,0 +1,62 @@
+/*秀丸マクロからスニペットを挿入する。（サンプル）
+
+
+＊生成するテキストの例。
+	#ifndef __FILENAME_EXT__
+	#define __FILENAME_EXT__
+		%|
+	#endif
+
+
+＊備考
+	スニペットを起動した秀丸の情報を取得するサンプルです。
+	
+	まず、スニペットを起動した秀丸のハンドルを取得して
+	> ##hidemaru_handle = val(getarg(1));
+	
+	ファイル名を取得
+	> $$name = basename[##hidemaru_handle];
+*/
+
+////////////////////////////////////////////////////////////////////////////
+//		内部処理
+////////////////////////////////////////////////////////////////////////////
+call Main;
+endmacro str(##return);
+
+
+Main:
+	##hidemaru_handle = val(getarg(1));
+	call MakeFileName ##hidemaru_handle;
+	$$name = $$return;
+	$$name = "__" + $$name + "__";
+	$$text ="#ifndef " + $$name + "\n" 	+
+			"#define " + $$name + "\n" 	+
+			"\t%|\n"					+
+			"#endif\n";
+	insertfix($$text);
+	return true;
+
+
+/* Include guard に使用するファイル名を作る。
+*/
+MakeFileName:
+	##hidemaru_handle = ##1;
+	$$name 	= basename[##hidemaru_handle];
+	$$name 	= toupper($$name);
+
+	$$result= "";
+	##len 	= strlen($$name);
+	##i		= 0;
+	while(##i < ##len){
+		$$c=midstr($$name,##i,1);
+		##a=ascii($$c);
+		if(((0x30<=##a)&&(##a<=0x39)) || ((0x41<=##a)&&(##a<=0x5a)) || ((0x61<=##a)&&(##a<=0x7a))){
+			//[0-9A-Za-z]
+			$$result = $$result + $$c;
+		}else{
+			$$result = $$result + "_";
+		}
+		##i=##i+1;
+	}
+	return $$result;

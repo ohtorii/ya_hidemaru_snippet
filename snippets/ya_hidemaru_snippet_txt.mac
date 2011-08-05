@@ -1,0 +1,52 @@
+/* Yet another snippet for hidemaru editor.
+内部実装。
+
+(.txt)の展開。
+*/
+
+////////////////////////////////////////////////////////////////////////////
+//		定数
+////////////////////////////////////////////////////////////////////////////
+#g_args_index_num	= 14;
+#g_args_index_start	= 15;
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//		内部処理
+////////////////////////////////////////////////////////////////////////////
+$g_args[0]	= "";
+#g_args_num	= 0;
+
+call Main;
+endmacro str(##return);
+
+Main:
+	$$abs_snippet_filename=getarg(0);
+	call SetupArgs;
+
+	insertfile($$abs_snippet_filename);
+	call DoReplaceArg;
+	return true;
+
+SetupArgs:
+	#g_args_num = val(getarg(#g_args_index_num));
+	##i=0;
+	while(##i < #g_args_num){
+		$g_args[##i] = getarg(#g_args_index_start + ##i);
+		##i=##i+1;
+	}
+	return ;
+
+//%0 %1 %2 ...の置換
+DoReplaceArg:
+	##i = 0;
+	while(##i < #g_args_num){
+		gofiletop;
+		$$s = "%" + str(##i);
+		replaceallfast $$s, $g_args[##i],word,nocasesense,nohilight;
+		##i=##i+1;
+	}
+	return ;
