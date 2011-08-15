@@ -21,7 +21,10 @@ $g_new_file_ext			= ".c";
 ////////////////////////////////////////////////////////////////////////////
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 $g_snippets_dir_name 	= "snippets";
-$g_snippets_abs_dir		= currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
+
+//long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
+call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
+$g_snippets_abs_dir		= $$return + "\\";
 $g_ini_abs_path 		= $g_snippets_abs_dir + "config.ini";
 $g_ini_section_name		= "config";
 
@@ -116,12 +119,13 @@ Main:
 	call GetCurrentFileExt;
 	$$ext=$$return;
 
-	
+
 	call ParseIni $$ext;
-	$$abs_snippets_dir = $$return;
+	$$abs_snippets_dir=$$return;
 	if(""==$$abs_snippets_dir){
 		return false;
 	}
+
 	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
 	$$abs_snippet_filename = $$return;
 	if("" == $$abs_snippet_filename){
@@ -136,7 +140,7 @@ InsertSnippet:
 
 	call GetHeadSpace;
 	$$head_str=$$return;
-	
+
 	//
 	//新しい秀丸を非表示で開き、そこへスニペットを展開する。
 	//
@@ -146,8 +150,6 @@ InsertSnippet:
 		message("非表示状態で秀丸エディタを開けませんでした。");
 		return false;
 	}
-	disabledraw;
-	disableinvert;
 	##cur_hidemaru = hidemaruhandle(0);
 	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
 	##result=##return;
@@ -159,17 +161,16 @@ InsertSnippet:
 	if(! ##result){
 		return false;
 	}
-	
+
 	disabledraw;
-	disableinvert;
 	begingroupundo;
-	
+
 	/*コマンド行を削除する
 	(before)
 		prev-line
 		|current-line	<-- この行を削除
 		next-line
-		
+
 	(after)
 		prev-line
 		|				<-- 空行を作る
@@ -177,7 +178,7 @@ InsertSnippet:
 	*/
 	deleteline2;
 	insertfix("\n");
-	
+
 	##old_linecount2=linecount2;
 	insertfix($$expand_text);
 	//挿入された行数を計算する。
@@ -213,7 +214,7 @@ GetHeadSpace:
 	}else{
 		return "";
 	}
-	
+
 	//先頭行の空白を取得する。
 	/*escape;
 	beginsel;
@@ -224,7 +225,7 @@ GetHeadSpace:
 	$$head=gettext2(0,##old_lineno,seltopcolumn,##old_lineno);
 	movetolineno ##old_column+1, ##old_lineno;
 	return $$head;
-	
+
 
 ExpandSnippetFile:
 	$$abs_snippet_filename	= $$1;
@@ -541,7 +542,9 @@ ParseIni:
 	$$abs_dir 	= $g_snippets_abs_dir + $$dir_name ;
 	call IsFolderExists $$abs_dir;
 	if(! ##return){
-		message("iniファイルに記述されているディレクトリが存在しません。\nディレクトリ="+$$dir_name);
+		message("iniファイルに記述されているディレクトリが存在しません。\n"	+
+				"iniファイルの内容を確認して下さい。\n"						+
+				"\nディレクトリ="+$$dir_name);
 		return "";
 	}
 	return $$abs_dir;
@@ -577,6 +580,16 @@ GetParentFolderName:
 	$$result = callmethod_returnstr( ##obj, "GetParentFolderName", $$dir);
 	releaseobject ##obj;
 	return $$result;
+
+GetShortPath:
+	$$path=$$1;
+	##obj=createobject("Scripting.FileSystemObject");
+	##f  = callmethod_returnobj( ##obj, "GetFolder", $$path);
+    $$ret = getpropstr(##f,"ShortPath");
+    releaseobject ##f;
+    releaseobject ##obj;
+    return $$ret;
+
 
 LoadDengaku:
 	loaddll $g_dll_dengaku_abs_path;
