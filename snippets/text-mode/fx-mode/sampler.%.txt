@@ -1,0 +1,9 @@
+%0 %1 = sampler_state {
+	Texture 	= <Texture???%|>;
+	MagFilter	= Linear;
+	MinFilter	= Linear;
+	MipFilter	= Linear;
+	AddressU	= Clamp;
+	AddressV	= Clamp;
+	AddressW	= Clamp;
+};

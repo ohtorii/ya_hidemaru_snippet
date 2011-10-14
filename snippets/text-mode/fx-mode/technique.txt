@@ -1,0 +1,19 @@
+%0 %|{
+	pass p0{
+		VertexProgram	= compile vp40 vs_main();
+		FragmentProgram = compile fp40 ps_main();
+
+		AlphaTestEnable = true;
+		DepthTestEnable = true;
+		ZWriteEnable	= true;
+		ZEnable 		= true;
+		DepthFunc		= LEqual;
+
+		BlendEnable 	= true;
+		BlendFunc		= int2(SrcAlpha, OneMinusSrcAlpha);
+		BlendEquation	= FuncAdd;
+
+		CullFaceEnable	= true;
+		CullFace		= back;
+   }
+}

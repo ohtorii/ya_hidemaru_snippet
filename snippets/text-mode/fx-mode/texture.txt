@@ -1,0 +1,5 @@
+%0 Texture%|<
+	string ResourceName = "texture.dds";
+	string UIName		= "Texture";
+	string ResourceType = "2D";
+>;

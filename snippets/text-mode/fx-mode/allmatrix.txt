@@ -1,0 +1,19 @@
+float4x4	World 			: World									< string UIWidget="None"; >;
+float4x4	WorldI 			: WorldInverse							< string UIWidget="None"; >;
+float4x4	WorldIT 		: WorldInverseTranspose					< string UIWidget="None"; >;
+float4x4	WorldView 		: WorldView								< string UIWidget="None"; >;
+float4x4	WorldViewI 		: WorldViewInverse						< string UIWidget="None"; >;
+float4x4	WorldViewIT 	: WorldViewInverseTranspose				< string UIWidget="None"; >;
+float4x4	WorldViewProj 	: WorldViewProjection					< string UIWidget="None"; >;
+float4x4	WorldViewProjI	: WorldViewProjectionInverse			< string UIWidget="None"; >;
+float4x4	WorldViewProjIT	: WorldViewProjectionInverseTranspose	< string UIWidget="None"; >;
+float4x4	View 			: View									< string UIWidget="None"; >;
+float4x4	ViewI 			: ViewInverse							< string UIWidget="None"; >;
+float4x4	ViewIT 			: ViewInverseTranspose					< string UIWidget="None"; >;
+float4x4	ViewProj		: ViewProjection						< string UIWidget="None"; >;
+float4x4	ViewProjI		: ViewProjectionInverse					< string UIWidget="None"; >;
+float4x4	ViewProjIT		: ViewProjectionInverseTranspose		< string UIWidget="None"; >;
+float4x4	Proj			: Projection							< string UIWidget="None"; >;
+float4x4	ProjI			: ProjectionInverse						< string UIWidget="None"; >;
+float4x4	ProjIT			: ProjectionInverseTranspose			< string UIWidget="None"; >;
+%|

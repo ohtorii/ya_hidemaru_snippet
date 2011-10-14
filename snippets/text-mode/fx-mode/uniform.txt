@@ -1,0 +1,8 @@
+%|type name <
+	string	UIName		= "";
+	string	UIObject	= "";
+	string	UIWidget	= "Slider" | "Color";
+	float	UIMin		= 0.0;
+	float	UIMax		= 1.0;
+	float	UIStep		= 0.01;
+> = {???, };
