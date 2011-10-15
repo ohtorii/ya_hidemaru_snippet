@@ -1,0 +1,66 @@
+%|float4x4	World			: World 								< string UIWidget="None"; >;
+float4x4	WorldI			: WorldInverse							< string UIWidget="None"; >;
+float4x4	WorldIT 		: WorldInverseTranspose 				< string UIWidget="None"; >;
+float4x4	WorldView		: WorldView 							< string UIWidget="None"; >;
+float4x4	WorldViewI		: WorldViewInverse						< string UIWidget="None"; >;
+float4x4	WorldViewIT 	: WorldViewInverseTranspose 			< string UIWidget="None"; >;
+float4x4	WorldViewProj	: WorldViewProjection					< string UIWidget="None"; >;
+float4x4	WorldViewProjI	: WorldViewProjectionInverse			< string UIWidget="None"; >;
+float4x4	WorldViewProjIT : WorldViewProjectionInverseTranspose	< string UIWidget="None"; >;
+float4x4	View			: View									< string UIWidget="None"; >;
+float4x4	ViewI			: ViewInverse							< string UIWidget="None"; >;
+float4x4	ViewIT			: ViewInverseTranspose					< string UIWidget="None"; >;
+float4x4	ViewProj		: ViewProjection						< string UIWidget="None"; >;
+float4x4	ViewProjI		: ViewProjectionInverse 				< string UIWidget="None"; >;
+float4x4	ViewProjIT		: ViewProjectionInverseTranspose		< string UIWidget="None"; >;
+float4x4	Proj			: Projection							< string UIWidget="None"; >;
+float4x4	ProjI			: ProjectionInverse 					< string UIWidget="None"; >;
+float4x4	ProjIT			: ProjectionInverseTranspose			< string UIWidget="None"; >;
+%|
+
+
+struct VertexInput{
+	float4	Psition : POSITION;
+	float4	Color0	: COLOR0;
+	float4	Color1	: COLOR1;
+	float2	Txcoord0: TEXCOORD0;
+	float2	Txcoord1: TEXCOORD1;
+	float4	Tangent : TANGENT;
+	float4	Binormal: BINORMAL;
+};
+
+
+struct VertexOutput {
+	float4 Position : POSITION;
+	float2 Texcoord : TEXCOORD0;
+};
+
+VertexOutput vs_main(VertexInput IN){
+	VertexOutput OUT;
+	return OUT;
+}
+
+float4 ps_main(VertexInput IN){
+	float4 OUT;
+	return OUT;
+}
+
+technique main{
+	pass p0{
+		VertexProgram	= compile vp40 vs_main();
+		FragmentProgram = compile fp40 ps_main();
+
+		AlphaTestEnable = true;
+		DepthTestEnable = true;
+		ZWriteEnable	= true;
+		ZEnable 		= true;
+		DepthFunc		= LEqual;
+
+		BlendEnable 	= true;
+		BlendFunc		= int2(SrcAlpha, OneMinusSrcAlpha);
+		BlendEquation	= FuncAdd;
+
+		CullFaceEnable	= true;
+		CullFace		= back;
+   }
+}
