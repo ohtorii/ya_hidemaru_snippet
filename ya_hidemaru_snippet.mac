@@ -12,7 +12,7 @@
 //		ユーザーカスタマイズ
 ////////////////////////////////////////////////////////////////////////////
 //新規ファイル(拡張子なし)で使う拡張子
-$g_new_file_ext			= ".c";
+$g_new_file_ext			= ".cpp";
 
 
 
@@ -25,7 +25,7 @@ $g_snippets_dir_name 	= "snippets";
 //long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
 call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
 $g_snippets_abs_dir		= $$return + "\\";
-$g_ini_abs_path 		= $g_snippets_abs_dir + "config.ini";
+$g_ini_abs_filename 	= $g_snippets_abs_dir + "config.ini";
 $g_ini_section_name		= "config";
 
 ////////////////////////////////////////////
@@ -98,6 +98,7 @@ setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
 call LoadDengaku;
 if(result){
 	call Main;
+	call ClearGlovalValue;
 	setsearch $_g_old_searchbuffer, #_g_searchoption;
 	freedll;
 }
@@ -105,6 +106,12 @@ endmacro;
 
 
 Main:
+	call SetGlovalValue;
+	if(! ##return){
+		message("setstaticvariableで失敗");
+		return false;
+	}
+
 	//disabledraw;
 	//disableinvert;
 	/*if(rectselecting){
@@ -119,8 +126,7 @@ Main:
 	call GetCurrentFileExt;
 	$$ext=$$return;
 
-
-	call ParseIni $$ext;
+	call ParseIni_Ext $$ext;
 	$$abs_snippets_dir=$$return;
 	if(""==$$abs_snippets_dir){
 		return false;
@@ -536,9 +542,9 @@ AdjustCursorPos:
 	return true;
 
 
-ParseIni:
+ParseIni_Ext:
 	$$ext 		= $$1;
-	$$dir_name 	= getinistr($g_ini_abs_path, $g_ini_section_name,$$ext);
+	$$dir_name 	= getinistr($g_ini_abs_filename, $g_ini_section_name,$$ext);
 	$$abs_dir 	= $g_snippets_abs_dir + $$dir_name ;
 	call IsFolderExists $$abs_dir;
 	if(! ##return){
@@ -590,6 +596,14 @@ GetShortPath:
     releaseobject ##obj;
     return $$ret;
 
+
+SetGlovalValue:
+	setstaticvariable "ini_abs_filename",$g_ini_abs_filename,1;
+	return result;
+
+ClearGlovalValue:
+	setstaticvariable "ini_abs_filename","",1;
+	return ;
 
 LoadDengaku:
 	loaddll $g_dll_dengaku_abs_path;

@@ -33,6 +33,7 @@ $g_python_version 	= "3";
 ////////////////////////////////////////////////////////////////////////////
 //		内部処理
 ////////////////////////////////////////////////////////////////////////////
+//iniの絶対ファイル名（ya_hidemaru_snippet.mac 中で設定される）
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 
 //テンポラリファイル名（ベース名）
@@ -53,6 +54,12 @@ endmacro str(##return);
 
 
 Main:
+	$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
+	call ParseIni $$ini_abs_filename;
+	if(! ##return){
+		return false;
+	}
+	
 	$$abs_snippet_filename = getarg(0);
 
 	call MakePythonArrayString;
@@ -90,7 +97,10 @@ Main:
 		, 0 			//unicode 0:ansi 2:unicode
 		;
 	if(! result){
-		message("runexで失敗しました。[Python]");
+		message("runexで失敗しました。[Python]\n"	+
+				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
+				"多分、exeのパスが間違っているのかも・・・"
+		);
 		return false;
 	}
 	return true;
@@ -116,7 +126,10 @@ MakePythonExecFileString:
 		//Python2
 		$$result = $$result + "execfile(\"" + $$file_name + "\",{\"argv\":argv});";
 	}else{
-		message("対応していないPythonのバージョンです。");
+		message("対応していないPythonのバージョンです。\n"	+
+				"INIファイル中の記述を間違えている可能性があります。\n"	+
+				"[python] → ver"
+		);
 		$$result="";
 	}
 	return $$result;
@@ -191,3 +204,28 @@ RemoveTmpFile:
 		$g_tmp_in_filename="";
 	}
 	return ;
+
+ParseIni:
+	$$ini_abs_filename = $$1;
+	if(! strlen($$ini_abs_filename)){
+		message("内部エラー：getstaticvariable(\"ini_abs_filename\",1)が空文字を返した。\n"	+
+				"作者へお問い合わせ下さい。"
+		);
+		return false;
+	}
+	if(! existfile($$ini_abs_filename)){
+		message("INIファイルが見つかりません\n"	+
+				"file=" + $$ini_abs_filename
+		);
+		return false;
+	}
+	
+	$$section = "python";
+	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
+	$$ver = getinistr($$ini_abs_filename,$$section,"version");
+	
+	
+	$g_python_exe		= $$exe;
+	$g_python_version	= $$ver;
+	return true;
+	
