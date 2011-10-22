@@ -1,0 +1,78 @@
+﻿============================================================================
+スニペット展開を行うコマンドの仕様
+============================================================================
+
+
+【ディレクトリ位置】
+	snippetsディレクトリ以下
+
+【ファイルの命名規約】
+	＊引数無し
+		command.ext
+		説明：command();
+
+	＊引数固定数
+		command.%.%.ext
+		説明：command(arg1,arg2);
+
+	＊任意個数
+		command._.ext
+		説明：C言語の ... に相当します。
+			  command(...);
+
+	＊引数固定と任意個数の組み合わせ
+		command.%.%._.ext
+		説明：command.arg1.arg2.ext
+			  command(arg1,arg2,...);
+	
+	＊備考
+		_ はC言語の ... を縮めたものと考えて下さい。
+		（...と似た文字を探したらこれしか無くて。）
+
+
+【言語毎の引数】
+	＊Python
+		argv[0]="class"
+		argv[1]=引数1
+		argv[2]=引数2
+		       :
+		       :
+		argv[N]=argN
+
+	＊JavaScript
+		var arg0 = WScript.Arguments(0);	コマンド名
+		var arg1 = WScript.Arguments(1);	引数1
+		var arg2 = WScript.Arguments(2);	引数2
+
+	＊VBScript
+		args.item(0)		コマンド名
+		args.item(1)		引数1
+		args.item(2)		引数2
+
+	＊秀丸マクロ（.MAC）
+		getarg(1)	##old_hidemaru_handle
+		getarg(2)	reserve
+		getarg(3)		:
+		getarg(4)		:
+		getarg(5)		:
+		getarg(6)		:
+		getarg(7)		:
+		getarg(8)		:
+		getarg(9)		:
+		getarg(10)		:
+		getarg(11)		:
+		getarg(12)		:
+		getarg(13)		:
+		getarg(14)	引数の個数(string)
+		getarg(15)	引数1
+		getarg(16)	引数2
+				:
+				:
+		getarg(30)	引数15
+
+	＊BAT
+		%1 = コマンド名
+		%2 = 引数1
+		%2 = 引数2
+			:
+			:
