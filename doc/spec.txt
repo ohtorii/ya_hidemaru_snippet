@@ -24,7 +24,7 @@
 		command.%.%._.ext
 		説明：command.arg1.arg2.ext
 			  command(arg1,arg2,...);
-	
+
 	＊備考
 		_ はC言語の ... を縮めたものと考えて下さい。
 		（...と似た文字を探したらこれしか無くて。）
@@ -63,9 +63,10 @@
 		getarg(11)		:
 		getarg(12)		:
 		getarg(13)		:
-		getarg(14)	引数の個数(string)
-		getarg(15)	引数1
-		getarg(16)	引数2
+		getarg(14)	引数の個数
+		getarg(15)	引数1		（コマンド名）
+		getarg(16)	引数2		（コマンド引数1）
+		getarg(17)	引数3		（コマンド引数2）
 				:
 				:
 		getarg(30)	引数15

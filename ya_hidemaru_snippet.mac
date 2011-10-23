@@ -131,7 +131,6 @@ Main:
 	if(""==$$abs_snippets_dir){
 		return false;
 	}
-
 	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
 	$$abs_snippet_filename = $$return;
 	if("" == $$abs_snippet_filename){
@@ -295,7 +294,10 @@ ExpandSnippetFile:
 
 	##result = val(getresultex(-1));
 	if(! ##result){
-		message("execmacro関数が失敗しました。\nfile=" + $$abs_expand_file);
+		message("スニペットの展開に失敗したようです。\n"					+
+				"【ファイル】\n"											+
+				$$abs_expand_file 
+		);
 		return false;
 	}
 	return ##result;
@@ -308,7 +310,7 @@ FindSnippetFile:
 	$$abs_snippets_dir=$$1;
 	$$cmd=$$2;
 	##num=##3;
-
+	
 	##count=32;//無限ループ防止（念のため）
 	while((0 < ##count) && (""!=$$abs_snippets_dir)){
 		call FindSnippetFileInternal $$abs_snippets_dir+"\\", $$cmd, ##num;
