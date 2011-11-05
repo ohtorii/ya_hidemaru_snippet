@@ -65,6 +65,7 @@ $g_cursor_marker	= "%|";
 
 $g_args[0]	= "";
 #g_args_num	= 0;
+$g_args_line="";
 
 /*スニペットファイルへの絶対パス
 	(ex)
@@ -136,11 +137,11 @@ Main:
 	if("" == $$abs_snippet_filename){
 		return false;
 	}
-	call InsertSnippet $$abs_snippet_filename;
+	call RunSnippetFile $$abs_snippet_filename;
 	return ##return;
 
 
-InsertSnippet:
+RunSnippetFile:
 	$$abs_snippet_filename=$$1;
 
 	call GetHeadSpace;
@@ -262,7 +263,7 @@ ExpandSnippetFile:
 	execmacro 	$$abs_expand_file,
 				$$abs_snippet_filename,		//[0]
 				str(##old_hidemaru_handle),	//[1]
-				$$reserve,
+				$g_args_line,
 				$$reserve,
 				$$reserve,
 				$$reserve,
@@ -479,14 +480,18 @@ GetCurrentFileExt:
 パース結果は下記グローバル変数へ格納される。
 	$g_args[];
 	#g_args_num;
+	$g_args_line;
+
+2011/11/05 追加：コマンドを除いた一行を$g_args_lineへ格納するようにした。
 */
 ParseLine:
 	##old_column=column;
 	##old_lineno=lineno;
 	//一行の文字列を取得
 	$$linetext = gettext2(0,##old_lineno,linelen2,##old_lineno);
-	$$linetext = dllfuncstr("RTRIM",$$linetext);
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
+	$$linetext_lt = $$linetext;
+	$$linetext = dllfuncstr("RTRIM",$$linetext);
 
 	#g_args_num=0;
 	$$tok = " ";
@@ -510,8 +515,9 @@ ParseLine:
 			#g_args_num = #g_args_num+1;
 		}
 	}
-//	movetolineno ##old_column+1, ##old_lineno;
 	if(#g_args_num){
+		$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
+		$g_args_line = dllfuncstr("LTRIM",$g_args_line);
 		return true;
 	}
 	return false;

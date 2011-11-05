@@ -48,8 +48,8 @@
 		argv[0]="class"
 		argv[1]=引数1
 		argv[2]=引数2
-		       :
-		       :
+			   :
+			   :
 		argv[N]=argN
 
 		（argvはグローバル変数です。）
@@ -66,8 +66,8 @@
 
 	＊秀丸マクロ（.MAC）
 		getarg(1)	##old_hidemaru_handle
-		getarg(2)	reserve
-		getarg(3)		:
+		getarg(2)	コマンドを除いた一行の文字列
+		getarg(3)	reserved
 		getarg(4)		:
 		getarg(5)		:
 		getarg(6)		:
@@ -92,3 +92,25 @@
 		%2 = 引数2
 			:
 			:
+【引数の制限】
+	＊引数は１６個まで。
+		詳細は以下を参照。
+		ya_hidemaru_snippet.mac
+		ExpandSnippetFile関数
+
+	＊引数に「空白・改行・タブ」を含めることは出来ません。
+		ダブルクォーテーションで囲む案を考えてはいますが、平常時の使い勝手が悪くなる場合があるため保留しています。
+		Command "Arg   1" "Arg\t\n　2"
+
+【コメント】
+	＊スニペットファイル中のコメントは各言語に依存します。
+	  ただし、(.txt)は独自にコメント処理しています。
+
+	＊(.txt)のコメント
+		ファイルに #-- という行が含まれていた場合、それより上の行はコメントとして扱われます。
+		（例）	#contributor : foo<foo@example.com>
+				#name : foo
+				# --
+				スニペット本体はこの行から始まる。
+				#--	この行はスニペットとして扱われる。
+

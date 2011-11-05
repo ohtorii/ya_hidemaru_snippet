@@ -19,6 +19,8 @@
 ////////////////////////////////////////////////////////////////////////////
 $g_args[0]	= "";
 #g_args_num	= 0;
+$g_args_line="";
+
 
 call Main;
 endmacro str(##return);
@@ -29,6 +31,7 @@ Main:
 
 	insertfile($$abs_snippet_filename);
 	call DoReplaceArg;
+	call DoReplaceWild;
 	return true;
 
 SetupArgs:
@@ -38,6 +41,7 @@ SetupArgs:
 		$g_args[##i] = getarg(#g_args_index_start + ##i);
 		##i=##i+1;
 	}
+	$g_args_line = getarg(2);
 	return ;
 
 //%0 %1 %2 ...‚Ì’uŠ·
@@ -46,7 +50,13 @@ DoReplaceArg:
 	while(##i < #g_args_num){
 		gofiletop;
 		$$s = "%" + str(##i);
-		replaceallfast $$s, $g_args[##i],word,nocasesense,nohilight;
+		replaceallfast $$s,$g_args[##i],nocasesense,nohilight;
 		##i=##i+1;
 	}
+	return ;
+
+//%* ‚Ì’uŠ·
+DoReplaceWild:
+	gofiletop;
+	replaceallfast "%*",$g_args_line,nocasesense,nohilight;
 	return ;
