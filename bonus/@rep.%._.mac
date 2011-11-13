@@ -1,0 +1,65 @@
+/*
+文字列の繰り返し
+
+（使用例１）
+   ＊入力		@rep 4 @
+   ＊出力		@@@@
+       
+（使用例２）
+	＊入力		@rep 4 < >
+   ＊出力		< >< >< >< >
+   
+
+（引数）
+argv[0]="@rep"
+argv[1]=リピート回数
+argv[2]=文字列
+*/
+call Main;
+endmacro;
+
+
+Main:
+	$$line_str = getarg(2);
+	call ParseString $$line_str;
+	$$str = $$return;
+	##num = val(getarg(16));
+
+	begingroupundo;
+	while(0 < ##num){
+		insert $$str;
+		##num=##num-1;
+	}
+	endgroupundo;
+	return ;
+
+
+/*文字列の抜き出し
+
+例
+入力：10  == -- 
+出力：== -- 
+
+説明
+num=数値
+string=空白タブを含む文字列
+*/
+ParseString:
+	$$str = $$1;
+	##len = strlen($$str);
+	##i=0;
+
+	//数値を読み飛ばす
+	##c = ascii(midstr($$str,##i,1));
+	while((##i < ##len) && ((0x30<=##c) && (##c<=0x39))){
+		##i=##i+1;
+		##c = ascii(midstr($$str,##i,1));
+	}
+
+	//空白文字の読み飛ばし
+	##c = ascii(midstr($$str,##i,1));
+	while((##i < ##len) && (##c<=0x20)){
+		##i=##i+1;
+		##c = ascii(midstr($$str,##i,1));
+	}
+	return rightstr($$str,##len-##i);

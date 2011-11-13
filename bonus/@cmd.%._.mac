@@ -1,0 +1,59 @@
+/*	コマンドプロンプト
+
+（使用例１）
+	@cmd dir *.txt /s
+
+（使用例２）
+	@cmd ipconfig /all
+
+
+（メモ）
+ディレクトリ移動は出来ない
+*/
+
+call Main;
+endmacro;
+	
+Main:
+	$$line_str = getarg(2);
+	call ParseString $$line_str;
+	$$arg = $$return;
+	$$cmd = getarg(16);
+	$$run_str = "cmd /c" + $$cmd + " " + $$arg;
+	runex $$run_str,
+			1, 			//sync	  0:async 1:sync
+			0, "", 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+			5, "", 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+			5, "", 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+			1, "", 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+			2, 			//show	  0:auto 1:show 2:hide
+			0, 			//nodraw  0:draw 1:no draw
+			0 			//unicode 0:ansi 2:unicode
+			;
+	return;
+
+
+/*文字列の抜き出し
+
+例
+入力：dir *.txt /s
+出力：*.txt /s
+
+説明
+num=数値
+string=空白タブを含む文字列
+*/
+ParseString:
+	$$str = $$1;
+	##len = strlen($$str);
+	##i=0;
+
+	//空白が見つかるまで読み飛ばす。（コマンド部を読み飛ばす）
+	##c = ascii(midstr($$str,##i,1));
+	while((##i < ##len) && (0x20 < ##c)){
+		##i=##i+1;
+		##c = ascii(midstr($$str,##i,1));
+	}
+	//コマンド引数を返す
+	return rightstr($$str,##len-##i);
+
