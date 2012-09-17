@@ -9,14 +9,6 @@
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		ユーザーカスタマイズ
-////////////////////////////////////////////////////////////////////////////
-//新規ファイル(拡張子なし)で使う拡張子
-$g_new_file_ext			= ".cpp";
-
-
-
-////////////////////////////////////////////////////////////////////////////
 //		内部処理
 ////////////////////////////////////////////////////////////////////////////
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
@@ -27,6 +19,9 @@ call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
 $g_snippets_abs_dir		= $$return + "\\";
 $g_ini_abs_filename 	= $g_snippets_abs_dir + "config.ini";
 $g_ini_section_name		= "config";
+
+$g_ini_section_new_file	= "new_file";
+$g_ini_key_ext			= "ext";
 
 ////////////////////////////////////////////
 //		拡張子毎の処理マクロ登録
@@ -473,7 +468,11 @@ GetCurrentFileExt:
 	if(0==strstr($$ext,".")){
 		return $$ext;
 	}
-	return $g_new_file_ext;
+	$$ext = getinistr($g_ini_abs_filename,$g_ini_section_new_file,$g_ini_key_ext);
+	if(0<strlen($$ext)){
+		return $$ext
+	}
+	return "text-mode";
 
 
 /*１行を空白文字列(space/tab/全角空白)で分割して取り出す。
