@@ -1,7 +1,9 @@
 /* Yet another snippet for hidemaru editor.
 
+（導入方法）
+	キーアサインして下さい。
 
-メモ：
+（メモ）
 	・スニペットのコマンド数は１６個まで。($0-$15)
 	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
 */

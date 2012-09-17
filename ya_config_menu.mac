@@ -1,41 +1,164 @@
 /*Yet another snippet for hidemaru editor.
 
-設定用のメニュー
-キーアサインして使用して下さい。
+設定用のメニュー。
+スニペットの動作を細かく制御したいときに使用します。
+通常は使用しません。
+
+（導入方法）
+	キーアサインしてください。
 */
+
+$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
+$g_snippets_dir_name 	= "snippets";
+
 $g_static_variable_name = "ya_hidemaru_snippet_path";
 #g_static_variable_share_mode = 0;
 
-call Main;
+$g_internal_module_dir	= "internal";
+
+//long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
+call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
+$g_snippets_abs_dir		= $$return + "\\";
+$g_ini_abs_filename 	= $g_snippets_abs_dir + "config.ini";
+$g_ini_section_name		= "config";
+
+$g_ini_section_new_file	= "new_file";
+$g_ini_key_ext			= "ext";
+
+
+
+call Initialize;
+if(##return){
+	call Main;
+}
 endmacro;
+
+
+Initialize:
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+	return true;
 
 
 Main:
 	##menu_len	= 0;
 	$$menu		="";
-	
-	//ここ、作り中。
-	$$menu[0]	="現在のモード：";
+
+	call GetSnippetMode;
+	$$menu[0]	="現在のモード：" + $$return;
 	##menu_len	= ##menu_len + 1;
-	
+
 	$$menu[1]	="\x01";
 	##menu_len	= ##menu_len + 1;
-	
+
 	$$menu[2]	="スニペットモードの変更";
 	##menu_len	= ##menu_len + 1;
-	
+
 	$$snippet_path = getstaticvariable($g_static_variable_name,#g_static_variable_share_mode);
 	if(0 < strlen($$snippet_path)){
 		$$menu[3]="スニペットモードをデフォルトに戻す";
 		##menu_len = ##menu_len + 1;
 	}
+
+	$$sub_dir = "\\" + $g_internal_module_dir + "\\";
 	menuarray $$menu, ##menu_len;
 	if(3==result){
-		execmacro currentmacrodirectory+"\\ya_change_snippet_mode.mac";
+		execmacro currentmacrodirectory + $$sub_dir + "ya_change_snippet_mode.mac";
 	}else if(4==result){
-		execmacro currentmacrodirectory+"\\ya_clear_snippet_mode.mac";
+		execmacro currentmacrodirectory + $$sub_dir + "ya_clear_snippet_mode.mac";
 	}
 	return true;
 
 
+GetSnippetMode:
+	call GetSnippetAbsDir;
+	$$abs_dir =  $$return;
 	
+	$$findstr = "\\" + $g_snippets_dir_name + "\\";
+	##index = strrstr($$abs_dir, $$findstr);
+	if(-1 == ##index){
+		return $$abs_dir;
+	}
+	return rightstr($$abs_dir,strlen($$abs_dir) - ##index - strlen($$findstr));
+
+
+GetSnippetAbsDir:
+	call GetExplicitSnippetMode;
+	$$path =  $$return;
+	if(0 < strlen($$path)){
+		return $$path;
+	}
+	call GetCurrentFileExt;
+	$$ext=$$return;
+
+	call ParseIni_Ext $$ext;
+	$$abs_snippets_dir=$$return;
+	return $$abs_snippets_dir;
+
+
+
+/* ya_change_snippet_mode.mac マクロでスニペットが明示されているかどうか。
+*/
+GetExplicitSnippetMode:
+	 $$snippet_dir_name = getstaticvariable($g_static_variable_name,#g_static_variable_share_mode);
+	 call IsFolderExists $$snippet_dir_name;
+	 if(##return){
+		 return $$snippet_dir_name;
+	 }
+	 return "";
+
+
+GetCurrentFileExt:
+	$$ext=filetype;
+	if(0==strstr($$ext,".")){
+		return $$ext;
+	}
+	$$ext = getinistr($g_ini_abs_filename,$g_ini_section_new_file,$g_ini_key_ext);
+	if(0<strlen($$ext)){
+		return $$ext;
+	}
+	return "text-mode";
+
+
+ParseIni_Ext:
+	$$ext 		= $$1;
+	$$dir_name 	= getinistr($g_ini_abs_filename, $g_ini_section_name,$$ext);
+	$$abs_dir 	= $g_snippets_abs_dir + $$dir_name ;
+	call IsFolderExists $$abs_dir;
+	if(! ##return){
+		message("iniファイルに記述されているディレクトリが存在しません。\n"	+
+				"iniファイルの内容を確認して下さい。\n"						+
+				"\nディレクトリ="+$$dir_name);
+		return "";
+	}
+	return $$abs_dir;
+
+
+GetShortPath:
+	$$path=$$1;
+	##obj=createobject("Scripting.FileSystemObject");
+	##f  = callmethod_returnobj( ##obj, "GetFolder", $$path);
+    $$ret = getpropstr(##f,"ShortPath");
+    releaseobject ##f;
+    releaseobject ##obj;
+    return $$ret;
+
+
+/*フォルダの存在検査*/
+IsFolderExists:
+	$$dir = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	##result = callmethod_returnnum( ##obj, "FolderExists", $$dir);
+	releaseobject ##obj;
+	return ##result;
+
+
+LoadDengaku:
+	loaddll $g_dll_dengaku_abs_path;
+	if (!result) {
+		message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
+		return false;
+	}
+	return true;

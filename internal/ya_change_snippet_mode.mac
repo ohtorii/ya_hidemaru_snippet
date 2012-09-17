@@ -12,7 +12,7 @@ $g_static_variable_name	= "ya_hidemaru_snippet_path";
 
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 $g_snippets_dir_name 	= "snippets";
-$g_snippets_abs_dir		= currentmacrodirectory + "\\" + $g_snippets_dir_name;
+$g_snippets_abs_dir		= currentmacrodirectory + "\\..\\" + $g_snippets_dir_name;
 $g_menu_text			= "";
 #g_menu_text_len		= 0;
 
