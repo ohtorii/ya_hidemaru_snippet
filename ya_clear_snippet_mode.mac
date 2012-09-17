@@ -1,0 +1,12 @@
+/*Yet another snippet for hidemaru editor.
+
+ya_change_snippet_mode.mac で指定したスニペットのモードをクリアする。
+
+【メモ】
+本マクロを実行すると、ファイル拡張子に応じたスニペットモードに戻ります。
+*/
+
+$g_static_variable_name	= "ya_hidemaru_snippet_path";
+#g_static_variable_share_mode = 0;
+
+setstaticvariable $g_static_variable_name,"",#g_static_variable_share_mode;

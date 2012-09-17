@@ -23,6 +23,11 @@ $g_ini_section_name		= "config";
 $g_ini_section_new_file	= "new_file";
 $g_ini_key_ext			= "ext";
 
+//静的変数の名前
+$g_static_variable_name	= "ya_hidemaru_snippet_path";
+#g_static_variable_share_mode = 0;
+
+
 ////////////////////////////////////////////
 //		拡張子毎の処理マクロ登録
 ////////////////////////////////////////////
@@ -118,15 +123,10 @@ Main:
 	if(! ##return){
 		return false;
 	}
-
-	call GetCurrentFileExt;
-	$$ext=$$return;
-
-	call ParseIni_Ext $$ext;
-	$$abs_snippets_dir=$$return;
-	if(""==$$abs_snippets_dir){
-		return false;
-	}
+	
+	call GetSnippetDir;
+	$$abs_snippets_dir = $$return;
+	
 	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
 	$$abs_snippet_filename = $$return;
 	if("" == $$abs_snippet_filename){
@@ -470,10 +470,9 @@ GetCurrentFileExt:
 	}
 	$$ext = getinistr($g_ini_abs_filename,$g_ini_section_new_file,$g_ini_key_ext);
 	if(0<strlen($$ext)){
-		return $$ext
+		return $$ext;
 	}
 	return "text-mode";
-
 
 /*１行を空白文字列(space/tab/全角空白)で分割して取り出す。
 パース結果は下記グローバル変数へ格納される。
@@ -551,7 +550,29 @@ AdjustCursorPos:
 	}
 	return true;
 
+/* ya_change_snippet_mode.mac マクロでスニペットが明示されているかどうか。
+*/
+GetExplicitSnippetMode:
+	 $$snippet_dir_name = getstaticvariable($g_static_variable_name,#g_static_variable_share_mode);
+	 call IsFolderExists $$snippet_dir_name;
+	 if(##return){
+		 return $$snippet_dir_name;
+	 }
+	 return "";
 
+GetSnippetDir:
+	call GetExplicitSnippetMode;
+	$$path =  $$return;
+	if(0 < strlen($$path)){
+		return $$path;
+	}
+	call GetCurrentFileExt;
+	$$ext=$$return;
+	
+	call ParseIni_Ext $$ext;
+	$$abs_snippets_dir=$$return;
+	return $$abs_snippets_dir;
+	
 ParseIni_Ext:
 	$$ext 		= $$1;
 	$$dir_name 	= getinistr($g_ini_abs_filename, $g_ini_section_name,$$ext);

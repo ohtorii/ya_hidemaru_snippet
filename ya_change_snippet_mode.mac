@@ -1,0 +1,95 @@
+/*Yet another snippet for hidemaru editor.
+
+スニペットのモード（text-mode/c-mode/cs-mode...）を一時的に変更する。
+
+【主な用途】
+・新規ファイル（拡張子無し）のデフォルトのスニペットを変更する。
+・一時的に他のモードへ変更したいときに使用します。
+*/
+
+$g_static_variable_name	= "ya_hidemaru_snippet_path";
+#g_static_variable_share_mode = 0;
+
+$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
+$g_snippets_dir_name 	= "snippets";
+$g_snippets_abs_dir		= currentmacrodirectory + "\\" + $g_snippets_dir_name;
+$g_menu_text			= "";
+#g_menu_text_len		= 0;
+
+//スニペットの絶対パス
+$g_abs_snippets_dir		="";
+#g_abs_snippets_dir_len	= 0;
+
+
+call Main;
+endmacro;
+
+
+Main:
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+
+	call MakeMenuText $g_snippets_abs_dir,"";
+	if(! ##return){
+		return false;
+	}
+	
+	menuarray $g_menu_text,#g_menu_text_len;
+	if(0==result){
+		return false;
+	}
+	
+	$$path_name = $g_abs_snippets_dir[result-1];
+	setstaticvariable $g_static_variable_name,$$path_name,#g_static_variable_share_mode;
+	
+	return true;
+
+
+MakeMenuText:
+	$$root_dir 		= $$1;
+	$$space 		= $$2;
+	$$sub_dir		="";
+	##sub_dir_len 	= 0;
+
+	##r = dllfunc("ENUMDIR",$$root_dir+"\\*.*");
+	while (1) {
+	    $$dir = dllfuncstr("FINDNEXT");
+	    if ($$dir == "") break;
+	    else if ($$dir == "." || $$dir == "..") continue;
+
+		
+		$$sub_dir[##sub_dir_len] = $$dir;
+		##sub_dir_len = ##sub_dir_len + 1;
+	}
+	
+	/*$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$root_dir;
+	#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;*/
+		
+	##index = 0;
+	while (##index < ##sub_dir_len){
+		$$current_sub_dir	= $$sub_dir[##index];
+		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
+		
+		$g_menu_text[#g_menu_text_len]	= $$space + $$current_sub_dir;
+		#g_menu_text_len 				= #g_menu_text_len + 1;
+		
+		$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$abs_path;
+		#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;
+
+		call MakeMenuText $$abs_path, $$space+"　　　　";
+		##index = ##index + 1;
+	}
+
+	return true;
+
+
+LoadDengaku:
+	loaddll $g_dll_dengaku_abs_path;
+	if (!result) {
+		message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
+		return false;
+	}
+	return true;
+
