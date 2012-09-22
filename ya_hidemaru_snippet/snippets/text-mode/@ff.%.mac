@@ -1,0 +1,7 @@
+/*「秀丸エディタからlocate32を使うためのマクロ」を呼び出す。
+
+ff=File Find
+*/
+$a=getarg(16);
+execmacro macrodir+"\\scripts\\hm_locate32.mac", $a;
+endmacro str(true);
