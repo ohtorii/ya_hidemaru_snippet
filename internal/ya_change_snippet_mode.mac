@@ -50,10 +50,13 @@ Main:
 MakeMenuText:
 	$$root_dir 		= $$1;
 	$$space 		= $$2;
-	$$sub_dir		="";
+	$$sub_dir		= "";
 	##sub_dir_len 	= 0;
-
-	##r = dllfunc("ENUMDIR",$$root_dir+"\\*.*");
+	
+	call SurroundDoubleQuotation $$root_dir + "\\*.*";
+	$$enume_root_dir = $$return;
+	
+	##r = dllfunc("ENUMDIR",$$enume_root_dir);
 	while (1) {
 	    $$dir = dllfuncstr("FINDNEXT");
 	    if ($$dir == "") break;
@@ -84,7 +87,9 @@ MakeMenuText:
 
 	return true;
 
-
+SurroundDoubleQuotation:
+	return "\"" + $$1 + "\"";
+	
 LoadDengaku:
 	loaddll $g_dll_dengaku_abs_path;
 	if (!result) {
