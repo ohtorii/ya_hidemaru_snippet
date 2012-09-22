@@ -14,7 +14,9 @@
 //		“à•”ˆ—
 ////////////////////////////////////////////////////////////////////////////
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
-$g_snippets_dir_name 	= "snippets";
+
+$g_ya_hidemaru_snippet_dir	= "ya_hidemaru_snippet";
+$g_snippets_dir_name 		= $g_ya_hidemaru_snippet_dir+"\\snippets";
 
 //long-file-name‚Ì‚Ü‚Ü‚¾‚ÆAdengaku‚ÌENUMFILEŠÖ”‚Å¸”s‚·‚é‚æ‚¤‚È‚Ì‚Åshort-path-name‚Å‰ñ”ğ‚µ‚Ä‚¢‚éB
 call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
