@@ -1,13 +1,15 @@
 /*指定されたディレクトリ以下のテキストファイルを閲覧するダイアログ。
 
-（マクロ引数と返値）
-arg
+（マクロ引数）
 	[0] ルートディレクトリ	"c:/foo/bar"
 	[1] 拡張子				"*.txt;*.log"
 
-return
+（マクロ返値）
 	選択されたファイル名
 	キャンセル／失敗すると空白の文字列を返します。
+
+（使用例）
+	execmacro "ya_text_viewer.mac", "c:/foo/bar", "*.txt";
 
 （注意）
 このマクロ単体では動作しません。
@@ -42,22 +44,28 @@ $g_text_ctrl_name 		= "mledt1";
 
 
 call Main;
-call UnloadDengaku;
-endmacro str(#return);
-
+endmacro $$return;
 
 Main:
+	call Run;
+	$$select_filename = $$return;
+	call UnloadDengaku;
+	return $$select_filename;
+
+
+Run:
 	call Initialize;
 	if(! ##return){
-		return false;
+		return"" ;
 	}
 	call CreateDialog;
 	if(! ##return){
-		return false;
+		return "";
 	}
 	call MessageLoop;
+	$$select_filename = $$return;
 	call Finalize;
-	return true;
+	return $$select_filename;
 
 
 CreateDialog:
@@ -106,14 +114,14 @@ CreateDialog:
 MessageLoop:
 	##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
 	$$prev_select_item 	= "?";
-	
+
 	//リストで上下キーを押しっぱなしにしたときに、
 	//適度な間隔でファイル内容を更新する。
 	##interval			= 200;
 	##prev_tick 		= 0;
-	
+
 	$$select_file		= "";
-	
+
 	while(1){
 		$$name = "";
 		while (strlen($$name) == 0) {
@@ -134,12 +142,13 @@ MessageLoop:
 			$$name = dllfuncstr("WAITCTRLNOTIFY",0);
 		}
 
-		call CheckOkChancelPressed  $$name;
-		if(##return ){
-			return "";
+		if($$name == "0"){
+			$$select_file="";
+			break;
+		}else if($$name == "1"){
+			break;
 		}
 	}
-	
 	return $$select_file;
 
 
@@ -165,6 +174,7 @@ UpdateText:
 	call LoadText $$path;
 	$$text = $$return;
 	##n=dllfunc("SETCTRLSTRING",$g_text_ctrl_name,$$text);
+	//フォーカスが秀丸に移動しているので、リストへフォーカスをあてる。
 	##n=dllfunc("SETFOCUSEDCTRL", $g_list_ctrl_name);
 	return $$path;
 
@@ -185,14 +195,6 @@ LoadText:
 	backspace;
 	setactivehidemaru ##prev_hidemaru;
 	return $$text;
-
-
-CheckOkChancelPressed:
-	$$name = $$1;
-	if ($$name == "1" || $$name == "0") {
-		return true;
-	}
-	return false;
 
 
 MakeFileTree:
