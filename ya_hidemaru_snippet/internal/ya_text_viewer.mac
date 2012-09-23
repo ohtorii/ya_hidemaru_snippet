@@ -1,0 +1,364 @@
+/*指定されたディレクトリ以下のテキストファイルを閲覧するダイアログ。
+
+（マクロ引数と返値）
+arg
+	[0] ルートディレクトリ	"c:/foo/bar"
+	[1] 拡張子				"*.txt;*.log"
+
+return
+	選択されたファイル名
+	キャンセル／失敗すると空白の文字列を返します。
+
+（注意）
+このマクロ単体では動作しません。
+
+*/
+
+
+////////////////////////////////////////////////////////////////////////////
+//		内部処理
+////////////////////////////////////////////////////////////////////////////
+
+//Dengaku-DLL
+$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
+#g_dengaku_loaded		= false;
+
+//マクロ引数
+$g_snippets_abs_dir 	= "";
+$g_snippett_exts 		= "";
+
+//GUIのリストに対応するファイル一覧
+$g_abs_snippets_dir		= "";
+#g_abs_snippets_dir_len	= 0;
+
+//コントロール名
+$g_list_ctrl_name 		= "lst1";
+$g_text_ctrl_name 		= "mledt1";
+
+
+//テンポラリの秀丸エディタ
+#g_temp_hiudemaru		= 0;
+#g_open_temp_hiudemaru	= false;
+
+
+call Main;
+call UnloadDengaku;
+endmacro str(#return);
+
+
+Main:
+	call Initialize;
+	if(! ##return){
+		return false;
+	}
+	call CreateDialog;
+	if(! ##return){
+		return false;
+	}
+	call MessageLoop;
+	call Finalize;
+	return true;
+
+
+CreateDialog:
+	##default_width = 80;
+
+	if(	dllfunc("NEWDIALOG","ツリービューのテスト",##default_width,"") == 0 ||
+		dllfunc("NEWCONTROL","list",$g_list_ctrl_name,"") == 0)
+	{
+		call FailedCreateDialog;
+		return false;
+	}
+
+	call MakeFileTree $g_snippets_abs_dir, "";
+	if(! ##return){
+		return false;
+	}
+
+	call CalcListHeight;
+	##height = ##return;
+	if(	dllfunc("SETCTRLHEIGHT","",##height) == 0	||
+		dllfunc("SETCTRLWIDTH","",30) == 0)
+	{
+	}
+
+	if(	dllfunc("NEWCONTROL","mledit",$g_text_ctrl_name)	==0	||
+		dllfunc("SETCTRLHEIGHT","",##height) 	==0	)
+	{
+		call FailedCreateDialog;
+		return false;
+	}
+
+	if( dllfunc("NEWPAGE",##default_width)==0	||
+		dllfunc("NEWCONTROL","okcancel","","") == 0)
+	{
+		call FailedCreateDialog;
+		return false;
+	}
+
+	if (!dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
+		message("SHOWDIALOG に失敗しました");
+		return false;
+	}
+	return true;
+
+
+MessageLoop:
+	##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
+	$$prev_select_item 	= "?";
+	
+	//リストで上下キーを押しっぱなしにしたときに、
+	//適度な間隔でファイル内容を更新する。
+	##interval			= 200;
+	##prev_tick 		= 0;
+	
+	$$select_file		= "";
+	
+	while(1){
+		$$name = "";
+		while (strlen($$name) == 0) {
+			##current_tick = tickcount;
+			if(##interval < (##current_tick - ##prev_tick)){
+				$$select_item = dllfuncstr("GETCTRLSTATE",$g_list_ctrl_name);
+				if($$select_item != $$prev_select_item){
+					if($$select_item=="0"){
+						call ClearText;
+					}else{
+						call UpdateText val($$select_item)-1;
+						$$select_file = $$return;
+					}
+					$$prev_select_item=$$select_item;
+				}
+				##prev_tick = ##current_tick;
+			}
+			$$name = dllfuncstr("WAITCTRLNOTIFY",0);
+		}
+
+		call CheckOkChancelPressed  $$name;
+		if(##return ){
+			return "";
+		}
+	}
+	
+	return $$select_file;
+
+
+ClearText:
+	##n=dllfunc("SETCTRLSTRING",$g_text_ctrl_name,"");
+	return;
+
+
+UpdateText:
+	##index = ##1;
+	if(##index < 0){
+		return "";
+	}
+	if(#g_abs_snippets_dir_len <= ##index){
+		return"" ;
+	}
+
+	$$path = $g_abs_snippets_dir[##index];
+	if(existfile($$path,1) & 0x00000010){
+		call ClearText;
+		return"" ;
+	}
+	call LoadText $$path;
+	$$text = $$return;
+	##n=dllfunc("SETCTRLSTRING",$g_text_ctrl_name,$$text);
+	##n=dllfunc("SETFOCUSEDCTRL", $g_list_ctrl_name);
+	return $$path;
+
+
+LoadText:
+	$$filename = $$1;
+	##prev_hidemaru = hidemaruhandle(0);
+	if(! #g_open_temp_hiudemaru){
+		openfile "/h ", noaddhist;
+		#g_temp_hiudemaru = hidemaruhandle(0);
+		#g_open_temp_hiudemaru=true;
+	}else{
+		setactivehidemaru #g_temp_hiudemaru;
+	}
+	insertfile $$filename;
+	selectall;
+	$$text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
+	backspace;
+	setactivehidemaru ##prev_hidemaru;
+	return $$text;
+
+
+CheckOkChancelPressed:
+	$$name = $$1;
+	if ($$name == "1" || $$name == "0") {
+		return true;
+	}
+	return false;
+
+
+MakeFileTree:
+	$$root_dir 		= $$1;
+	$$space			= $$2;
+	$$sub_dir		= "";
+	##sub_dir_len 	= 0;
+
+	call MakeFileItems $$root_dir, $$space;
+	if(! ##return){
+		return false;
+	}
+
+	call SurroundDoubleQuotation $$root_dir + "\\*.*";
+	$$file_pattern = $$return;
+
+	##r = dllfunc("ENUMDIR",$$file_pattern);
+	while (1) {
+	    $$dir = dllfuncstr("FINDNEXT");
+	    if ($$dir == "") break;
+	    else if ($$dir == "." || $$dir == "..") continue;
+
+		$$sub_dir[##sub_dir_len] = $$dir;
+		##sub_dir_len = ##sub_dir_len + 1;
+	}
+
+	##index = 0;
+	while (##index < ##sub_dir_len){
+		$$current_sub_dir	= $$sub_dir[##index];
+		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
+
+		call AppendListItem $$space, $$current_sub_dir, $$abs_path;
+		if(! ##return){
+			return false;
+		}
+
+		call MakeFileTree $$abs_path, $$space+"　　　　";
+		if(! ##return){
+			return false;
+		}
+		##index = ##index + 1;
+	}
+	return true;
+
+
+MakeFileItems:
+	$$root_dir	= $$1;
+	$$space		= $$2;
+
+	call SurroundDoubleQuotation $$root_dir + "\\" + $g_snippett_exts;
+	$$file_pattern	= $$return;
+
+	##r = dllfunc("ENUMFILE",$$file_pattern);
+	while (1) {
+		$$file = dllfuncstr("FINDNEXT");
+		if ($$file == "") {
+			break;
+		}
+		$$abs_filename = $$root_dir + "\\" + $$file;
+		call AppendListItem $$space,$$file,$$abs_filename;
+		if(! ##return){
+			return false;
+		}
+	}
+	return true;
+
+
+AppendListItem:
+	$$space 		= $$1;
+	$$sub_dir_name 	= $$2;
+	$$abs_filename	= $$3;
+
+	call AppendSnippetDir $$abs_filename;
+	$$item_name=$$space+$$sub_dir_name;
+	if(dllfunc("SETCTRLITEM","",$$item_name,"") == 0){
+		call FailedCreateDialog;
+		return false;
+	}
+	return true;
+
+
+FailedCreateDialog:
+	message "ダイアログの生成に失敗しました";
+	return;
+
+
+AppendSnippetDir:
+	$$abs_path=$$1;
+	$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$abs_path;
+	#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;
+	return;
+
+
+SurroundDoubleQuotation:
+	return "\"" + $$1 + "\"";
+
+
+Initialize:
+	call InitArg;
+	if(! ##return){
+		return false;
+	}
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+	return true;
+
+
+Finalize:
+	##n=dllfunc("ENDDIALOG");
+	if(#g_open_temp_hiudemaru){
+		closehidemaruforced #g_temp_hiudemaru;
+		#g_open_temp_hiudemaru=false;
+	}
+	return ;
+
+
+CalcListHeight:
+	call Min #g_abs_snippets_dir_len, 80;
+	return ##return;
+
+
+Min:
+	if(##1 < ##2){
+		return ##1;
+	}
+	return ##2;
+
+Max:
+	if(##1 <= ##2){
+		return ##2;
+	}
+	return  ##1;
+
+
+InitArg:
+	/*
+	$g_snippets_abs_dir = "C:\\Users\\hoge\\Documents\\github\\ya_hidemaru_snippet\\ya_hidemaru_snippet\\snippets\\text-mode";
+	$g_snippett_exts 	= "*.txt;*.mac;*.bat;*.vbs;*.js;*.py";
+	return true;
+	*/
+
+	if(2 != argcount){
+		message("引数が不正です");
+		return false;
+	}
+	$g_snippets_abs_dir = getarg(0);
+	$g_snippett_exts	= getarg(1);
+	return true;
+
+
+LoadDengaku:
+	if(! #g_dengaku_loaded){
+		loaddll $g_dll_dengaku_abs_path;
+		if (!result) {
+			message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
+			return false;
+		}
+		#g_dengaku_loaded=true;
+	}
+	return true;
+
+
+UnloadDengaku:
+	if(#g_dengaku_loaded){
+		freedll;
+	}
+	return;
