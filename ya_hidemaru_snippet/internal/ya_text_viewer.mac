@@ -117,7 +117,7 @@ MessageLoop:
 
 	//リストで上下キーを押しっぱなしにしたときに、
 	//適度な間隔でファイル内容を更新する。
-	##interval			= 200;
+	##interval			= 300;
 	##prev_tick 		= 0;
 
 	$$select_file		= "";
