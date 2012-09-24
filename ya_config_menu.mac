@@ -20,19 +20,31 @@ $g_internal_module_dir		= $g_ya_hidemaru_snippet_dir+"\\internal";
 //long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
 call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
 $g_snippets_abs_dir		= $$return + "\\";
-$g_ini_abs_filename 	= $g_snippets_abs_dir + "config.ini";
+
+call GetShortPath currentmacrodirectory + "\\" + $g_internal_module_dir + "\\";
+$g_ini_abs_filename 	= $$return + "\\config.ini";
 $g_ini_section_name		= "config";
 
 $g_ini_section_new_file	= "new_file";
 $g_ini_key_ext			= "ext";
 
 
-
-call Initialize;
+call CheckEnvironment;
 if(##return){
-	call Main;
+	call Initialize;
+	if(##return){
+		call Main;
+	}
 }
 endmacro;
+
+
+CheckEnvironment:
+	if(! existfile($g_ini_abs_filename)){
+		message("(.ini)ファイルが見つかりません。\nファイル名:"+$g_ini_abs_filename);
+		return false;
+	}
+	return true;
 
 
 Initialize:
@@ -53,10 +65,10 @@ Main:
 
 	$$menu[##menu_len]	= "\x01";
 	##menu_len			= ##menu_len + 1;
-	
+
 	$$menu[##menu_len]	= "スニペット挿入";
 	##menu_len			= ##menu_len + 1;
-	
+
 	$$menu[##menu_len]	= "スニペットモードの変更";
 	##menu_len			= ##menu_len + 1;
 
@@ -81,7 +93,7 @@ Main:
 GetSnippetMode:
 	call GetSnippetAbsDir;
 	$$abs_dir =  $$return;
-	
+
 	$$findstr = "\\" + $g_snippets_dir_name + "\\";
 	##index = strrstr($$abs_dir, $$findstr);
 	if(-1 == ##index){

@@ -24,7 +24,9 @@ $g_run_snippet_mac			= $g_internal_module_dir + "\\ya_run_snippet_file.mac";
 //long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
 call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
 $g_snippets_abs_dir		= $$return + "\\";
-$g_ini_abs_filename 	= $g_snippets_abs_dir + "config.ini";
+
+call GetShortPath currentmacrodirectory + "\\" + $g_internal_module_dir + "\\";
+$g_ini_abs_filename 	= $$return + "\\config.ini";
 $g_ini_section_name		= "config";
 
 $g_ini_section_new_file	= "new_file";
@@ -74,12 +76,15 @@ disablehistory 0xff;
 //折りたたみを維持,部分編集を維持,範囲選択,最後に移動
 //マクロ終了時に元に戻る。
 setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
-call LoadDengaku;
-if(result){
-	call Main;
-	call ClearGlovalValue;
-	setsearch $_g_old_searchbuffer, #_g_searchoption;
-	freedll;
+call CheckEnvironment;
+if(##return){
+	call LoadDengaku;
+	if(##return){
+		call Main;
+		call ClearGlovalValue;
+		setsearch $_g_old_searchbuffer, #_g_searchoption;
+		freedll;
+	}
 }
 endmacro;
 
@@ -137,6 +142,13 @@ Main:
 	return val(getresultex(-1));
 
 
+CheckEnvironment:
+	if(! existfile($g_ini_abs_filename)){
+		message("(.ini)ファイルが見つかりません。\nファイル名:"+$g_ini_abs_filename);
+		return false;
+	}
+	return true;
+	
 /*１行を空白文字列(space/tab/全角空白)で分割して取り出す。
 パース結果は下記グローバル変数へ格納される。
 	$g_args[];
