@@ -13,7 +13,7 @@
 
 
 */
-$g_snippets_abs_dir_name	= currentmacrodirectory + "\\..\\snippets";
+$g_snippets_abs_dir_name	= currentmacrodirectory;
 
 ////////////////////////////////////////////
 //		Šg’£q–ˆ‚Ìˆ—ƒ}ƒNƒ“o˜^
