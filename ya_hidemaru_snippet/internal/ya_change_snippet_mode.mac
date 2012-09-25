@@ -13,8 +13,14 @@ $g_static_variable_name	= "ya_hidemaru_snippet_path";
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 $g_snippets_dir_name 	= "snippets";
 $g_snippets_abs_dir		= currentmacrodirectory + "\\..\\" + $g_snippets_dir_name;
+
+call GetAbsolutePathName $g_snippets_abs_dir;
+call GetShortPath $$return;
+$g_snippets_abs_dir = $$return;
+
 $g_menu_text			= "";
 #g_menu_text_len		= 0;
+
 
 //スニペットの絶対パス
 $g_abs_snippets_dir		="";
@@ -98,3 +104,19 @@ LoadDengaku:
 	}
 	return true;
 
+//絶対パスを返す
+GetAbsolutePathName:
+	$$path = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	$$result = callmethod_returnstr( ##obj, "GetAbsolutePathName", $$path);
+	releaseobject ##obj;
+	return $$result;
+
+GetShortPath:
+	$$path=$$1;
+	##obj=createobject("Scripting.FileSystemObject");
+	##f  = callmethod_returnobj( ##obj, "GetFolder", $$path);
+    $$ret = getpropstr(##f,"ShortPath");
+    releaseobject ##f;
+    releaseobject ##obj;
+    return $$ret;
