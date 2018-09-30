@@ -1,8 +1,8 @@
-/*指定されたディレクトリ以下のテキストファイルを閲覧するダイアログ。
+/*指定されたディレクトリ以下のスニペット定義ファイルを閲覧するダイアログ。
 
 （マクロ引数）
-	[0] ルートディレクトリ	"c:/foo/bar"
-	[1] 拡張子				"*.txt;*.log"
+	[0] ルートディレクトリ			"c:/foo/bar"
+	[1] 検索するファイル拡張子		"*.txt;*.log"
 
 （マクロ返値）
 	選択されたファイル名
@@ -42,6 +42,10 @@ $g_text_ctrl_name 		= "mledt1";
 #g_temp_hiudemaru		= 0;
 #g_open_temp_hiudemaru	= false;
 
+//ダイアログの通知メッセージ
+$g_notify_close="10";
+
+
 
 call Main;
 endmacro $$return;
@@ -69,9 +73,9 @@ Run:
 
 
 CreateDialog:
-	##default_width = 80;
+	##default_width = 100;
 
-	if(	dllfunc("NEWDIALOG","ツリービューのテスト",##default_width,"") == 0 ||
+	if(	dllfunc("NEWDIALOG","スニペット一覧",##default_width,"") == 0 ||
 		dllfunc("NEWCONTROL","list",$g_list_ctrl_name,"") == 0)
 	{
 		call FailedCreateDialog;
@@ -90,16 +94,12 @@ CreateDialog:
 	{
 	}
 
-	if(	dllfunc("NEWCONTROL","mledit",$g_text_ctrl_name)	==0	||
-		dllfunc("SETCTRLHEIGHT","",##height) 	==0	)
-	{
-		call FailedCreateDialog;
-		return false;
-	}
-
-	if( dllfunc("NEWPAGE",##default_width)==0	||
-		dllfunc("NEWCONTROL","okcancel","","") == 0)
-	{
+	if(	dllfunc("NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
+		dllfunc("SETCTRLHEIGHT","",##height)==0 ||
+	 	dllfunc("NEWPAGE",##default_width)==0 ||
+		dllfunc("NEWCONTROL","defbutton","","Close") == 0 ||
+		dllfunc("SETCTRLNOTIFY", "", $g_notify_close) == 0
+	){
 		call FailedCreateDialog;
 		return false;
 	}
@@ -139,13 +139,15 @@ MessageLoop:
 				}
 				##prev_tick = ##current_tick;
 			}
-			$$name = dllfuncstr("WAITCTRLNOTIFY",0);
+			$$name = dllfuncstr("WAITCTRLNOTIFY",10);
 		}
 
 		if($$name == "0"){
 			$$select_file="";
 			break;
 		}else if($$name == "1"){
+			break;
+		}else if($$name == $g_notify_close){
 			break;
 		}
 	}
