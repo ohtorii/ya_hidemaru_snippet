@@ -60,7 +60,7 @@ ya_config_menu.mac は、この動的スニペットマクロを更に便利に�
 
 |ファイル名|説明|
 |:---|:---|
-|email.txt|定見文を挿入する最も単純なスニペット|
+|email.txt|定型文を挿入する最も単純なスニペット|
 |python-mode\if.txt|引数無しのスニペット|
 |python-mode\if.%.txt|引数を一つ受け取るスニペット|
 |c-mode\for.%.js|引数を一つ受け取りJavaScriptでスニペットを生成する|
