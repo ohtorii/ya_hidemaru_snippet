@@ -24,6 +24,9 @@
 //Dengaku-DLL
 $g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 #g_dengaku_loaded		= false;
+$g_dll_ht_tools_abs_path = hidemarudir + "\\" + "ht_tools.dll";
+#g_ht_tools_loaded		= false;
+#g_ht_tools_dll			= 0;
 
 //マクロ引数
 $g_snippets_abs_dir 	= "";
@@ -37,10 +40,6 @@ $g_abs_snippets_dir		= "";
 $g_list_ctrl_name 		= "lst1";
 $g_text_ctrl_name 		= "mledt1";
 
-
-//テンポラリの秀丸エディタ
-#g_temp_hiudemaru		= 0;
-#g_open_temp_hiudemaru	= false;
 
 //ダイアログの通知メッセージ
 $g_notify_close="10";
@@ -115,9 +114,8 @@ MessageLoop:
 	##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
 	$$prev_select_item 	= "?";
 
-	//リストで上下キーを押しっぱなしにしたときに、
-	//適度な間隔でファイル内容を更新する。
-	##interval			= 300;
+	//リストで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
+	##interval			= 60;
 	##prev_tick 		= 0;
 
 	$$select_file		= "";
@@ -183,19 +181,10 @@ UpdateText:
 
 LoadText:
 	$$filename = $$1;
-	##prev_hidemaru = hidemaruhandle(0);
-	if(! #g_open_temp_hiudemaru){
-		openfile "/h ", noaddhist;
-		#g_temp_hiudemaru = hidemaruhandle(0);
-		#g_open_temp_hiudemaru=true;
-	}else{
-		setactivehidemaru #g_temp_hiudemaru;
-	}
-	insertfile $$filename;
-	selectall;
-	$$text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
-	backspace;
-	setactivehidemaru ##prev_hidemaru;
+	##file_size = dllfunc(#g_ht_tools_dll, "GetFileSizeByte", $$filename);
+	##file_handle = dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
+	$$text = dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
+	##dummy = dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
 	return $$text;
 
 
@@ -308,10 +297,6 @@ Initialize:
 
 Finalize:
 	##n=dllfunc("ENDDIALOG");
-	if(#g_open_temp_hiudemaru){
-		closehidemaruforced #g_temp_hiudemaru;
-		#g_open_temp_hiudemaru=false;
-	}
 	return ;
 
 
@@ -358,11 +343,25 @@ LoadDengaku:
 		}
 		#g_dengaku_loaded=true;
 	}
+	
+	if(! #g_ht_tools_loaded){
+		#g_ht_tools_dll = loaddll($g_dll_ht_tools_abs_path);
+		if (!result) {
+			message "ht_tool.dllのロードに失敗しました\n" + "ht_tool.dllが秀丸のディレクトリに存在するか確認してください";
+			return false;
+		}
+		#g_ht_tools_loade=true;
+	}
 	return true;
 
 
 UnloadDengaku:
 	if(#g_dengaku_loaded){
 		freedll;
+		#g_dengaku_loaded=false;
+	}
+	if(#g_ht_tools_loade){
+		freedll #g_ht_tools_dll;
+		#g_ht_tools_loade=false;
 	}
 	return;
