@@ -2,17 +2,18 @@
 ========
 
 # 開発の経緯
-秀丸エディタには多くのスニペットマクロが公開されていまが、自分の考えに合致したマクロが無いためこのマクロを作成しました。
+秀丸エディタには多くのスニペットマクロが公開されていまが、それら全ては**静的スニペット**展開です。<br>
+**動的スニペット**展開を行いたくこのマクロを作成しました。
 
 # 特徴
-本マクロではスニペット定義に、
-- [静的なスニペット]テキストファイル
-- [動的なスニペット]秀丸マクロ・Python・VBScript・JavaScript・WindowsBatch
+本マクロではスニペットに、
+- [静的なスニペット]　テキストファイル
+- [動的なスニペット]　秀丸マクロ・Python・VBScript・JavaScript・WindowsBatch
 
-を使用できます。<br>
-従来の静的なスニペットに加えて、可変個の入力に応じた**動的なスニペット**を定義できます。
+の両方を使用できます。<br>
+従来の静的スニペットに加えて、可変個の入力に応じた**動的スニペット**を利用できます。
 
-動的なスニペットは下記スクリーンショットで確認できます。
+動的スニペットの動作は下記スクリーンショットで確認できます。
 
 ### スクリーンショット(その1 C/C++ basic)
 ![cpp main](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181101.gif?1312535670 "cpp snippet")
@@ -27,7 +28,7 @@
 ![python snippet](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181058.gif?1312535978 "python snippet")
 
 
-# マクロのインストールと設定方法
+# マクロの導入方法
 全ファイルとフォルダを秀丸のスクリプトディレクトリにコピーしてください。
 
 ## キーアサイン
@@ -39,7 +40,7 @@
 
 ちなみに、私はCtrl-Enterに割り当てています。
 
-ya_config_menu.mac は、この動的スニペットマクロを更に便利に使う場合に利用します。<br>
+ya_config_menu.mac は、この動的スニペットのマクロを更に便利にしたいときに利用します。<br>
 なので、初めのうちは無理にキー割り当てをしなくても良いです。
 
 # ファイル構成
@@ -81,3 +82,8 @@ ya_config_menu.mac は、この動的スニペットマクロを更に便利に�
 # 連絡先
 <http://d.hatena.ne.jp/ohtorii/> <br>
 <https://twitter.com/ohtorii>
+
+# 謝辞
+- [TextMate](https://macromates.com/)
+- [yasnippet](http://code.google.com/p/yasnippet/)
+- [YASnippet Hidemarized](https://github.com/mobitan/yas/)
