@@ -28,8 +28,8 @@ endmacro str(##return);
 Main:
 	$$abs_snippet_filename=getarg(0);
 	call SetupArgs;
-
 	insertfile($$abs_snippet_filename);
+	call RemoveComment;
 	call DoReplaceArg;
 	call DoReplaceWild;
 	return true;
@@ -43,6 +43,21 @@ SetupArgs:
 	}
 	$g_args_line = getarg(2);
 	return ;
+
+//ƒRƒƒ“ƒg‚Ìíœ
+RemoveComment:
+	gofiletop;
+	searchdown2 "^# --$",regular,nohilight;
+	if(result==false){
+		return;
+	}
+	if(selecting==0){
+		return false;
+	}
+	beginlinesel 1;
+	gofiletop;
+	backspace;
+	return;
 
 //%0 %1 %2 ...‚Ì’uŠ·
 DoReplaceArg:
