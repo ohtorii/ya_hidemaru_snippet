@@ -1,2 +1,9 @@
+#
+#   # before
+#   for item
+#
+#   # after
+#   for item in |:
+#       
 for %1 in %|:
 	

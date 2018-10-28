@@ -1,6 +1,14 @@
+"""template<>
+
+# before
+te foo bar spam
+
+# after
+template<typename foo, typename bar, typename spam>
+"""
 import sys
 def Main():
-    s="%s<" % argv[0]
+    s="template<"
     for i,v in enumerate(argv[1:]):
         if 0<i:
             s=s+", "

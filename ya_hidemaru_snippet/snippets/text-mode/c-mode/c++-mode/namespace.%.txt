@@ -1,0 +1,14 @@
+#namespace
+#
+#   # before
+#   ns hoge
+#
+#   # after
+#   namespace hoge{
+#       |
+#   };      /*hoge*/
+#
+# --
+namespace %1{
+	%|
+};      /*%1*/

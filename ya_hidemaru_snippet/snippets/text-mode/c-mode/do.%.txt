@@ -1,3 +1,12 @@
+#
+#   # before
+#   do condition
+#
+#   # after
+#   do{
+#       |
+#   }while(condition);
+# --
 %0{
 	%|
 }while(%1);

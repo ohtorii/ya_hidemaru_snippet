@@ -1,0 +1,20 @@
+#
+#   # before
+#   ifee
+#
+#   #after
+#   if(|){
+#       
+#   }else if(){
+#       
+#   }else{
+#       
+#   }
+# --
+if(%|){
+	
+}else if(){
+	
+}else{
+	
+}

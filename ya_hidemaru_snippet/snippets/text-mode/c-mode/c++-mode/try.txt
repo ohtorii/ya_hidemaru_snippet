@@ -1,7 +1,17 @@
+#
+#	# before
+#	try
+#
+#	# after
+#	try{
+#		|
+#	}catch(const std::exception&){
+#		
+#	}
+#
+# --
 try{
 	%|
-}catch(std::exception e){
-	
-}catch(...){
+}catch(const std::exception&){
 	
 }

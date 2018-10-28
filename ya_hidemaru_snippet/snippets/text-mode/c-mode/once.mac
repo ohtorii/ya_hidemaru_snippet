@@ -1,7 +1,9 @@
 /*秀丸マクロからスニペットを挿入する。（サンプル）
 
+# before
+	once
 
-＊生成するテキストの例。
+# after
 	#ifndef __FILENAME_EXT__
 	#define __FILENAME_EXT__
 		%|

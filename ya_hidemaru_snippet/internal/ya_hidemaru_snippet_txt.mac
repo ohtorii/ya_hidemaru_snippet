@@ -29,9 +29,11 @@ Main:
 	$$abs_snippet_filename=getarg(0);
 	call SetupArgs;
 	insertfile($$abs_snippet_filename);
-	call RemoveComment;
 	call DoReplaceArg;
 	call DoReplaceWild;
+	call RemoveComment;
+	selectall;
+	copy;
 	return true;
 
 SetupArgs:
@@ -54,7 +56,7 @@ RemoveComment:
 	if(selecting==0){
 		return false;
 	}
-	beginlinesel 1;
+	beginlinesel;
 	gofiletop;
 	backspace;
 	return;

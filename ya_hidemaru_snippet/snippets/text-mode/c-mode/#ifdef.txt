@@ -1,0 +1,12 @@
+#
+#   # before
+#   #ifdef
+#
+#   # after
+#   #ifdef |
+#       
+#   #endif
+# --
+#ifdef %|
+	
+#endif

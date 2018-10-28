@@ -1,1 +1,9 @@
+#Description:cudaFreeに対するスニペット
+#
+#   # before
+#   free
+#
+#   # after
+#   cudaFree(|);
+# --
 cudaFree(%|);

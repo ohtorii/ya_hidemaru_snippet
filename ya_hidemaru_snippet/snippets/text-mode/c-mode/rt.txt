@@ -1,0 +1,10 @@
+#Description:return に対するスニペット
+#
+#   # before
+#   rt
+#
+#   # after
+#   return true;|
+#
+# --
+return true;%|

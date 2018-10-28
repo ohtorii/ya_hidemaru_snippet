@@ -1,3 +1,21 @@
+#
+#   # before
+#   class hoge
+#   
+#   # after
+#   class hoge|{
+#   public:
+#       hoge(){
+#       }
+#       ~hoge(){
+#       }
+#   protected:
+#   private:
+#       hoge(const hoge&);
+#       hoge &operator=(const hoge&);
+#   };
+#
+# --
 %0 %1%|{
 public:
 	%1(){

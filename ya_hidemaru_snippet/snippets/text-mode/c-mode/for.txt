@@ -1,3 +1,13 @@
-for(%|size_t i=0 ; i!=N ; ++i){
+#
+#   # before
+#   for
+#
+#   # after
+#   for(|size_t i=0 ; i<length ; ++i){
+#       
+#   }
+#
+# --
+for(%|size_t i=0 ; i<length ; ++i){
 	
 }

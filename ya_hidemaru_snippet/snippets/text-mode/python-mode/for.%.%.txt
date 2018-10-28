@@ -1,2 +1,11 @@
+#
+#   # before
+#   for item container
+#   
+#   # after
+#   for item in container:
+#       |
+#
+# --
 for %1 in %2:
 	%|

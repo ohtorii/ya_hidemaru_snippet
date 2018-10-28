@@ -1,2 +1,10 @@
+#
+#   # before
+#   if condition
+#   
+#   # after
+#   if condition:
+#       |
+# --
 %0 %1:
 	%|

@@ -1,0 +1,9 @@
+#
+#   # before
+#   #i
+#
+#   # after
+#   #include <|>
+#
+# --
+#include "%|"

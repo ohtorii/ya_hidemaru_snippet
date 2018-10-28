@@ -1,0 +1,13 @@
+#Description: enumに対するスニペット
+#
+#   # before
+#   enum
+#
+#   # after
+#   enum |{
+#       
+#   };
+# --
+enum %|{
+	
+};

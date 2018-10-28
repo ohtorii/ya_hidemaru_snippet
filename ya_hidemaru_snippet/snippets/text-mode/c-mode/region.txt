@@ -1,0 +1,12 @@
+#
+#   # before
+#   region
+#
+#   # after
+#   #pragma region %|
+#
+#   #pragma endregion
+# --
+#pragma region %|
+
+#pragma endregion

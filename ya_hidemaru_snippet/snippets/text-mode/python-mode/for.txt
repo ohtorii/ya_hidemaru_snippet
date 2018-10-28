@@ -1,2 +1,11 @@
+#
+#   # before
+#   for
+#
+#   # after
+#   for | in :
+#       
+#
+# --
 for %| in :
 	

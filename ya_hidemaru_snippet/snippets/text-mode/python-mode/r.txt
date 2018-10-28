@@ -1,0 +1,9 @@
+#Description: returnに対するスニペット
+#   # before
+#   r
+#
+#   # after
+#   return |;
+#       
+# --
+return %|;

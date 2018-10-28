@@ -1,1 +1,9 @@
-cudaMalloc(|,sizeof());
+#Description:cudaMallocに対するスニペット
+#
+#   # before
+#   malloc.txt
+#
+#   # after
+#   cudaMalloc(|,size);
+# --
+cudaMalloc(%|,size);

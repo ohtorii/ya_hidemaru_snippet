@@ -1,3 +1,17 @@
+#
+#   # before
+#   switch
+#
+#   # after
+#   switch(|){
+#   case :
+#       
+#       break;
+#   default:
+#       break;
+#   }
+#
+# --
 switch(%|){
 case :
 	

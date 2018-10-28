@@ -1,2 +1,11 @@
+#Description:main関数のスニペット
+#
+#   # before
+#   ifmain
+#
+#   # after
+#   if __name__ == '__main__':
+#       |
+# --
 if __name__ == '__main__':
     %|

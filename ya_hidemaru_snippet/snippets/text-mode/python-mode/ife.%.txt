@@ -1,3 +1,13 @@
+#
+#   # before
+#   ife condition
+#   
+#   # after
+#   if condition:
+#       |
+#   else:
+#       
+# --
 if %1:
 	%|
 else:

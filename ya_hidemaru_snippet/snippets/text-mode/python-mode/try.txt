@@ -1,3 +1,20 @@
+#
+#   # before
+#   try
+#
+#   # after
+#   try:
+#       |
+#   except IOError, (errno, strerror):
+#       pass
+#   except:
+#       pass
+#   else:
+#       pass
+#   finally:
+#       pass
+#       
+# --
 try:
 	%|
 except IOError, (errno, strerror):

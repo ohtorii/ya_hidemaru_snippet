@@ -47,7 +47,7 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 |ファイル名|説明|
 |:---|:---|
 |ya_hidemaru_snippet.mac|動的スニペットマクロの本体|
-|ya_config_menu.mac|更に便利に使うためのマクロ（おまけマクロ）|
+|ya_config_menu.mac|スニペットを更に便利に使うためのおまけマクロ|
 
 # 動作環境のカスタマイズ
 `\ya_hidemaru_snippet\internal\config.ini` で以下カスタマイズが可能です。
@@ -84,6 +84,6 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 <https://twitter.com/ohtorii>
 
 # 謝辞
-- [TextMate](https://macromates.com/)
+- [TextMate](https://macromates.com/) スニペット書式をかなり参考にしました。
 - [yasnippet](http://code.google.com/p/yasnippet/)
 - [YASnippet Hidemarized](https://github.com/mobitan/yas/)

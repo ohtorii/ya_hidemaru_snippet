@@ -1,2 +1,10 @@
+#
+#   # before
+#   while condition
+#
+#   # after
+#   while condition:
+#       |
+# --
 while %1:
 	%|

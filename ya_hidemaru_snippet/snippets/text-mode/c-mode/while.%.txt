@@ -1,3 +1,13 @@
+#
+#   # before
+#   while condition
+#
+#   # after
+#   while(condition){
+#       |
+#   }
+#
+# --
 %0(%1){
 	%|
 }

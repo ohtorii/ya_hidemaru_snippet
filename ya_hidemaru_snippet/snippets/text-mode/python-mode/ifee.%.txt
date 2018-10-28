@@ -1,3 +1,15 @@
+#
+#   # before
+#   ifee condition
+#
+#   # after
+#   if condition:
+#       |
+#   elif :
+#       
+#   else:
+#       
+# --
 if %1:
 	%|
 elif :

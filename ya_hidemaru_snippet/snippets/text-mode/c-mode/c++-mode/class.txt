@@ -1,4 +1,19 @@
+#
+#   # before
+#   class
+#
+#   # after
+#   class |{
+#   public:
+#
+#   private:
+#
+#   };
+#
+# --
 %0 %|{
 public:
+
 private:
+
 };

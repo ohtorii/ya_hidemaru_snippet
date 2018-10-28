@@ -1,0 +1,19 @@
+#Description:main関数のスニペット
+#
+#   # before
+#   main
+#
+#   # after
+#	import sys
+#	def main():
+#	    pass
+#
+#	if __name__ == "__main__":
+#	    sys.exit(int(main() or 0))
+# --
+import sys
+def main():
+    %|pass
+
+if __name__ == "__main__":
+    sys.exit(int(main() or 0))

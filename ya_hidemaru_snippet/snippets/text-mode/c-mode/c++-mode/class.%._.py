@@ -1,16 +1,42 @@
+"""
+#   # before
+class vector float x float y float z
+
+#   # after
+class vector{
+public:
+    vector(|float x,float y,float z){
+        x=0.f;
+        y=0.f;
+        z=0.f;
+    };
+    ~vector(){
+    };
+protected:
+private:
+    vector(const vector&);
+    vector &operator=(const vector&);
+    float x;
+    float y;
+    float z;
+};
+
 #
-#argv[0]="class"
-#argv[1]=class_name
-#argv[2]=arg0
-#       :
-#       :
-#argv[N]=argN
+#memo
 #
+argv[0]="class"
+argv[1]=class_name
+argv[2]=arg0
+       :
+       :
+argv[N]=argN
+"""
 import sys
 
 g_int   =set((  "char","short","int","long","__int64",
                 "u8","s8","u16","s16","s32","u32","s64","u64","s128","u128"
-                "uint8","sint8","uint16","sint16","uint32","sint32","uint64","sint64","uint128","sint128",))
+                "uint8","sint8","uint16","sint16","uint32","sint32","uint64","sint64","uint128","sint128",
+                "int8","int16","int32","int64","int128"))
 g_float =set(("float","f32","float32"))
 g_double=set(("double","f64","float64"))
 g_scaler=g_int|g_float|g_double;
@@ -94,6 +120,7 @@ def Main():
     #
     #finish
     #
+    #print("};");
     sys.stdout.write("};");
 
 Main()

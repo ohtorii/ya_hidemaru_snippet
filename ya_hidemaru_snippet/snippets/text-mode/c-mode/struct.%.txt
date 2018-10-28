@@ -1,3 +1,14 @@
+#
+#   # before
+#   struct hoge
+#
+#   # after
+#   struct hoge{
+#       |
+#   };
+#
+# --
+
 %0 %1{
 	%|
 };

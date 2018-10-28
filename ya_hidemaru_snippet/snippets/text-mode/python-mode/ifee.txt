@@ -1,3 +1,15 @@
+#
+#   # before
+#   ifee
+#
+#   # after
+#   if |:
+#       
+#   elif :
+#       
+#   else:
+#       
+# --
 if %|:
 	
 elif :

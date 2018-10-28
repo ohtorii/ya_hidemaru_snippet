@@ -1,3 +1,13 @@
+#
+#   # before
+#   do
+#
+#   # after
+#   do{
+#       |
+#   }while(true);
+#
+# --
 %0{
-	
-}while(%|);
+	%|
+}while(true);

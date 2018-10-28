@@ -1,1 +1,9 @@
-cudaMemcpy(%|,,,);
+#Description:cudaMemcpyに対するスニペット
+#
+#   # before
+#   free
+#
+#   # after
+#   cudaMemcpy(%|,src,count,kind);
+# --
+cudaMemcpy(%|,src,count,kind);

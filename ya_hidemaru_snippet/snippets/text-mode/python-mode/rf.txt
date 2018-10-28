@@ -1,0 +1,9 @@
+#Description: returnに対するスニペット
+#   # before
+#   rf
+#
+#   # after
+#   return False;
+#       
+# --
+return False

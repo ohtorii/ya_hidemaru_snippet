@@ -1,0 +1,12 @@
+#
+#   # before
+#   #ifndef DEBUG
+#
+#   # after
+#   #ifndef DEBUG
+#       |
+#   #endif /*DEBUG*/
+# --
+#ifndef %1
+	%|
+#endif /*%1*/

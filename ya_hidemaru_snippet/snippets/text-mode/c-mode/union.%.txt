@@ -1,0 +1,13 @@
+#Description: unionに対するスニペット
+#
+#   # before
+#   union MyUnion
+#
+#   # after
+#   union MyUnion{
+#       |
+#   };
+# --
+union %1{
+	%|
+};
