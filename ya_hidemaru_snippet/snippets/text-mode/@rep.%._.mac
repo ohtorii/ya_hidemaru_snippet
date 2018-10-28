@@ -1,19 +1,19 @@
 /*
-文字列の繰り返し
+#Description:文字列を指定回数だけ挿入する。
 
-（使用例１）
-   ＊入力		@rep 4 @
-   ＊出力		@@@@
-       
-（使用例２）
-	＊入力		@rep 4 < >
-   ＊出力		< >< >< >< >
-   
+#Before
+   @rep 4 @
 
-（引数）
-argv[0]="@rep"
-argv[1]=リピート回数
-argv[2]=文字列
+#After
+   @@@@
+
+#Format
+    rep 回数 文字列
+
+#Memo
+    argv[0]="@rep"
+    argv[1]=リピート回数
+    argv[2]=文字列
 */
 call Main;
 endmacro;

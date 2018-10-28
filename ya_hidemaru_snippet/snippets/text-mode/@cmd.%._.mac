@@ -1,14 +1,20 @@
-/*	コマンドプロンプト
+/*
+#Description: コマンドプロンプトを実行するスニペット
 
-（使用例１）
-	@cmd dir *.txt /s
+#before
+@cmd dir *.txt /s /b
 
-（使用例２）
-	@cmd ipconfig /all
+#after
+C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\email.txt
+C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\c-mode\#i.txt
+C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\c-mode\#if.%.txt
+C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\c-mode\#if.txt
 
+#Format
+@cmd コマンドプロンプトのコマンドと引数
 
-（メモ）
-ディレクトリ移動は出来ない
+#memo
+ディレクトリ移動は出来ません。
 */
 
 call Main;

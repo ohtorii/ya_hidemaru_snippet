@@ -1,4 +1,0 @@
-/*「秀丸エディタからlocate32を使うためのマクロ」を呼び出す。
-*/
-execmacro macrodir+"\\scripts\\hm_locate32.mac";
-endmacro str(true);
