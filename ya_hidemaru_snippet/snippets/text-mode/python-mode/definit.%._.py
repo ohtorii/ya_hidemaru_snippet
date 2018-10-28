@@ -1,3 +1,14 @@
+"""
+# before
+definit x y z
+
+# after
+def __init__(self,x,y,z):
+    self.x=x
+    self.y=y
+    self.z=z
+    |
+"""
 import sys
 def MakeArgs():
     head = "def __init__(self,";

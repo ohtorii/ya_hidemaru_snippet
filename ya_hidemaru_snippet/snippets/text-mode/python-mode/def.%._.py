@@ -1,3 +1,13 @@
+"""
+# before
+def invoke x y z
+
+# after
+def invoke(x,y,z):
+    """docstring for invoke"""
+    |
+
+"""
 def Main():
     head = "def %s(" % argv[1]
     body = ",".join(argv[2:])

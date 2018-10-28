@@ -1,4 +1,14 @@
-%0 $|():
+#contributor : ohtorii
+#url : https://github.com/ohtorii/ya_hidemaru_snippet
+#
+#   # before
+#   def
+#   
+#   # after
+#   def |():
+#       """docstring"""
+#       
+# --
+%0 %|():
 	"""docstring"""
 	
-$tabspace

@@ -1,3 +1,12 @@
-def %1(self%|):
+# 
+#   # before
+#   defm fire
+#
+#   # after
+#   def fire(self):
+#       """docstring for fire"""
+#       |
+# --
+def %1(self):
 	"""docstring for %1"""
-	
+	%|

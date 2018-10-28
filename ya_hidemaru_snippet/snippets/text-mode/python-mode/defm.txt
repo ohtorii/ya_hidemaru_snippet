@@ -1,3 +1,12 @@
+#
+#   # before
+#   def
+#
+#   # after
+#   def |(self):
+#       """docstring"""
+#       
+# --
 def %|(self):
 	"""docstring"""
 	

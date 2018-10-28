@@ -1,3 +1,12 @@
+"""
+# before
+    defm fire x y z
+
+# after
+    def fire(self,x,y,z):
+        """docstring for fire"""
+        |
+"""
 def Main():
     head = "def %s(self," % argv[1]
     body = ",".join(argv[2:])

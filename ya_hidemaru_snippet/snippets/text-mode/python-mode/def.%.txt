@@ -1,3 +1,14 @@
+#contributor : ohtorii
+#url : https://github.com/ohtorii/ya_hidemaru_snippet
+#
+#   # before
+#   def invoke
+#   
+#   # after
+#   def invoke(|):
+#       """docstring for invoke"""
+#       
+# --
 %0 %1(%|):
 	"""docstring for %1"""
 	

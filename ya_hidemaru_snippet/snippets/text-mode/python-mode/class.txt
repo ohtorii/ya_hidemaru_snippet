@@ -1,3 +1,14 @@
+#contributor : ohtorii
+#url : https://github.com/ohtorii/ya_hidemaru_snippet
+#
+#   before
+#   class
+#
+#   after
+#   class |(object):
+#       def __init__(self):
+#           
+# --
 class %|(object):
 	def __init__(self):
 		

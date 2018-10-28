@@ -1,3 +1,14 @@
+#contributor : ohtorii
+#url : https://github.com/ohtorii/ya_hidemaru_snippet
+#
+#   #before
+#   class hoge
+#
+#   #after
+#   class hoge(object):
+#       def __init__(self):
+#           |
+# --
 class %1(object):
 	def __init__(self):
 		%|

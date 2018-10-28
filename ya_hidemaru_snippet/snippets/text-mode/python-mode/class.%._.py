@@ -1,10 +1,17 @@
+"""
+# before
+class hoge x y z
+
+# after
+class hoge(object):
+    def __init__(self,x,y,z):
+        self.x=x
+        self.y=y
+        self.z=z
+        |
+"""
 import sys
 def Main():
-    """
-    class Name(object):
-        def __init__(self,a,b,c):
-            self.
-    """
     ClassName = argv[1]
     s1 = "class %s(object):\n" % ClassName
     s2 = "\tdef __init__(self," + ",".join(argv[2:]) + "):\n"

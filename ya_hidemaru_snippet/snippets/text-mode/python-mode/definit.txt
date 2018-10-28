@@ -1,2 +1,12 @@
-def __init__(self%|):
-	
+#contributor : ohtorii
+#url : https://github.com/ohtorii/ya_hidemaru_snippet
+#
+#   # before
+#   definit
+#
+#   # after
+#   def __init__(self):
+#       |
+# --
+def __init__(self):
+	%|

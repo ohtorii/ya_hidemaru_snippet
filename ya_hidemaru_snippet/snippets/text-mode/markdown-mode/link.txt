@@ -1,1 +1,8 @@
-[%|LinkText](http:// "Title")
+#Description:linkのスニペット
+#   #before
+#   link
+#
+#   #after
+#   [|Title](https://)
+# --
+[%|Title](https://)
