@@ -20,10 +20,10 @@ endmacro;
 
 
 Main:
-	$$line_str = getarg(2);
+	$$line_str = getarg(2);			//コマンドを除いた一行の文字列
 	call ParseString $$line_str;
 	$$str = $$return;
-	##num = val(getarg(16));
+	##num = val(getarg(16));		//引数2
 
 	begingroupundo;
 	while(0 < ##num){
