@@ -1,0 +1,82 @@
+/*秀丸エディタのファイルヒストリを取得する。
+
+#Before
+@his file
+
+#After
+C:\Program Files\Hidemaru\test.mac
+C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\python-mode\defm.txt
+	:
+	:
+
+#Command
+@his [type]
+	 type 	file		fi		//ファイルヒストリの表示
+	 		folder		fo		//フォルダヒストリの表示
+	 		directory 	di		//Same as folder.
+	 		//desktop		de	//Reserved.
+	 		//project		p	//Reserved.
+
+	 省略時は全て表示します。
+*/
+disabledraw;
+begingroupundo;
+call main;
+endgroupundo;
+endmacro;
+
+
+main:
+	$$type = getarg(16);	//引数2
+	if($$type==""){
+		call print_file_history;
+		call print_path_history;
+		return;
+	}
+	##i=0;
+	while(1){
+		if(($$type=="file") || ($$type=="fi")){
+			call print_file_history;
+		}else if(($$type=="folder") || ($$type=="fo") || ($$type=="directory") || ($$type=="di")){
+			call print_path_history;
+		}
+		##i = ##i + 1;
+		if(10<##i){
+			return;
+		}
+		$$type = getarg(16+##i);
+		if($$type==""){
+			return;
+		}
+	}
+	return;
+
+
+print_file_history:
+	##i=0;
+	while(##i<100){
+		$$file=getfilehist(##i);
+		if($$file==""){
+			return;
+		}
+		insert $$file;
+		insert "\n";
+		##i = ##i + 1;
+	}
+	return;
+
+
+print_path_history:
+	##i=0;
+	while(##i<100){
+		$$file=getpathhist(##i);
+		if($$file==""){
+			return;
+		}
+		insert $$file;
+		insert "\n";
+		##i = ##i + 1;
+	}
+	return;
+
+
