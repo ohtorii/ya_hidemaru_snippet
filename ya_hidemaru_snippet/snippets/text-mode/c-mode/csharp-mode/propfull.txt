@@ -1,0 +1,18 @@
+#
+#   # before
+#   propfull
+#
+#   # after
+#   public |int MyProperty{
+#       get { return myVar; }
+#       set { myVar = value; }
+#   }
+#   private int myVar;
+#
+#
+# --
+public %|int MyProperty{
+	get { return myVar; }
+	set { myVar = value; }
+}
+private int myVar;

@@ -1,0 +1,19 @@
+#
+#   # before
+#   class hoge
+#   
+#   # after
+#   /// <summary>
+#   /// Summary description for hoge
+#   /// </summary>
+#   class hoge{
+#       |
+#   }
+#
+# --
+/// <summary>
+/// Summary description for %1
+/// </summary>
+%0 %1{
+	%|
+}

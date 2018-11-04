@@ -1,0 +1,9 @@
+#
+#   # before
+#   prop type property
+#
+#   # after
+#   public type property { get; set; }|
+#
+# --
+public %1 %2 { get; set; }%|

@@ -1,0 +1,9 @@
+#
+#   # before
+#   cwl
+#
+#   # after
+#   Console.WriteLine(|);
+#
+# --
+Console.WriteLine(%|);

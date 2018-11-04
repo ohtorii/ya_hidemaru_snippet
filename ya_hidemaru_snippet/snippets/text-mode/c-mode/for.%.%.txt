@@ -3,11 +3,11 @@
 #	for i length
 #
 #	# after
-#	for(i=0 ; i<length ; ++i){
+#	for(size_t i=0 ; i<length ; ++i){
 #		|
 #	}
 #
 # --
-%0(%1=0 ; %1<%2 ; ++%1){
+%0(size_t %1=0 ; %1<%2 ; ++%1){
 	%|
 }

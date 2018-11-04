@@ -1,0 +1,13 @@
+#namespace
+#
+#	# before
+#	ns
+#
+#	# after
+#	namespace{
+#		|
+#	}
+# --
+namespace{
+	%|
+}

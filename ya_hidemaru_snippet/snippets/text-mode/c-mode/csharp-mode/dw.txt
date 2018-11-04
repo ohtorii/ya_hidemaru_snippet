@@ -1,0 +1,9 @@
+#
+#   # before
+#   dw
+#
+#   # after
+#   Debug.Write(|);
+#
+# --
+Debug.Write(%|);

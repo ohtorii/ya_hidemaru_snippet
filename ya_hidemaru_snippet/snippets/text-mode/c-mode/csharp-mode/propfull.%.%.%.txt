@@ -1,0 +1,18 @@
+#
+#   # before
+#   propfull type property var
+#
+#   # after
+#   private type var;
+#   public type MyProperty{
+#       get { return var; }
+#       set { var = value; }
+#   }
+#
+#
+# --
+public %1 %2{
+	get { return %3; }
+	set { %3 = value; }
+}
+%|private %1 %3;

@@ -1,0 +1,19 @@
+#
+#   # before
+#   class
+#
+#   # after
+#   /// <summary>
+#   /// Summary description for class
+#   /// </summary>
+#   class |{
+#		
+#   }
+#
+# --
+/// <summary>
+/// Summary description for class
+/// </summary>
+%0 %|{
+	
+}

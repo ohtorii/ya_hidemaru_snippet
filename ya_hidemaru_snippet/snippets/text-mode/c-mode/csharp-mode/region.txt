@@ -1,0 +1,12 @@
+#
+#   # before
+#   region
+#
+#   # after
+#   #region %|
+#
+#   #endregion
+# --
+#region %|
+
+#endregion

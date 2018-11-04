@@ -1,0 +1,13 @@
+#Description: regionに対するスニペット
+#
+#   # before
+#   region MyRegion
+#
+#   # after
+#   #region MyRegion
+#
+#   #endregion /*MyRegion*/
+# --
+#region %1
+%|
+#endregion /*%1*/

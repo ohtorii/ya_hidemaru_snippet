@@ -1,0 +1,9 @@
+#
+#   # before
+#   prop type
+#
+#   # after
+#   public type %|MyProperty { get; set; }
+#
+# --
+public %1 %|MyProperty { get; set; }

@@ -1,0 +1,17 @@
+#
+#   # before
+#   try
+#
+#   # after
+#   try{
+#       |
+#   }catch(Exception){
+#       throw
+#   }
+#
+# --
+try{
+	%|
+}catch(Exception){
+	throw;
+}

@@ -3,9 +3,9 @@
 #   class hoge
 #   
 #   # after
-#   class hoge|{
+#   class hoge{
 #   public:
-#       hoge(){
+#       hoge(|){
 #       }
 #       ~hoge(){
 #       }
@@ -16,9 +16,9 @@
 #   };
 #
 # --
-%0 %1%|{
+%0 %1%{
 public:
-	%1(){
+	%1(%|){
 	}
 	~%1(){
 	}

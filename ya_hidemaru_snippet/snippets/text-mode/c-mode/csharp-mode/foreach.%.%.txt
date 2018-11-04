@@ -1,0 +1,13 @@
+#
+#   # before
+#   foreach item collection
+#
+#   # after
+#   foreach(var item in collection){
+#       |
+#   }
+#
+# --
+foreach(var item in collection){
+	%|
+}

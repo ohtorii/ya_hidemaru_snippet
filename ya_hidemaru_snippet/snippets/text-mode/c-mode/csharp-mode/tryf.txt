@@ -1,0 +1,19 @@
+#
+#   # before
+#   try
+#
+#   # after
+#   try{
+#       %|
+#   }
+#   finally{
+#       
+#   }
+#
+# --
+try{
+	%|
+}
+finally{
+	
+}
