@@ -89,6 +89,10 @@ Main:
 		message("非表示状態で秀丸エディタを開けませんでした。");
 		return false;
 	}
+	
+	disabledraw;
+	disableinvert;
+	
 	##cur_hidemaru = hidemaruhandle(0);
 	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
 	##result=##return;

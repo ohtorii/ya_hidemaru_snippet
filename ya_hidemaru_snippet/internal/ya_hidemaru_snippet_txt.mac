@@ -21,7 +21,8 @@ $g_args[0]	= "";
 #g_args_num	= 0;
 $g_args_line="";
 
-
+disabledraw;
+disableinvert;
 call Main;
 endmacro str(##return);
 

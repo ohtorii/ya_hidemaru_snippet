@@ -7,8 +7,8 @@
 	・スニペットのコマンド数は１６個まで。($0-$15)
 	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
 */
-
-
+disabledraw;
+disableinvert;
 
 ////////////////////////////////////////////////////////////////////////////
 //		内部処理
@@ -96,8 +96,6 @@ Main:
 		return false;
 	}
 
-	//disabledraw;
-	//disableinvert;
 	/*if(rectselecting){
 		message("矩形選択は未対応です。\n");
 		return false;
