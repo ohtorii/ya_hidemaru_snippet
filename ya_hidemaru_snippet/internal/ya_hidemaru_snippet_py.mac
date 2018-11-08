@@ -43,9 +43,6 @@ $g_tmpfile_base_name 	= "tmp_hidemaru_ya_snippet_py_macro";
 //テンポラリファイル（絶対パス）
 $g_tmp_in_filename 		= "";
 
-
-disabledraw;
-disableinvert;
 call LoadDengaku;
 if(##return){
 	call Main;
