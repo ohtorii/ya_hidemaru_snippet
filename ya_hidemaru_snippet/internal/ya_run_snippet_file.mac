@@ -106,8 +106,7 @@ Main:
 	}
 
 	disabledraw;
-	begingroupundo;
-
+	disableinvert;
 	/*コマンド行を削除する
 	(before)
 		prev-line
@@ -127,7 +126,6 @@ Main:
 	//挿入された行数を計算する。
 	##num_insert_lineno = linecount2 - ##old_linecount2;
 	call  AdjustCursorPos, ##num_insert_lineno;
-	endgroupundo;
 	return ##result;
 
 
