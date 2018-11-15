@@ -4,7 +4,7 @@
 #   rt
 #
 #   # after
-#   return 1;|
+#   return true;|
 #
 # --
-return 1;%|
+return true;%|
