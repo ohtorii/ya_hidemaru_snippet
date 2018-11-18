@@ -145,6 +145,10 @@ InsertHeadStr:
 
 /*æ“ª‚Ì‹ó”’s‚ğæ“¾‚·‚é*/
 GetHeadSpace:
+	if(selecting){
+		$$head = gettext2(0,seltoplineno,seltopcolumn,seltoplineno,1);
+		return $$head;
+	}
 	##old_column=column;
 	##old_lineno=lineno;
 	escape;

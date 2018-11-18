@@ -159,7 +159,11 @@ ParseLine:
 	##old_column=column;
 	##old_lineno=lineno;
 	//ˆês‚Ì•¶š—ñ‚ğæ“¾
-	$$linetext = gettext2(0,##old_lineno,linelen2,##old_lineno);
+	if(selecting){
+		$$linetext = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
+	}else{
+		$$linetext = gettext2(0,##old_lineno,linelen2,##old_lineno);
+	}
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
 	$$linetext = dllfuncstr("RTRIM",$$linetext);
