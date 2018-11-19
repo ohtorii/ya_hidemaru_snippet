@@ -113,6 +113,7 @@ Main:
 	if("" == $$abs_snippet_filename){
 		return false;
 	}
+	begingroupundo;
 	execmacro 	$g_run_snippet_mac,
 				$$abs_snippet_filename,
 				$g_args_line,
@@ -133,7 +134,9 @@ Main:
 				$g_args[13],
 				$g_args[14],
 				$g_args[15];
-	if(! ##return){
+	##exec_result=##return;
+	endgroupundo;
+	if(! ##exec_result){
 		message("execmacro Ç…é∏îsÇµÇ‹ÇµÇΩÅB\nÉ}ÉNÉçñº:"+$g_run_snippet_mac);
 		return false;
 	}
