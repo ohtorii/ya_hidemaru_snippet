@@ -31,8 +31,6 @@ Main:
 	call DoReplaceArg;
 	call DoReplaceWild;
 	call RemoveComment;
-	selectall;
-	copy;
 	return true;
 
 SetupArgs:
