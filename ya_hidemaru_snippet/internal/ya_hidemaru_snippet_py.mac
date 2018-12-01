@@ -33,8 +33,6 @@ $g_python_version 	= "3";
 ////////////////////////////////////////////////////////////////////////////
 //		内部処理
 ////////////////////////////////////////////////////////////////////////////
-//iniの絶対ファイル名（ya_hidemaru_snippet.mac 中で設定される）
-$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 
 //テンポラリファイル名（ベース名）
 //環境変数TMPのディレクトリに生成する。（可能な限り削除される）
@@ -156,12 +154,16 @@ MakePythonArrayString:
 	return $$result;
 
 LoadDengaku:
-	loaddll $g_dll_dengaku_abs_path;
-	if (!result) {
-		message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
-		return false;
+	loaddll macrodir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
 	}
-	return true;
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;
 
 //テンポラリファイル作成サブルーチン
 GetTempFile:

@@ -10,7 +10,6 @@
 $g_static_variable_name	= "ya_hidemaru_snippet_path";
 #g_static_variable_share_mode = 0;
 
-$g_dll_dengaku_abs_path = hidemarudir + "\\" + "DengakuDLL.dll";
 $g_snippets_dir_name 	= "snippets";
 $g_snippets_abs_dir		= currentmacrodirectory + "\\..\\" + $g_snippets_dir_name;
 
@@ -97,12 +96,16 @@ SurroundDoubleQuotation:
 	return "\"" + $$1 + "\"";
 	
 LoadDengaku:
-	loaddll $g_dll_dengaku_abs_path;
-	if (!result) {
-		message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
-		return false;
+	loaddll macrodir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
 	}
-	return true;
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;
 
 //絶対パスを返す
 GetAbsolutePathName:
