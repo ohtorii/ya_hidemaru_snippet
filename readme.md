@@ -1,11 +1,24 @@
 ﻿秀丸エディタの動的スニペット
 ========
 
+- [開発の経緯](#開発の経緯)
+- [特徴](#特徴)
+- [マクロの導入方法](#マクロの導入方法)
+- [ファイル構成](#ファイル構成)
+- [動作環境のカスタマイズ](#動作環境のカスタマイズ)
+- [スニペットのカスタマイズと新規作成](#スニペットのカスタマイズと新規作成)
+- [動作環境](#動作環境)
+- [更新履歴](#更新履歴)
+- [連絡先](#連絡先)
+- [謝辞](#謝辞)
+
 # 開発の経緯
+
 秀丸エディタには多くのスニペットマクロが公開されていまが、それら全ては**静的スニペット**展開です。<br>
 **動的スニペット**展開を行いたくこのマクロを作成しました。
 
 # 特徴
+
 本マクロではスニペットに、
 - [静的なスニペット]　テキストファイル
 - [動的なスニペット]　秀丸マクロ・Python・VBScript・JavaScript・WindowsBatch
@@ -16,22 +29,28 @@
 動的スニペットの動作は下記スクリーンショットで確認できます。
 
 ### スクリーンショット(その1 C/C++ basic)
+
 ![cpp main](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181101.gif?1312535670 "cpp snippet")
 
 ### スクリーンショット(その2 C/C++ class)
+
 ![cpp class](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181100.gif?1312535644 "cpp snippet")
 
 ### スクリーンショット(その3 C/C++ include guarder)
+
 ![cpp once](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181059.gif?1312535961 "cpp snippet")
 
 ### スクリーンショット(その4 Python class)
+
 ![python snippet](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181058.gif?1312535978 "python snippet")
 
 
 # マクロの導入方法
+
 全ファイルとフォルダを秀丸のスクリプトディレクトリにコピーしてください。
 
 ## キーアサイン
+
 `ya_hidemaru_snippet.mac` をキー割り当てして下さい。<br>
 （キー割り当ての例）
 - Ctrl-Enter
@@ -44,17 +63,20 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 なので、初めのうちは無理にキー割り当てをしなくても良いです。
 
 # ファイル構成
+
 |ファイル名|説明|
 |:---|:---|
 |ya_hidemaru_snippet.mac|動的スニペットマクロの本体|
 |ya_config_menu.mac|スニペットを更に便利に使うためのおまけマクロ|
 
 # 動作環境のカスタマイズ
+
 `\ya_hidemaru_snippet\internal\config.ini` で以下カスタマイズが可能です。
 - Pythonのバージョン(2 or 3)切り替え
 - ファイル拡張子とスニペットのモードを紐付ける
 
 # スニペットのカスタマイズと新規作成
+
 スニペット定義は`ya_hidemaru_snippet\snippets\text-mode`フォルダ以下にあります。
 
 まずは、以下ファイルを参照して頂くのが分かりやすいと思います。
@@ -69,21 +91,29 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 |c-mode\once.mac|秀丸マクロを利用したサンプル（秀丸エディタ固有の情報を取得してスニペットを生成します）|
 
 # 動作環境
+
 - 秀丸エディタ ver8以降
 - でんがくDLL (http://www.ceres.dti.ne.jp/~sugiura/)
 - ht_tools.dll (http://htom.in.coocan.jp/)
 
 # 更新履歴
+
 ### 2018/09/29 ver 1.0.0
+
 - インストール方法やスニペットの定義方法などを追加
+
 ### 2012/09/24 ver 0.5.0
+
 - GitHubにソースコードを公開
 
 # 連絡先
+
 <http://d.hatena.ne.jp/ohtorii/> <br>
-<https://twitter.com/ohtorii>
+<https://twitter.com/ohtorii> <br>
+<https://github.com/ohtorii>
 
 # 謝辞
+
 - [TextMate](https://macromates.com/) スニペット書式をかなり参考にしました。
 - [yasnippet](http://code.google.com/p/yasnippet/)
 - [YASnippet Hidemarized](https://github.com/mobitan/yas/)
