@@ -30,20 +30,31 @@
 
 ### スクリーンショット(その1 C/C++ basic)
 
-![cpp main](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181101.gif?1312535670 "cpp snippet")
+![cpp main](ya_hidemaru_snippet/image/cpp_main.gif "cpp snippet")
 
 ### スクリーンショット(その2 C/C++ class)
 
-![cpp class](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181100.gif?1312535644 "cpp snippet")
+![cpp class](ya_hidemaru_snippet/image/cpp_class.gif "cpp snippet")
 
 ### スクリーンショット(その3 C/C++ include guarder)
 
-![cpp once](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181059.gif?1312535961 "cpp snippet")
+![cpp once](ya_hidemaru_snippet/image/cpp_once.gif "cpp snippet")
 
 ### スクリーンショット(その4 Python class)
 
-![python snippet](http://cdn-ak.f.st-hatena.com/images/fotolife/o/ohtorii/20110805/20110805181058.gif?1312535978 "python snippet")
+![python snippet](ya_hidemaru_snippet/image/python.gif "python snippet")
 
+### スクリーンショット(その5 MarkDown)
+
+![markdown snippet](ya_hidemaru_snippet/image/markdown.gif "markdown snippet")
+
+### スクリーンショット(その6 Text)
+
+![Text snippet](ya_hidemaru_snippet/image/text.gif "text snippet")
+
+### スクリーンショット(その6 Command prompt)
+
+![Command prompt](ya_hidemaru_snippet/image/cmd.gif "Command prompt")
 
 # マクロの導入方法
 
