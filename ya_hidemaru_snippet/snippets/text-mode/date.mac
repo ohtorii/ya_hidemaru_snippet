@@ -1,0 +1,2 @@
+insert(date + "%|");
+endmacro str(true);
