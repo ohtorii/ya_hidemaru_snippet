@@ -48,6 +48,10 @@
 
 ![markdown snippet](ya_hidemaru_snippet/image/markdown.gif "markdown snippet")
 
+### スクリーンショット(その6 Hidemaru macro)
+
+![hidemaru snippet](ya_hidemaru_snippet/image/hidemaru.gif "hidemaru snippet")
+
 |コマンド|動作|
 |:--:|:--:|
 |toc|T目次(Table Of Contents)の挿入|
