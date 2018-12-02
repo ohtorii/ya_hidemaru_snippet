@@ -52,13 +52,6 @@
 
 ![hidemaru snippet](ya_hidemaru_snippet/image/hidemaru.gif "hidemaru snippet")
 
-|コマンド|動作|
-|:--:|:--:|
-|toc|T目次(Table Of Contents)の挿入|
-|table|テーブルの挿入|
-|image|imageのテンプレートを挿入|
-|link|linkのテンプレートを挿入|
-
 ### スクリーンショット(その6 Text)
 
 ![Text snippet](ya_hidemaru_snippet/image/text.gif "text snippet")
