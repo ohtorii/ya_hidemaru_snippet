@@ -48,17 +48,53 @@
 
 ![markdown snippet](ya_hidemaru_snippet/image/markdown.gif "markdown snippet")
 
+|コマンド|動作|
+|:--:|:--:|
+|toc|T目次(Table Of Contents)の挿入|
+|table|テーブルの挿入|
+|image|imageのテンプレートを挿入|
+|link|linkのテンプレートを挿入|
+
 ### スクリーンショット(その6 Text)
 
 ![Text snippet](ya_hidemaru_snippet/image/text.gif "text snippet")
+
+|コマンド|動作|
+|:--:|:--:|
+|date|日にちの挿入|
+|time|時間の挿入|
+|@rep|文字列の繰り返しを挿入|
 
 ### スクリーンショット(その6 Command prompt)
 
 ![Command prompt](ya_hidemaru_snippet/image/cmd.gif "Command prompt")
 
+|コマンド|動作|
+|:--:|:--:|
+|@cmd|コマンドプロンプトの実行|
+
+コマンドプロンプトを実行して、
+
+- カレントディレクトリのファイル一覧
+- フォルダ構造
+- 環境変数
+
+などを取得できます。
+
 # マクロの導入方法
 
-全ファイルとフォルダを秀丸のスクリプトディレクトリにコピーしてください。
+全ファイルとフォルダを秀丸エディタのスクリプトディレクトリにコピーしてください。
+
+	コピー後のディレクトリ構成
+	hidemaru_macrodir
+	│  ya_config_menu.mac
+	│  ya_hidemaru_snippet.mac
+	└─ya_hidemaru_snippet
+	    ├─bonus
+	    ├─doc
+	    ├─image
+	    ├─internal
+	    └─snippets
 
 ## キーアサイン
 
@@ -108,6 +144,11 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 - ht_tools.dll (http://htom.in.coocan.jp/)
 
 # 更新履歴
+
+### 2018/12/02 ver 1.1.0
+- テキストの選択範囲をスニペットとして認識するようにしました。
+- 利用頻度の低いスニペットは削除して高いスニペットは機能強化を行いました。
+- DLLの検索パスをhidemarudirとmacrodirの２箇所に変更しました。
 
 ### 2018/09/29 ver 1.0.0
 
