@@ -1,0 +1,156 @@
+﻿/* TOC generator for Markdown.
+
+=========
+Format
+=========
+toc depth
+
+=========
+Example
+=========
+#before
+toc 2
+
+#after
+- [Feature](#feature)
+- [Install](#install)
+    :
+    :
+
+#Thanks.
+https://github.com/stakiran/intoc
+https://qiita.com/sta/items/9481c94e0fc36f27fa92
+*/
+
+$g_tmpfile_base_name = "hidemaru_ya_md_toc_tmp";
+
+
+disabledraw;
+disableinvert;
+begingroupundo;
+call main;
+endgroupundo;
+endmacro;
+
+
+main:
+	//編集中のテキストをテンポラリファイルへコピーする。
+	call GetTempFile $g_tmpfile_base_name, ".md";
+	if(0==strlen($$return)){
+		return false;
+	}
+	$$tmp_in_filename_cs = $$return;
+	##edit_hidemaru_handle = val(getarg(1));
+	call MakeFile  $$tmp_in_filename_cs, ##edit_hidemaru_handle, hidemaruhandle(0);
+	if(! ##return){
+		return false;
+	}
+		
+		
+	##depth = val(getarg(16));	//引数2
+	if(##depth<=0){
+		##depth=2;
+	}
+	$$python=getarg(3);
+	
+	$$arg = $$python +
+			" " + currentmacrodirectory+"\\intoc\\intoc.py" +
+			" " + "-i " + $$tmp_in_filename_cs +
+			" " + "--parse-depth " + str(##depth);
+	runex $$arg
+			, 1 			//sync	  0:async 1:sync
+			, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+			, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+			, 5, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+			, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+			, 2 			//show	  0:auto 1:show 2:hide
+			, 1 			//nodraw  0:draw 1:no draw
+			, 0 			//unicode 0:ansi 2:unicode
+			;
+	deletefile $$tmp_in_filename_cs;
+	return result;
+
+//編集中のファイルを一時ファイルへ保存する
+MakeFile:
+	$$tmp_filename			= $$1;
+	##edit_hidemaru_handle 	= ##2;
+	##prev_hidemaru 		= ##3;
+	
+	//スニペット編集中の秀丸からテキストを全て取得する。
+	{
+		setactivehidemaru ##edit_hidemaru_handle;
+		##old_charset	= charset;
+		##old_column=column;
+		##old_lineno=lineno;
+		selectall;
+		$$text=gettext(seltopx,seltopy,selendx,selendy);
+		//全選択で変化したカーソル位置を元に戻す
+		movetolineno ##old_column+1, ##old_lineno;
+	}
+	
+	//非表示で秀丸を開き $$text を保存する。
+	{
+		openfile "/h " + $$tmp_filename;
+		if(! result){
+			message("テンポラリファイルのオープンに失敗。\n" + $$tmp_filename);
+			return false;
+		}
+		
+		##new_hidemaru = hidemaruhandle(0);
+		setencode ##old_charset,1;
+		insert $$text;
+	
+		save;
+	}
+	
+	//元の秀丸に戻す
+	setactivehidemaru	##prev_hidemaru;
+	closehidemaruforced ##new_hidemaru;
+	return true;
+
+//一時ファイル名を取得する
+GetTempFile:
+	$$tmp_filename_base = $$1;
+	$$tmp_filename_ext 	= $$2;
+
+	$$tempdir = getenv("tmp");
+	if(0==strlen($$tempdir)){
+		message("環境変数 tmp が設定されていません、設定して下さい。");
+		return	false;
+	}
+
+	$$tempdir = $$tempdir + "\\" + $g_tmpdir_base_name;
+	call CreateDir $$tempdir;
+	if(! ##return){
+		return "";
+	}
+	$$tempdir = $$tempdir + "\\";
+
+	##n=0;
+	while(##n<1000){
+		$$tempfile = $$tempdir + $$tmp_filename_base + str(##n) + $$tmp_filename_ext;
+		if( !existfile( $$tempfile ) ) {
+			return $$tempfile;
+		}
+		##n = ##n + 1;
+	}
+
+	message "テンポラリファイルが作成できません\n" +
+			$$tempfile + "\n\n" +
+			"下記テンポラリディレクトリ内のファイルを全て削除してみて下さい。\n" +
+			$$tempdir;
+
+	return "";
+
+//ディレクトリ作成
+CreateDir:
+	$$abs_dirname = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	callmethod ##obj,"CreateFolder",$$abs_dirname;
+	##ret=callmethod_returnnum(##obj,"FolderExists",$$abs_dirname);
+	if(! ##ret){
+		message("テンポラリディレクトリの作成に失敗しました。\n" + $$abs_dirname);
+		return false;
+	}
+	releaseobject ##obj;
+	return ##ret;

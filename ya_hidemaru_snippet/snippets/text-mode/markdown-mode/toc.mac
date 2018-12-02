@@ -1,0 +1,49 @@
+﻿/* TOC generator for Markdown.
+
+#before
+toc
+
+#after
+- [Feature](#feature)
+- [Install](#install)
+    :
+    :
+
+#Thanks.
+https://github.com/stakiran/intoc
+https://qiita.com/sta/items/9481c94e0fc36f27fa92
+*/
+
+$depth="2";
+execmacro currentmacrodirectory+"\\toc.%.mac"
+		,getarg(0)
+		,getarg(1)
+		,getarg(2)
+		,getarg(3)
+		,getarg(4)
+		,getarg(5)
+		,getarg(6)
+		,getarg(7)
+		,getarg(8)
+		,getarg(9)
+		,getarg(10)
+		,getarg(11)
+		,getarg(12)
+		,getarg(13)
+		,getarg(14)
+		,getarg(15)
+		,$depth	//getarg(16)
+		,getarg(17)
+		,getarg(18)
+		,getarg(19)
+		,getarg(20)
+		,getarg(21)
+		,getarg(22)
+		,getarg(23)
+		,getarg(24)
+		,getarg(25)
+		,getarg(26)
+		,getarg(27)
+		,getarg(28)
+		,getarg(29)
+		,getarg(30);
