@@ -9,14 +9,10 @@
 */
 
 ////////////////////////////////////////////////////////////////////////////
-//		ユーザーカスタマイズ
+//	Pythonの情報
 ////////////////////////////////////////////////////////////////////////////
-
 //Pythonへのパス
-//$g_python_exe = "C:\\Python27\\python.exe";
-//$g_python_exe = "C:\\Python32\\python.exe";
 $g_python_exe 		= "python.exe";
-
 //Pythonのバージョン。"2" or "3"
 $g_python_version 	= "3";
 
@@ -50,13 +46,15 @@ endmacro str(##return);
 
 
 Main:
-	$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
+	/*$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
 	call ParseIni $$ini_abs_filename;
 	if(! ##return){
 		return false;
-	}
+	}*/
+	$g_python_exe			= getarg(3);
+	$g_python_version		= getarg(4);
 	
-	$$abs_snippet_filename = getarg(0);
+	$$abs_snippet_filename 	= getarg(0);
 
 	call MakePythonArrayString;
 	$$array_str = $$return;
