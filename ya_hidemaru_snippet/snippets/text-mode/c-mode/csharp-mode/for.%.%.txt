@@ -1,0 +1,13 @@
+#
+#	# before
+#	for i length
+#
+#	# after
+#	for(int i=0 ; i<length ; ++i){
+#		|
+#	}
+#
+# --
+%0(int %1=0 ; %1<%2 ; ++%1){
+	%|
+}
