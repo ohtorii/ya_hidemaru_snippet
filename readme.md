@@ -28,23 +28,27 @@
 
 動的スニペットの動作は下記スクリーンショットで確認できます。
 
-### スクリーンショット(その1 C/C++ basic)
+### スクリーンショット(C#)
+
+![c# main](ya_hidemaru_snippet/image/c#.gif "c#")
+
+### スクリーンショット(C/C++ basic)
 
 ![cpp main](ya_hidemaru_snippet/image/cpp_main.gif "cpp snippet")
 
-### スクリーンショット(その2 C/C++ class)
+### スクリーンショット(C/C++ class)
 
 ![cpp class](ya_hidemaru_snippet/image/cpp_class.gif "cpp snippet")
 
-### スクリーンショット(その3 C/C++ include guarder)
+### スクリーンショット(C/C++ include guarder)
 
 ![cpp once](ya_hidemaru_snippet/image/cpp_once.gif "cpp snippet")
 
-### スクリーンショット(その4 Python class)
+### スクリーンショット(Python class)
 
 ![python snippet](ya_hidemaru_snippet/image/python.gif "python snippet")
 
-### スクリーンショット(その5 MarkDown)
+### スクリーンショット(MarkDown)
 
 ![markdown snippet](ya_hidemaru_snippet/image/markdown.gif "markdown snippet")
 
@@ -55,11 +59,11 @@
 |image	|imageのテンプレートを挿入|
 |link	|linkのテンプレートを挿入|
 
-### スクリーンショット(その6 Hidemaru macro)
+### スクリーンショット(Hidemaru macro)
 
 ![hidemaru snippet](ya_hidemaru_snippet/image/hidemaru.gif "hidemaru snippet")
 
-### スクリーンショット(その6 Text)
+### スクリーンショット(Text)
 
 ![Text snippet](ya_hidemaru_snippet/image/text.gif "text snippet")
 
@@ -69,7 +73,7 @@
 |time|時間の挿入|
 |@rep|文字列の繰り返しを挿入|
 
-### スクリーンショット(その6 Command prompt)
+### スクリーンショット(Command prompt)
 
 ![Command prompt](ya_hidemaru_snippet/image/cmd.gif "Command prompt")
 
@@ -87,7 +91,7 @@
 
 ### 対応言語
 
-ディフォルトで以下言語のスニペットを用意しています。
+ディフォルトで以下のスニペットを用意しています。
 
 - C/C++
 - C#
@@ -99,6 +103,8 @@
 - php
 - python
 - hidemaru-macro
+
+もちろん、ユーザー独自のスニペットを追加することも出来ます！
 
 
 # マクロの導入方法
@@ -121,13 +127,12 @@
 `ya_hidemaru_snippet.mac` をキー割り当てして下さい。<br>
 （キー割り当ての例）
 - Ctrl-Enter
-- Ctrl-P 
 - Alt-Enter
 
 ちなみに、私はCtrl-Enterに割り当てています。
 
 ya_config_menu.mac は、この動的スニペットのマクロを更に便利にしたいときに利用します。<br>
-なので、初めのうちは無理にキー割り当てをしなくても良いです。
+なので、初めのうちは無理にキー割り当てをしなくても良いですし、そもそも説明をこれから書くような段階です。
 
 # ファイル構成
 
@@ -187,5 +192,5 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 # 謝辞
 
 - [TextMate](https://macromates.com/) スニペット書式をかなり参考にしました。
-- [yasnippet](http://code.google.com/p/yasnippet/)
+- [emacs yasnippet](http://code.google.com/p/yasnippet/)
 - [YASnippet Hidemarized](https://github.com/mobitan/yas/)
