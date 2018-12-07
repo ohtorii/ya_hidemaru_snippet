@@ -30,7 +30,7 @@
 
 ### スクリーンショット(C#)
 
-![cs main](ya_hidemaru_snippet/image/c#.gif "cs")
+![cs main](ya_hidemaru_snippet/image/cs.gif "cs")
 
 ### スクリーンショット(C/C++ basic)
 
