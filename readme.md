@@ -1,4 +1,4 @@
-﻿秀丸エディタの動的スニペット
+﻿秀丸エディタの動的スニペット (Yet Another Hidemaru Snippet)
 ========
 
 - [開発の経緯](#開発の経緯)
@@ -249,7 +249,7 @@ https://github.com/ohtorii/ya_hidemaru_snippet/releases
 
 # 連絡先
 
-<http://d.hatena.ne.jp/ohtorii/> <br>
+<https://ohtorii.hatenadiary.jp> <br>
 <https://twitter.com/ohtorii> <br>
 <https://github.com/ohtorii>
 
