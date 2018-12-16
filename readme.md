@@ -241,6 +241,12 @@ Pythonを利用したスニペットが動かないときは、[python]セクシ
 
 - GitHubにソースコードを公開
 
+# ダウンロード
+
+こちらからダウンロードして下さい。	<br>
+https://github.com/ohtorii/ya_hidemaru_snippet/releases
+
+
 # 連絡先
 
 <http://d.hatena.ne.jp/ohtorii/> <br>
