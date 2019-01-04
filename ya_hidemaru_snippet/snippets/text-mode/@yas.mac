@@ -1,6 +1,6 @@
-#Description:Help Yet Another Hidemaru Snippet.
-# --
-Usage: @yas [help]
+﻿/*Description:Help Yet Another Hidemaru Snippet.
+*/
+insert(@"Usage: @yas [help]
   or : @yas [help サブコマンド] 
 
 @yas help [subcommand] とタイプするとサブコマンドの詳細を表示します。
@@ -13,3 +13,8 @@ pull_request //予約
 
 利用例:
 @yas help mode
+
+連絡先:
+https://ohtorii.hatenadiary.jp
+https://twitter.com/ohtorii
+https://github.com/ohtorii");
