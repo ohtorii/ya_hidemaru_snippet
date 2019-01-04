@@ -1,0 +1,15 @@
+#Description:Help Yet Another Hidemaru Snippet.
+# --
+Usage: @yas [help]
+  or : @yas [help サブコマンド] 
+
+@yas help [subcommand] とタイプするとサブコマンドの詳細を表示します。
+
+<利用可能なサブコマンド>:
+mode
+snippet
+current
+pull_request //予約
+
+利用例:
+@yas help mode
