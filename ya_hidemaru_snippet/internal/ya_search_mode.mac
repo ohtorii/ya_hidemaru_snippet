@@ -1,0 +1,128 @@
+﻿/*
+*/
+
+$ret="";
+call main getarg(0);
+endmacro $ret;
+
+main:
+	$$arg=$$1;
+	if($$arg==""){
+		//todo:現在のモードを取得する
+		$ret="Not impliment.";
+		return false;
+	}
+	
+	call TrimString $$arg,"/\\";
+	$$arg=$$return;
+	
+	execmacro currentmacrodirectory+"\\ya_get_snippet_dir.mac";
+	$$root=getresultex(-1);
+	if($$arg=="*"){
+		//call show2 $$root+"\\";
+		call show $$root;
+		return ##return;
+	}
+	//call show2 $$root+"\\"+$$arg+"\\";
+	call show $$root+"\\"+$$arg;
+	return ##return;
+
+show2:
+	$$root=$$1;
+	
+	//$$cmd="cmd.exe /cdir " + "\"" + $$root + "\\*.*\" /S /B /OD";
+	
+	//ok
+	$$cmd="cmd.exe /cdir *.* /S /B /OD";
+	
+	//$$cmd="cmd.exe /ctree /F";
+	
+	//insert($$cmd);
+	//return;
+	runex $$cmd
+			, 1 			//sync	  0:async 1:sync
+			, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+			, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+			, 0, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+			, 2, $$root 	//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+			, 2 			//show	  0:auto 1:show 2:hide
+			, 1 			//nodraw  0:draw 1:no draw
+			, 0 			//unicode 0:ansi 2:unicode
+			;
+			
+	//$$root -> ""
+	gofiletop;
+	//replaceallfast $$root,"",nocasesense,noregular;
+	return;
+
+show:
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+	call MakeText $$1,"";
+	return ##return;
+	
+MakeText:
+	$$root_dir 		= $$1;
+	$$space 		= $$2;
+	$$sub_dir		= "";
+	##sub_dir_len 	= 0;
+	
+	call SurroundDoubleQuotation $$root_dir + "\\*.*";
+	$$enume_root_dir = $$return;
+
+	##r = dllfunc("ENUMDIR",$$enume_root_dir);
+	while (1) {
+	    $$dir = dllfuncstr("FINDNEXT");
+	    if ($$dir == "") {
+			break;
+		}else if (($$dir == ".") || ($$dir == "..")) {
+			continue;
+		}
+		$$sub_dir[##sub_dir_len] = $$dir;
+		##sub_dir_len = ##sub_dir_len + 1;
+	}
+	
+	##index = 0;
+	while (##index < ##sub_dir_len){
+		$$current_sub_dir	= $$sub_dir[##index];
+		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
+	
+		$ret=$ret+$$space+$$current_sub_dir+"\n";
+		call MakeText $$abs_path, $$space+"\t";
+		##index = ##index + 1;
+	}
+	return true;
+
+SurroundDoubleQuotation:
+	return "\"" + $$1 + "\"";
+
+TrimString:
+	$$space=$$2;
+	if($$space==""){
+		$$space="\r\n\t 　";
+	}
+	while(1){
+	  ##word=strlen($$1);
+	  //文字列の先頭に空白文字がある場合、空白文字を削除
+	  if(strstr($$space,leftstr($$1,2))!=-1)$$1=rightstr($$1,##word-2);
+	  else if(strstr($$space,rightstr($$1,2))!=-1)$$1=leftstr($$1,##word-2);
+	  //ここまで全角文字の対処
+	  else if(strstr($$space,leftstr($$1,1))!=-1)$$1=rightstr($$1,##word-1);
+	  else if(strstr($$space,rightstr($$1,1))!=-1)$$1=leftstr($$1,##word-1);
+	  else break;
+	}
+	return $$1;
+
+LoadDengaku:
+	loaddll macrodir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;
