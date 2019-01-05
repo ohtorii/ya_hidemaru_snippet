@@ -1,0 +1,15 @@
+﻿/*スニペットのディレクトリを取得する
+
+Ex) c:\hidemaru-macro\ya-hidemaru-snippets\ya-hidemaru-snippets\text-mode
+*/
+$path=currentmacrodirectory+"\\..\\snippets\\text-mode";
+#obj=createobject("Scripting.FileSystemObject");
+/*if(#obj==0){
+	endmacro "obj==0";
+}*/
+$f  = callmethod_returnstr( #obj, "GetAbsolutePathName", $path);
+/*if(getresultex(10)==false){
+	endmacro "false";
+}*/
+releaseobject #obj;
+endmacro $f;
