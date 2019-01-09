@@ -45,8 +45,8 @@ main:
 	if(! ##return){
 		return false;
 	}
-		
-		
+	$modules_dir = getarg(5);
+	
 	##depth = val(getarg(16));	//引数2
 	if(##depth<=0){
 		##depth=2;
@@ -54,7 +54,7 @@ main:
 	$$python=getarg(3);
 	
 	$$arg = $$python +
-			" " + currentmacrodirectory+"\\intoc\\intoc.py" +
+			" " + $modules_dir+"\\intoc\\intoc.py" +
 			" " + "-i " + $$tmp_in_filename_cs +
 			" " + "--parse-depth " + str(##depth);
 	runex $$arg

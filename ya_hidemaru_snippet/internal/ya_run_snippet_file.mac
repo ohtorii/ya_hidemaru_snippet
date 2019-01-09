@@ -214,7 +214,14 @@ ExpandSnippetFile:
 		message("未対応の拡張子です。\n" + $$abs_snippet_filename);
 		return false;
 	}
-
+	
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_modules_dir.mac";
+	$$modules_dir = getresultex(-1);
+	if($$modules_dir==""){
+		message("スニペットのモジュールディレクトリを取得できませんでした。");
+		return false;
+	}
+	
 	//
 	//拡張子毎の展開マクロを呼ぶ。
 	//
@@ -227,8 +234,8 @@ ExpandSnippetFile:
 				$g_args_line,
 				$g_python_exe,
 				$g_python_version,
-				$$reserve,
-				$$reserve,
+				$$modules_dir,
+				currentmacrodirectory,
 				$$reserve,
 				$$reserve,
 				$$reserve,
@@ -295,7 +302,7 @@ AdjustCursorPos:
 
 ParseIni:
 	$$ini_abs_filename = $$1;
-	if(! strlen($$ini_abs_filename)){
+	if($$ini_abs_filename==""){
 		message("内部エラー：getstaticvariable(\"ini_abs_filename\",1)が空文字を返した。\n"	+
 				"作者へお問い合わせ下さい。"
 		);

@@ -1,68 +1,55 @@
 ﻿/*
+引数	mode_path,internal_dir
 */
 
+$sep="\t";
 $ret="";
-call main getarg(0);
-endmacro $ret;
+call main getarg(0),getarg(1);
+if(##return){
+	endmacro $ret;
+}
+endmacro "";
+
 
 main:
-	$$arg=$$1;
-	if($$arg==""){
-		//todo:現在のモードを取得する
-		$ret="Not impliment.";
-		return false;
+	$$path=$$1;
+	$$internal_dir=$$2;
+	if($$path==""){
+		execmacro $$internal_dir+"\\ya_util_get_current_snippet_mode.mac", "rel";
+		$ret=getresultex(-1);
+		return true;
 	}
 	
-	call TrimString $$arg,"/\\";
-	$$arg=$$return;
+	call TrimString $$path,"/\\";
+	$$path=$$return;
 	
-	execmacro currentmacrodirectory+"\\ya_get_snippet_dir.mac";
+	execmacro $$internal_dir+"\\ya_util_get_snippet_dir.mac";
 	$$root=getresultex(-1);
-	if($$arg=="*"){
-		//call show2 $$root+"\\";
-		call show $$root;
-		return ##return;
+	if($$root==""){
+		return false;
+	}else if($$path=="*"){
+		call Show $$root;
+	}else{
+		call Show $$root+"\\"+$$path;
 	}
-	//call show2 $$root+"\\"+$$arg+"\\";
-	call show $$root+"\\"+$$arg;
 	return ##return;
 
-show2:
-	$$root=$$1;
-	
-	//$$cmd="cmd.exe /cdir " + "\"" + $$root + "\\*.*\" /S /B /OD";
-	
-	//ok
-	$$cmd="cmd.exe /cdir *.* /S /B /OD";
-	
-	//$$cmd="cmd.exe /ctree /F";
-	
-	//insert($$cmd);
-	//return;
-	runex $$cmd
-			, 1 			//sync	  0:async 1:sync
-			, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
-			, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
-			, 0, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
-			, 2, $$root 	//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
-			, 2 			//show	  0:auto 1:show 2:hide
-			, 1 			//nodraw  0:draw 1:no draw
-			, 0 			//unicode 0:ansi 2:unicode
-			;
-			
-	//$$root -> ""
-	gofiletop;
-	//replaceallfast $$root,"",nocasesense,noregular;
-	return;
 
-show:
+Show:
 	call LoadDengaku;
 	if(! ##return){
 		return false;
 	}
-	call MakeText $$1,"";
-	return ##return;
+	call FindLastDirName $$1;
+	$$lastdir_name=$$return;
 	
+	$ret = $ret + $$lastdir_name+"\n";
+	call MakeText $$1,$sep;
+	##ret = ##return;
+	
+	$ret = $ret + "%|";
+	return ##ret;
+
 MakeText:
 	$$root_dir 		= $$1;
 	$$space 		= $$2;
@@ -90,7 +77,7 @@ MakeText:
 		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
 	
 		$ret=$ret+$$space+$$current_sub_dir+"\n";
-		call MakeText $$abs_path, $$space+"\t";
+		call MakeText $$abs_path, $$space+$sep;
 		##index = ##index + 1;
 	}
 	return true;
@@ -126,3 +113,38 @@ LoadDengaku:
 	}
 	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
+
+
+/*パスから最後のディレクトリ名を見つける
+
+（例）
+	"c:/foo/bar"
+	-> "bar"
+	
+	"c:/foo/bar//"
+	-> "bar"
+	
+	"c:/foo/bar/hoge.txt"
+	-> "hoge.txt"
+	
+	"c:"
+	-> ""
+*/
+FindLastDirName:
+	/*パス名の終端からディレクトリ区切り(\\/)を削除する
+	*/
+	call TrimString $$1, "\\/";
+	$$dir = $$return;
+	
+	##index = strrstr($$dir,"\\");
+	if(##index==-1){
+		##index = strrstr($$dir,"/");
+	}
+	if(##index==-1){
+		return "";
+	}
+	
+	//ディレクトリ区切りを読み飛ばす
+	##index=##index+1;
+	
+	return midstr($$dir,##index);

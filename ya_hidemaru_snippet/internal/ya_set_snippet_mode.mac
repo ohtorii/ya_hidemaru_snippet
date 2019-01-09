@@ -1,0 +1,10 @@
+﻿/*スニペットモードを設定する
+
+引数	スニペットのパス
+		(例)
+		execmacro "ya_set_snippet_mode.mac" "c:/hidemaru-macro/ya-hidemaru-snippet/snippet/text-mode/c-mode";
+*/
+$g_static_variable_name	= "ya_hidemaru_snippet_path";
+#g_static_variable_share_mode = 0;
+
+setstaticvariable $g_static_variable_name,getarg(0),#g_static_variable_share_mode;

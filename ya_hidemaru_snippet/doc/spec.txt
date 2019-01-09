@@ -69,9 +69,9 @@
 		getarg(2)	コマンドを除いた一行の文字列
 		getarg(3)	Python.exeの絶対パス
 		getarg(4)	Pythonのバージョン(2|3)
-		getarg(5)	reserved
-		getarg(6)		:
-		getarg(7)		:
+		getarg(5)	スニペットモジュールへの絶対パス
+		getarg(6)	internalディレクトリへの絶対パス
+		getarg(7)	reserved
 		getarg(8)		:
 		getarg(9)		:
 		getarg(10)		:

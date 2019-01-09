@@ -13,27 +13,17 @@ disableinvert;
 ////////////////////////////////////////////////////////////////////////////
 //		内部処理
 ////////////////////////////////////////////////////////////////////////////
-$g_ya_hidemaru_snippet_dir	= "ya_hidemaru_snippet";
-$g_snippets_dir_name 		= $g_ya_hidemaru_snippet_dir+"\\snippets";
-$g_internal_module_dir		= $g_ya_hidemaru_snippet_dir+"\\internal";
-$g_run_snippet_mac			= currentmacrodirectory + "\\" + $g_internal_module_dir + "\\ya_run_snippet_file.mac";
+$g_internal_sub_dir = "ya_hidemaru_snippet\\internal";
+$g_internal_abs_dir = currentmacrodirectory + "\\" + $g_internal_sub_dir;
 
-
-//long-file-nameのままだと、dengakuのENUMFILE関数で失敗するようなのでshort-path-nameで回避している。
-call GetShortPath currentmacrodirectory + "\\" + $g_snippets_dir_name + "\\";
+execmacro $g_internal_abs_dir + "\\ya_util_get_snippet_dir.mac";
+$g_snippets_abs_dir = getresultex(-1);
+//long-file-nameのままだと、dengakuのENUMFILE関数で失敗するためshort-path-nameで回避している。
+call GetShortPath $g_snippets_abs_dir;
 $g_snippets_abs_dir		= $$return + "\\";
 
-call GetShortPath currentmacrodirectory + "\\" + $g_internal_module_dir + "\\";
-$g_ini_abs_filename 	= $$return + "\\config.ini";
-$g_ini_section_name		= "config";
-
-$g_ini_section_new_file	= "new_file";
-$g_ini_key_ext			= "ext";
-
-//静的変数の名前
-$g_static_variable_name	= "ya_hidemaru_snippet_path";
-#g_static_variable_share_mode = 0;
-
+execmacro $g_internal_abs_dir + "\\ya_util_get_ini_filename.mac";
+$g_ini_abs_filename = getresultex(-1);
 
 
 
@@ -102,17 +92,18 @@ Main:
 	if(! ##return){
 		return false;
 	}
-
-	call GetSnippetDir;
-	$$abs_snippets_dir = $$return;
+	
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
+	$$abs_snippets_dir = getresultex(-1);
 
 	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
 	$$abs_snippet_filename = $$return;
 	if("" == $$abs_snippet_filename){
 		return false;
 	}
+	$$run_snippet_mac = $g_internal_abs_dir + "\\ya_run_snippet_file.mac";
 	begingroupundo;
-	execmacro 	$g_run_snippet_mac,
+	execmacro 	$$run_snippet_mac,
 				$$abs_snippet_filename,
 				$g_args_line,
 				str(#g_args_num),
@@ -135,7 +126,7 @@ Main:
 	##exec_result=##return;
 	endgroupundo;
 	if(! ##exec_result){
-		message("execmacro に失敗しました。\nマクロ名:"+$g_run_snippet_mac);
+		message("execmacro に失敗しました。\nマクロ名:"+$$run_snippet_mac);
 		return false;
 	}
 	return val(getresultex(-1));
@@ -198,53 +189,6 @@ ParseLine:
 	}
 	return false;
 
-/* ya_change_snippet_mode.mac マクロでスニペットが明示されているかどうか。
-*/
-GetExplicitSnippetMode:
-	 $$snippet_dir_name = getstaticvariable($g_static_variable_name,#g_static_variable_share_mode);
-	 call IsFolderExists $$snippet_dir_name;
-	 if(##return){
-		 return $$snippet_dir_name;
-	 }
-	 return "";
-
-GetSnippetDir:
-	call GetExplicitSnippetMode;
-	$$path =  $$return;
-	if(0 < strlen($$path)){
-		return $$path;
-	}
-	call GetCurrentFileExt;
-	$$ext=$$return;
-
-	call ParseIni_Ext $$ext;
-	$$abs_snippets_dir=$$return;
-	return $$abs_snippets_dir;
-
-GetCurrentFileExt:
-	$$ext=filetype;
-	if(0==strstr($$ext,".")){
-		return $$ext;
-	}
-	$$ext = getinistr($g_ini_abs_filename,$g_ini_section_new_file,$g_ini_key_ext);
-	if(0<strlen($$ext)){
-		return $$ext;
-	}
-	return "text-mode";
-
-
-ParseIni_Ext:
-	$$ext 		= $$1;
-	$$dir_name 	= getinistr($g_ini_abs_filename, $g_ini_section_name,$$ext);
-	$$abs_dir 	= $g_snippets_abs_dir + $$dir_name ;
-	call IsFolderExists $$abs_dir;
-	if(! ##return){
-		message("iniファイルに記述されているディレクトリが存在しません。\n"	+
-				"iniファイルの内容を確認して下さい。\n"						+
-				"\nディレクトリ="+$$dir_name);
-		return "";
-	}
-	return $$abs_dir;
 
 /* スニペットファイルを探す
 return

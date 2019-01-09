@@ -1,0 +1,7 @@
+﻿/*現在のスニペットモードを取得する
+
+引数	なし
+*/
+$g_static_variable_name	= "ya_hidemaru_snippet_path";
+#g_static_variable_share_mode = 0;
+endmacro getstaticvariable($g_static_variable_name,#g_static_variable_share_mode);

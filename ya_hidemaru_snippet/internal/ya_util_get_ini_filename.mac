@@ -1,0 +1,7 @@
+﻿/* config.iniの絶対パスを取得する
+
+execmacro "ya_util_get_ini_filename.mac";
+-> "c:\hidemaru-macro\ya-hidemaru-snippets\internal\config.ini"
+*/
+
+endmacro currentmacrodirectory+"\\config.ini";

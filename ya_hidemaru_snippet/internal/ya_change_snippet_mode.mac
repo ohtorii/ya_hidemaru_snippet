@@ -7,14 +7,11 @@
 ・一時的に他のモードへ変更したいときに使用します。
 */
 
-$g_static_variable_name	= "ya_hidemaru_snippet_path";
-#g_static_variable_share_mode = 0;
 
-$g_snippets_dir_name 	= "snippets";
-$g_snippets_abs_dir		= currentmacrodirectory + "\\..\\" + $g_snippets_dir_name;
+execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
+$g_snippets_abs_dir = getresultex(-1);
 
-call GetAbsolutePathName $g_snippets_abs_dir;
-call GetShortPath $$return;
+call GetShortPath $g_snippets_abs_dir;
 $g_snippets_abs_dir = $$return;
 
 $g_menu_text			= "";
@@ -47,8 +44,7 @@ Main:
 	}
 	
 	$$path_name = $g_abs_snippets_dir[result-1];
-	setstaticvariable $g_static_variable_name,$$path_name,#g_static_variable_share_mode;
-	
+	execmacro currentmacrodirectory+"\\ya_set_snippet_mode.mac", $$path_name;
 	return true;
 
 
@@ -106,14 +102,6 @@ LoadDengaku:
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
-
-//絶対パスを返す
-GetAbsolutePathName:
-	$$path = $$1;
-	##obj = createobject("Scripting.FileSystemObject");
-	$$result = callmethod_returnstr( ##obj, "GetAbsolutePathName", $$path);
-	releaseobject ##obj;
-	return $$result;
 
 GetShortPath:
 	$$path=$$1;
