@@ -90,9 +90,9 @@ Main:
 	}*/
 	call ParseLine;
 	if(! ##return){
-		return false;
+		call InsertCandidate;
+		return ##return;
 	}
-	
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
 	$$abs_snippets_dir = getresultex(-1);
 
@@ -415,3 +415,10 @@ LoadDengaku:
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
 
+/*スニペット候補を挿入する
+*/
+InsertCandidate:
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
+	$$candidate=getresultex(-1);
+	insert $$candidate;
+	return true;
