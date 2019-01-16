@@ -3,7 +3,7 @@
 返値	スニペットのモジュールディレクトリを文字列で返しますが、
 		処理に失敗すると空白文字を返します。
 		
-		(返値の例) c:\hidemaru-macro\ya-hidemaru-snippets\text-mode
+		(返値の例) c:\hidemaru-macro\ya-hidemaru-snippets\modules
 		パス末尾にディレクトリ区切り(\/)は付きません。
 */
 $path=currentmacrodirectory+"\\..\\snippets\\modules";
