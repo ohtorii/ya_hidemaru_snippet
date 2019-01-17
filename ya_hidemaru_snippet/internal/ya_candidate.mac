@@ -5,8 +5,20 @@ input	スニペット文字列の一部、又は、空白文字
 return	スニペット文字列
 */
 
-$menu_array[0]="";
-#menu_array_len=0;
+#menu_array_len 	=0;
+$menu_array[0]		=""; //メニューの文字列
+$menu_filename[0]	="";
+
+//選択したスニペットのコマンド名と引数
+$snippet_command_name="";
+#snippet_argument_num=0;
+#snippet_has_variable_argument=false;
+$snippet_gui_argument_id[0]="";
+$message_loop_result="";
+
+$notify_ok="200";
+$notify_cancel="201";
+
 
 //再帰呼び出しの回数を制限するためのカウンター
 //処理ミスで無限ループしてしまわないように念のため
@@ -45,26 +57,42 @@ main:
 		##i=0;
 		while(##i < #menu_array_len){
 			call RemoveExtension $menu_array[##i];
-			call FormatFileName $$return;
+			$$filename			=$$return;
+			$menu_filename[##i]	=$$filename;
+			call FormatFileName $$filename;
 			$menu_array[##i]=$$return;
 			##i = ##i + 1;
 		}
 	}
-	
+
 	menuarray $menu_array, #menu_array_len;
 	##index=result;
 	if(##index==0){
 		return "";
 	}
 	##index = ##index - 1;
-	return $menu_array[##index];
+	call ParseArgument $menu_filename[##index];
+	if((#snippet_argument_num==0) && (#snippet_has_variable_argument==false)){
+		//引数無し
+		return $menu_array[##index];
+	}
+	call CreateDiralog $menu_array[##index];
+	if(! ##return){
+		return "";
+	}
+	call MessageLoop;
+	if(! ##return){
+		return "";
+	}
+
+	return $snippet_command_name + " " + $message_loop_result;
 
 
 MakeMenuArray:
 	if(10 < #recusive_guarder){
 		return;
 	}
-	
+
 	$$snippet_root	= $$1;
 	$$current_dir	= $$2;
 
@@ -88,7 +116,7 @@ MakeMenuArray:
 	if($$parent_dir==$$snippet_root){
 		return true;
 	}
-	
+
 	#recusive_guarder = #recusive_guarder + 1;
 	call MakeMenuArray $$snippet_root,$$parent_dir;
 	return ##return;
@@ -157,6 +185,36 @@ RemoveExtension:
 	}
 	return leftstr($$1,##index);
 
+/*
+*/
+ParseArgument:
+	$snippet_command_name="";
+	#snippet_argument_num=0;
+	#snippet_has_variable_argument=false;
+
+	$$token = dllfuncstr("GETTOKEN",$$1,".");
+	$snippet_command_name=$$token;
+	if (dllfunc("HASMORETOKENS") == 0) {
+		return;
+	}
+	$$token = dllfuncstr("GETTOKEN","",".");
+	while (1) {
+		if($$token==""){
+			break;
+		}else if($$token=="%"){
+			#snippet_argument_num = #snippet_argument_num + 1;
+		}else if($$token=="_"){
+			#snippet_has_variable_argument=true;
+		}else{
+
+		}
+		##token_array_num = ##token_array_num + 1;
+		if (dllfunc("HASMORETOKENS") == 0) {
+			break;
+		}
+		$$token = dllfuncstr("GETTOKEN","",".");
+	}
+	return;
 
 /*ファイル名をメニュー用に整形する
 main     -> main
@@ -173,9 +231,8 @@ FormatFileName:
 	##token_array_num	=0;
 	if(true){
 		##arg_index			=0;
-		$$separator			=".";
 
-		$$token = dllfuncstr("GETTOKEN",$$1,$$separator);
+		$$token = dllfuncstr("GETTOKEN",$$1,".");
 		while (1) {
 			if($$token==""){
 				break;
@@ -192,7 +249,7 @@ FormatFileName:
 			if (dllfunc("HASMORETOKENS") == 0) {
 				break;
 			}
-			$$token = dllfuncstr("GETTOKEN","",$$separator);
+			$$token = dllfuncstr("GETTOKEN","",".");
 		}
 	}
 
@@ -216,6 +273,95 @@ FormatFileName:
 	}
 	return $$result;
 
+CreateDiralog:
+	$$title = $$1;
+	##default_width = 100;
+	if(	dllfunc("NEWDIALOG","コマンドの引数を入力します ("+$$title+")",##default_width,"") == 0 ){
+		return false;
+	}
+
+	##i=0;
+	while(##i<#snippet_argument_num){
+		$snippet_gui_argument_id[##i] = sprintf("Yas@Argument%d",##i);
+		if(	dllfunc("NEWCONTROL", "text", "", sprintf("引数[%d]",##i)) == 0			||
+			dllfunc("SETCTRLWIDTH", "", 8) == 0 						||
+			dllfunc("NEWCONTROL", "edit", $snippet_gui_argument_id[##i], "") == 0		){
+			return false;
+		}
+		##i = ##i + 1;
+	}
+	if(#snippet_has_variable_argument){
+		if(	dllfunc("NEWCONTROL", "text", "", "引数[...]") == 0				||
+			dllfunc("SETCTRLWIDTH", "", 8) == 0 							||
+			dllfunc("NEWCONTROL", "edit", "Yas@VariableArgument", "") == 0){
+			return false;
+		}
+	}
+	if(	dllfunc("NEWCONTROL", "text", "Yas@Message", "") == 0){
+		return false;
+	}
+	if(	dllfunc("NEWCONTROL", "button", "Yas@Ok", "OK") == 0||
+		dllfunc("SETCTRLNOTIFY","",$notify_ok) == 0 ||
+		dllfunc("NEWCONTROL", "button", "Yas@Cancel", "Cancel") == 0	||
+		dllfunc("SETCTRLNOTIFY","",$notify_cancel) == 0 ){
+		return false;
+	}
+
+	##n = dllfunc("SHOWDIALOG", hidemaruhandle(0), 1);
+	return true;
+
+
+MessageLoop:
+	call MessageLoopCore;
+	##ret = ##return;
+	#n = dllfunc("ENDDIALOG");
+	return ##ret;
+
+
+MessageLoopCore:
+	while (1) {
+		$$item = dllfuncstr("WAITCTRLNOTIFY",100);
+		if($$item==$notify_cancel){
+			return false;	//cancel
+		}else if($$item==$notify_ok){
+			break;			//ok
+		}
+		//固定引数に全て入力したら「OKボタン」を有効にする。
+		call TotalItemToTextExists;
+		##n = dllfunc("ENABLECTRL",##return,"Yas@Ok");
+	}
+	//
+	//ダイアログに入力した文字を連結して返す
+	//
+	$message_loop_result="";
+	##i=0;
+	while(##i<#snippet_argument_num){
+		if(0<##i){
+			$message_loop_result=$message_loop_result+" ";
+		}
+		$message_loop_result = $message_loop_result + dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		##i = ##i + 1;
+	}
+	if(#snippet_has_variable_argument){
+		if(#snippet_argument_num){
+			$message_loop_result=$message_loop_result+" ";
+		}
+		$message_loop_result = $message_loop_result + dllfuncstr("GETCTRLSTRING", "Yas@VariableArgument");
+	}
+	return true;
+
+
+TotalItemToTextExists:
+	##i=0;
+	while(##i<#snippet_argument_num){
+		$$text = dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		if($$text==""){
+			return false;
+		}
+		##i = ##i + 1;
+	}
+	return true;
+
 
 LoadDengaku:
 	loaddll macrodir + "\\DengakuDLL.dll";
@@ -228,5 +374,3 @@ LoadDengaku:
 	}
 	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
-
-
