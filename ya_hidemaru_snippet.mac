@@ -89,11 +89,25 @@ Main:
 		message("矩形選択は未対応です。\n");
 		return false;
 	}*/
+	begingroupundo;
 	call ParseLine;
 	if(! ##return){
+		//
+		//パースした結果、空白行だった場合
+		//
+		
+		//補完候補を挿入する
 		call InsertCandidate;
-		return ##return;
+		if(! ##return){
+			return false;
+		}
+		//挿入されたコマンドをパースする
+		call ParseLine;
+		if(! ##return){
+			return false;
+		}
 	}
+	
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
 	$$abs_snippets_dir = getresultex(-1);
 
@@ -103,7 +117,6 @@ Main:
 		return false;
 	}
 	$$run_snippet_mac = $g_internal_abs_dir + "\\ya_run_snippet_file.mac";
-	begingroupundo;
 	execmacro 	$$run_snippet_mac,
 				$$abs_snippet_filename,
 				$g_args_line,
@@ -421,5 +434,8 @@ LoadDengaku:
 InsertCandidate:
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
 	$$candidate=getresultex(-1);
+	if($$candidate==""){
+		return false;
+	}
 	insert $$candidate;
 	return true;
