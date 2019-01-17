@@ -1,25 +1,25 @@
-/* Yet another snippet for hidemaru editor.
+ï»¿/* Yet another snippet for hidemaru editor.
 
-i“±“ü•û–@j
-	ƒL[ƒAƒTƒCƒ“‚µ‚Ä‰º‚³‚¢B
+ï¼ˆå°å…¥æ–¹æ³•ï¼‰
+	ã‚­ãƒ¼ã‚¢ã‚µã‚¤ãƒ³ã—ã¦ä¸‹ã•ã„ã€‚
 
-iƒƒ‚j
-	EƒXƒjƒyƒbƒg‚ÌƒRƒ}ƒ“ƒh”‚Í‚P‚UŒÂ‚Ü‚ÅB($0-$15)
-	  İ’è‚ğ•ÏX‚µ‚½‚çExpandSnippetFileŠÖ”’†‚Ìexecmacro‚ğC³‚·‚é‚±‚ÆB
+ï¼ˆãƒ¡ãƒ¢ï¼‰
+	ãƒ»ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ã‚³ãƒãƒ³ãƒ‰æ•°ã¯ï¼‘ï¼–å€‹ã¾ã§ã€‚($0-$15)
+	  è¨­å®šã‚’å¤‰æ›´ã—ãŸã‚‰ExpandSnippetFileé–¢æ•°ä¸­ã®execmacroã‚’ä¿®æ­£ã™ã‚‹ã“ã¨ã€‚
 */
 disabledraw;
 disableinvert;
 disablebreak;
 
 ////////////////////////////////////////////////////////////////////////////
-//		“à•”ˆ—
+//		å†…éƒ¨å‡¦ç†
 ////////////////////////////////////////////////////////////////////////////
 $g_internal_sub_dir = "ya_hidemaru_snippet\\internal";
 $g_internal_abs_dir = currentmacrodirectory + "\\" + $g_internal_sub_dir;
 
 execmacro $g_internal_abs_dir + "\\ya_util_get_snippet_dir.mac";
 $g_snippets_abs_dir = getresultex(-1);
-//long-file-name‚Ì‚Ü‚Ü‚¾‚ÆAdengaku‚ÌENUMFILEŠÖ”‚Å¸”s‚·‚é‚½‚ßshort-path-name‚Å‰ñ”ğ‚µ‚Ä‚¢‚éB
+//long-file-nameã®ã¾ã¾ã ã¨ã€dengakuã®ENUMFILEé–¢æ•°ã§å¤±æ•—ã™ã‚‹ãŸã‚short-path-nameã§å›é¿ã—ã¦ã„ã‚‹ã€‚
 call GetShortPath $g_snippets_abs_dir;
 $g_snippets_abs_dir		= $$return + "\\";
 
@@ -36,7 +36,7 @@ $g_args[0]	= "";
 #g_args_num	= 0;
 $g_args_line="";
 
-/*ƒXƒjƒyƒbƒgƒtƒ@ƒCƒ‹‚Ö‚Ìâ‘ÎƒpƒX
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®çµ¶å¯¾ãƒ‘ã‚¹
 	(ex)
 	[0]="c:/hidemaru_macro/snippets/.c.cpp/for.txt"
 	[1]="c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
@@ -44,26 +44,26 @@ $g_args_line="";
 */
 $g_snippet_file[0]			= "";
 
-/*ƒXƒjƒyƒbƒgƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ÆŠg’£q‚ğæ‚èœ‚¢‚½ƒx[ƒX–¼
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ã¨æ‹¡å¼µå­ã‚’å–ã‚Šé™¤ã„ãŸãƒ™ãƒ¼ã‚¹å
 	(ex)
 	[0]="for"
 	[1]="for.%"
 	[2]="for.%.%"
 
-i”õljŒŸõ‚Å—˜—pB
+ï¼ˆå‚™è€ƒï¼‰æ¤œç´¢ã§åˆ©ç”¨ã€‚
 */
 $g_snippet_file_basename[0]	= "";
 
-/* $g_snippet_file ‚Æ $g_snippet_file_basename ‚Ì’·‚³B
+/* $g_snippet_file ã¨ $g_snippet_file_basename ã®é•·ã•ã€‚
 */
 #g_snippet_file_num	= 0;
 
 $_g_old_searchbuffer = searchbuffer;
 #_g_searchoption 	 = searchoption;
 disablehistory 0xff;
-//“®ìŠÂ‹«‚ğŒÅ’è‰»‚·‚éB
-//Ü‚è‚½‚½‚İ‚ğˆÛ,•”•ª•ÒW‚ğˆÛ,”ÍˆÍ‘I‘ğ,ÅŒã‚ÉˆÚ“®
-//ƒ}ƒNƒI—¹‚ÉŒ³‚É–ß‚éB
+//å‹•ä½œç’°å¢ƒã‚’å›ºå®šåŒ–ã™ã‚‹ã€‚
+//æŠ˜ã‚ŠãŸãŸã¿ã‚’ç¶­æŒ,éƒ¨åˆ†ç·¨é›†ã‚’ç¶­æŒ,ç¯„å›²é¸æŠ,æœ€å¾Œã«ç§»å‹•
+//ãƒã‚¯ãƒ­çµ‚äº†æ™‚ã«å…ƒã«æˆ»ã‚‹ã€‚
 setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
 call CheckEnvironment;
 if(##return){
@@ -81,27 +81,27 @@ endmacro;
 Main:
 	call SetGlovalValue;
 	if(! ##return){
-		message("setstaticvariable‚Å¸”s");
+		message("setstaticvariableã§å¤±æ•—");
 		return false;
 	}
 
 	/*if(rectselecting){
-		message("‹éŒ`‘I‘ğ‚Í–¢‘Î‰‚Å‚·B\n");
+		message("çŸ©å½¢é¸æŠã¯æœªå¯¾å¿œã§ã™ã€‚\n");
 		return false;
 	}*/
 	begingroupundo;
 	call ParseLine;
 	if(! ##return){
 		//
-		//ƒp[ƒX‚µ‚½Œ‹‰ÊA‹ó”’s‚¾‚Á‚½ê‡
+		//ãƒ‘ãƒ¼ã‚¹ã—ãŸçµæœã€ç©ºç™½è¡Œã ã£ãŸå ´åˆ
 		//
 		
-		//•âŠ®Œó•â‚ğ‘}“ü‚·‚é
+		//è£œå®Œå€™è£œã‚’æŒ¿å…¥ã™ã‚‹
 		call InsertCandidate;
 		if(! ##return){
 			return false;
 		}
-		//‘}“ü‚³‚ê‚½ƒRƒ}ƒ“ƒh‚ğƒp[ƒX‚·‚é
+		//æŒ¿å…¥ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰ã‚’ãƒ‘ãƒ¼ã‚¹ã™ã‚‹
 		call ParseLine;
 		if(! ##return){
 			return false;
@@ -140,7 +140,7 @@ Main:
 	##exec_result=##return;
 	endgroupundo;
 	if(! ##exec_result){
-		message("execmacro ‚É¸”s‚µ‚Ü‚µ‚½B\nƒ}ƒNƒ–¼:"+$$run_snippet_mac);
+		message("execmacro ã«å¤±æ•—ã—ã¾ã—ãŸã€‚\nãƒã‚¯ãƒ­å:"+$$run_snippet_mac);
 		return false;
 	}
 	return val(getresultex(-1));
@@ -148,23 +148,23 @@ Main:
 
 CheckEnvironment:
 	if(! existfile($g_ini_abs_filename)){
-		message("(.ini)ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB\nƒtƒ@ƒCƒ‹–¼:"+$g_ini_abs_filename);
+		message("(.ini)ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚\nãƒ•ã‚¡ã‚¤ãƒ«å:"+$g_ini_abs_filename);
 		return false;
 	}
 	return true;
 	
-/*‚Ps‚ğ‹ó”’•¶š—ñ(space/tab/‘SŠp‹ó”’)‚Å•ªŠ„‚µ‚Äæ‚èo‚·B
-ƒp[ƒXŒ‹‰Ê‚Í‰º‹LƒOƒ[ƒoƒ‹•Ï”‚ÖŠi”[‚³‚ê‚éB
+/*ï¼‘è¡Œã‚’ç©ºç™½æ–‡å­—åˆ—(space/tab/å…¨è§’ç©ºç™½)ã§åˆ†å‰²ã—ã¦å–ã‚Šå‡ºã™ã€‚
+ãƒ‘ãƒ¼ã‚¹çµæœã¯ä¸‹è¨˜ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã¸æ ¼ç´ã•ã‚Œã‚‹ã€‚
 	$g_args[];
 	#g_args_num;
 	$g_args_line;
 
-2011/11/05 ’Ç‰ÁFƒRƒ}ƒ“ƒh‚ğœ‚¢‚½ˆês‚ğ$g_args_line‚ÖŠi”[‚·‚é‚æ‚¤‚É‚µ‚½B
+2011/11/05 è¿½åŠ ï¼šã‚³ãƒãƒ³ãƒ‰ã‚’é™¤ã„ãŸä¸€è¡Œã‚’$g_args_lineã¸æ ¼ç´ã™ã‚‹ã‚ˆã†ã«ã—ãŸã€‚
 */
 ParseLine:
 	##old_column=column;
 	##old_lineno=lineno;
-	//ˆês‚Ì•¶š—ñ‚ğæ“¾
+	//ä¸€è¡Œã®æ–‡å­—åˆ—ã‚’å–å¾—
 	if(selecting){
 		$$linetext = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
 	}else{
@@ -204,7 +204,7 @@ ParseLine:
 	return false;
 
 
-/* ƒXƒjƒyƒbƒgƒtƒ@ƒCƒ‹‚ğ’T‚·
+/* ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¢ã™
 return
 	"c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
 */
@@ -213,7 +213,7 @@ FindSnippetFile:
 	$$cmd=$$2;
 	##num=##3;
 
-	##count=32;//–³ŒÀƒ‹[ƒv–h~i”O‚Ì‚½‚ßj
+	##count=32;//ç„¡é™ãƒ«ãƒ¼ãƒ—é˜²æ­¢ï¼ˆå¿µã®ãŸã‚ï¼‰
 	while((0 < ##count) && (""!=$$abs_snippets_dir)){
 		call FindSnippetFileInternal $$abs_snippets_dir+"\\", $$cmd, ##num;
 		if("" != $$return){
@@ -237,7 +237,7 @@ FindSnippetFileInternal:
 	##num=##3;
 
 	//
-	//$$cmd ‚Éƒ}ƒbƒ`‚·‚éƒtƒ@ƒCƒ‹‚ğ—ñ‹“‚·‚éB
+	//$$cmd ã«ãƒãƒƒãƒã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã‚’åˆ—æŒ™ã™ã‚‹ã€‚
 	//
 	call EnumeSnippetFileNames $$abs_snippets_dir, $$cmd;
 	if(! ##return){
@@ -245,7 +245,7 @@ FindSnippetFileInternal:
 	}
 
 	//
-	//Š®‘Sˆê’v‚ğ’T‚·
+	//å®Œå…¨ä¸€è‡´ã‚’æ¢ã™
 	//
 	call MakeSnippetBaseFileName $$cmd,##num-1;
 	$$result=$$return;
@@ -256,7 +256,7 @@ FindSnippetFileInternal:
 	}
 
 	//
-	//_‚ğg‚Á‚½ƒpƒ^[ƒ“‚ğ’T‚·B
+	//_ã‚’ä½¿ã£ãŸãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’æ¢ã™ã€‚
 	//(ex) 	hoge.%._
 	//		hoge._
 	//
@@ -285,7 +285,7 @@ MatchSnippetFileName:
 	return "";
 
 
-/*ƒtƒ@ƒCƒ‹‚Ìƒx[ƒX–¼‚ğì‚é
+/*ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ™ãƒ¼ã‚¹åã‚’ä½œã‚‹
 (ex)
 	$$cmd	= for
 	##num	= 3
@@ -330,29 +330,29 @@ EnumeSnippetFileNames:
 	}
 	return false;
 
-/*ƒXƒjƒyƒbƒgƒtƒ@ƒCƒ‹‚Ìƒx[ƒX–¼‚ğì‚é
-"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt" ¨ "for.%"
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ™ãƒ¼ã‚¹åã‚’ä½œã‚‹
+"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt" â†’ "for.%"
 */
 MakeSnippetBaseName:
 	$$name 	= $$1;
 	##len 	= strlen($$name);
 
 	//
-	//Šg’£q‚Ìíœ
+	//æ‹¡å¼µå­ã®å‰Šé™¤
 	//
 	##index=strrstr($$name,".");
 	if(0 == ##index){
-		//‘S•”Šg’£qB‚Æ‚è‚ ‚¦‚¸–³‹‚·‚éB
+		//å…¨éƒ¨æ‹¡å¼µå­ã€‚ã¨ã‚Šã‚ãˆãšç„¡è¦–ã™ã‚‹ã€‚
 		return "";
 	}
 	if(0 < ##index){
 		$$name = leftstr($$name,##index);
 	}
 	if(0){
-		//ƒfƒBƒŒƒNƒgƒŠ‚Í–³‚¢‚Ì‚ÅƒRƒƒ“ƒgƒAƒEƒg
+		//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¯ç„¡ã„ã®ã§ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
 
 		//
-		//ƒfƒBƒŒƒNƒgƒŠ‚Ìíœ
+		//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®å‰Šé™¤
 		//
 		##index_0=strrstr($$name,"/");
 		##index_1=strrstr($$name,"\\");
@@ -367,8 +367,8 @@ MakeSnippetBaseName:
 	}
 	return $$name;
 
-/*ƒXƒjƒyƒbƒg‚ª’u‚¢‚Ä‚ ‚éƒfƒBƒŒƒNƒgƒŠ‚©‚Ç‚¤‚©
-memo:uƒpƒX‹æØ‚è(/\)E‘å•¶š¬•¶šv‚Ìˆá‚¢‚ª‚ ‚é‚Ì‚Åƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚É”C‚¹‚éB
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãŒç½®ã„ã¦ã‚ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‹ã©ã†ã‹
+memo:ã€Œãƒ‘ã‚¹åŒºåˆ‡ã‚Š(/\)ãƒ»å¤§æ–‡å­—å°æ–‡å­—ã€ã®é•ã„ãŒã‚ã‚‹ã®ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚·ã‚¹ãƒ†ãƒ ã«ä»»ã›ã‚‹ã€‚
 */
 IsFolderFinish:
 	$$dir = $$1;
@@ -383,7 +383,7 @@ IsFolderFinish:
 	return $$path0 == $$path1;
 
 
-/*eƒtƒHƒ‹ƒ_‚ğ•Ô‚·*/
+/*è¦ªãƒ•ã‚©ãƒ«ãƒ€ã‚’è¿”ã™*/
 GetParentFolderName:
 	$$dir = $$1;
 	##obj = createobject("Scripting.FileSystemObject");
@@ -400,7 +400,7 @@ GetShortPath:
     releaseobject ##obj;
     return $$ret;
 
-/*ƒtƒHƒ‹ƒ_‚Ì‘¶İŒŸ¸*/
+/*ãƒ•ã‚©ãƒ«ãƒ€ã®å­˜åœ¨æ¤œæŸ»*/
 IsFolderExists:
 	$$dir = $$1;
 	##obj = createobject("Scripting.FileSystemObject");
@@ -426,10 +426,10 @@ LoadDengaku:
 	if (result) {
 		return true;
 	}
-	message "“cŠyDLL‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "DengakuDLL.dll‚ªGŠÛƒ}ƒNƒƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
+	message "ç”°æ¥½DLLã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸ\n" + "DengakuDLL.dllãŒç§€ä¸¸ãƒã‚¯ãƒ­ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å­˜åœ¨ã™ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„";
 	return false;
 
-/*ƒXƒjƒyƒbƒgŒó•â‚ğ‘}“ü‚·‚é
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆå€™è£œã‚’æŒ¿å…¥ã™ã‚‹
 */
 InsertCandidate:
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
