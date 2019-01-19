@@ -97,17 +97,11 @@ Main:
 		//
 		
 		//補完候補を挿入する
-		call InsertCandidate;
-		if(! ##return){
-			return false;
-		}
-		//挿入されたコマンドをパースする
-		call ParseLine;
+		call Candidate;
 		if(! ##return){
 			return false;
 		}
 	}
-	
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
 	$$abs_snippets_dir = getresultex(-1);
 
@@ -153,7 +147,7 @@ CheckEnvironment:
 	}
 	return true;
 	
-/*１行を空白文字列(space/tab/全角空白)で分割して取り出す。
+/*１行を空白文字列(半角空白)で分割して取り出す。
 パース結果は下記グローバル変数へ格納される。
 	$g_args[];
 	#g_args_num;
@@ -162,25 +156,40 @@ CheckEnvironment:
 2011/11/05 追加：コマンドを除いた一行を$g_args_lineへ格納するようにした。
 */
 ParseLine:
-	##old_column=column;
-	##old_lineno=lineno;
 	//一行の文字列を取得
 	if(selecting){
 		$$linetext = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
 	}else{
-		$$linetext = gettext2(0,##old_lineno,linelen2,##old_lineno);
+		$$linetext = gettext2(0,column,linelen2,lineno);
 	}
+	call TokenaizeArg $$linetext;
+	return ##return;
+
+/*スニペット候補
+*/
+Candidate:
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
+	$$linetext=getresultex(-1);
+	call TokenaizeArg $$linetext;
+	return ##return;
+
+TokenaizeArg:
+	$$linetext = $$1;
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
 	$$linetext = dllfuncstr("RTRIM",$$linetext);
-
+	if($$linetext==""){
+		return false;
+	}
+	
 	#g_args_num=0;
 	$$tok = " ";
-	$$tmp = dllfuncstr("GETTOKEN",$$linetext,$$tok);
-	$$tmp = dllfuncstr("RTRIM",$$tmp);
-	$$tmp = dllfuncstr("LTRIM",$$tmp);
-	if(""!=$$tmp){
-		$g_args[#g_args_num]=$$tmp;
+	$$token = dllfuncstr("GETTOKEN",$$linetext,$$tok);
+	$$token = dllfuncstr("RTRIM",$$token);
+	$$token = dllfuncstr("LTRIM",$$token);
+	if(""!=$$token)
+	{
+		$g_args[#g_args_num]=$$token;
 		#g_args_num=1;
 	}
 	while (1) {
@@ -188,11 +197,12 @@ ParseLine:
 			break;
 		}
 
-	    $$tmp = dllfuncstr("GETTOKEN","",$$tok);
-	    $$tmp = dllfuncstr("RTRIM",$$tmp);
-		$$tmp = dllfuncstr("LTRIM",$$tmp);
-		if(""!=$$tmp){
-			$g_args[#g_args_num]=$$tmp;
+	    $$token = dllfuncstr("GETTOKEN","",$$tok);
+	    $$token = dllfuncstr("RTRIM",$$token);
+		$$token = dllfuncstr("LTRIM",$$token);
+		if(""!=$$token)
+		{
+			$g_args[#g_args_num]=$$token;
 			#g_args_num = #g_args_num+1;
 		}
 	}
@@ -428,14 +438,4 @@ LoadDengaku:
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
-
-/*スニペット候補を挿入する
-*/
-InsertCandidate:
-	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
-	$$candidate=getresultex(-1);
-	if($$candidate==""){
-		return false;
-	}
-	insert $$candidate;
-	return true;
+	
