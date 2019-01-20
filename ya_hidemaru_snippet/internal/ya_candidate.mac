@@ -5,25 +5,48 @@ input	スニペット文字列の一部、又は、空白文字
 return	スニペット文字列
 */
 
+//--------------------------------------------------------------------------
+//	グローバル変数
+//--------------------------------------------------------------------------
 #menu_array_len 	=0;
 $menu_array[0]		=""; //メニューの文字列
 $menu_filename[0]	="";
 
 //選択したスニペットのコマンド名と引数
-$snippet_command_name="";
-#snippet_argument_num=0;
-#snippet_has_variable_argument=false;
-$snippet_gui_argument_id[0]="";
-$message_loop_result="";
+$snippet_command_name			="";
+#snippet_argument_num			=0;
+#snippet_has_variable_argument	=false;
 
-$notify_ok="200";
-$notify_cancel="201";
+//固定引数Boxの識別子名
+$snippet_gui_argument_id[0]		="";
 
+//固定引数+可変引数Boxの識別子名
+$snippet_gui_all_id[0]			="";
+#snippet_gui_all_id_num			=0;
+
+//ダイアログで入力された文字列
+$message_loop_result			="";
 
 //再帰呼び出しの回数を制限するためのカウンター
 //処理ミスで無限ループしてしまわないように念のため
 #recusive_guarder=0;
 
+//--------------------------------------------------------------------------
+//	通知コード(const)
+//--------------------------------------------------------------------------
+$notify_ok		="200";
+$notify_cancel	="201";
+
+//--------------------------------------------------------------------------
+//	Windows仮想キーコード(const)
+//--------------------------------------------------------------------------
+#VK_ESCAPE=0x1B;
+#VK_RETURN=0x0D;
+
+
+//--------------------------------------------------------------------------
+//	メイン処理
+//--------------------------------------------------------------------------
 call main;
 endmacro $$return;
 
@@ -53,7 +76,7 @@ main:
 		return "";
 	}
 	//ファイル名をメニュー用に整形する
-	if(true){
+	{
 		##i=0;
 		while(##i < #menu_array_len){
 			call RemoveExtension $menu_array[##i];
@@ -260,7 +283,7 @@ FormatFileName:
 	-> "if %1 ..."
 	*/
 	$$result="";
-	if(true){
+	{
 		$$sep=" ";
 		##i=0;
 		while(##i < ##token_array_num){
@@ -283,6 +306,9 @@ CreateDiralog:
 	##i=0;
 	while(##i<#snippet_argument_num){
 		$snippet_gui_argument_id[##i] = sprintf("Yas@Argument%d",##i);
+		$snippet_gui_all_id[#snippet_gui_all_id_num] = $snippet_gui_argument_id[##i];
+		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
+		
 		if(	dllfunc("NEWCONTROL", "text", "", sprintf("引数[%d]",##i)) == 0			||
 			dllfunc("SETCTRLWIDTH", "", 8) == 0 						||
 			dllfunc("NEWCONTROL", "edit", $snippet_gui_argument_id[##i], "") == 0		){
@@ -291,12 +317,16 @@ CreateDiralog:
 		##i = ##i + 1;
 	}
 	if(#snippet_has_variable_argument){
+		$$variable_argument_id="Yas@VariableArgument";
 		if(	dllfunc("NEWCONTROL", "text", "", "引数[...]") == 0				||
 			dllfunc("SETCTRLWIDTH", "", 8) == 0 							||
-			dllfunc("NEWCONTROL", "edit", "Yas@VariableArgument", "") == 0){
+			dllfunc("NEWCONTROL", "edit", $$variable_argument_id, "") == 0){
 			return false;
 		}
+		$snippet_gui_all_id[#snippet_gui_all_id_num] = $$variable_argument_id;
+		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
 	}
+	
 	if(	dllfunc("NEWCONTROL", "text", "Yas@Message", "") == 0){
 		return false;
 	}
@@ -322,14 +352,30 @@ MessageLoopCore:
 	while (1) {
 		$$item = dllfuncstr("WAITCTRLNOTIFY",100);
 		if($$item==$notify_cancel){
-			return false;	//cancel
+			return false;	//cancelボタン
 		}else if($$item==$notify_ok){
-			break;			//ok
+			break;			//okボタン
 		}
-		//固定引数に全て入力したら「OKボタン」を有効にする。
-		call TotalItemToTextExists;
-		##n = dllfunc("ENABLECTRL",##return,"Yas@Ok");
+		
+		if(iskeydown(#VK_ESCAPE)){
+			//ESCキーが押されたのでキャンセルにする
+			return false;
+		}
+		
+		//固定引数に全て入力した時に「OKボタン」を有効にする。
+		call FindNoInputTextBox;
+		if(##return == -1){
+			##n = dllfunc("ENABLECTRL",true, "Yas@Ok");
+		}else{
+			##n = dllfunc("ENABLECTRL",false,"Yas@Ok");
+		}
+		
+		//Enterで引数を確定して次の引数へフォーカスを移す
+		if(iskeydown(#VK_RETURN)){
+			call ChangeForcus;
+		}
 	}
+	
 	//
 	//ダイアログに入力した文字を連結して返す
 	//
@@ -350,11 +396,53 @@ MessageLoopCore:
 	}
 	return true;
 
+ChangeForcus:
+	$$forcused_control = dllfuncstr("GETFOCUSEDCTRL");
+	call FindGuiIndex $$forcused_control;
+	##gui_index=##return;
+	if(##gui_index == -1){
+		return ;
+	}
+	$$text = dllfuncstr("GETCTRLSTRING", $$forcused_control);
+	$$text = dllfuncstr("LTRIM",$$text);
+	$$text = dllfuncstr("RTRIM",$$text);
+	if($$text==""){
+		return ;
+	}
+	
+	##gui_index = ##gui_index + 1;
+	if(#snippet_gui_all_id_num<=##gui_index){
+		//未入力のTextBoxへ移動する
+		//pass
+	}else{
+		//次のコントロールへフォーカスを移す
+		##n = dllfunc("SETFOCUSEDCTRL", $snippet_gui_all_id[##gui_index]);
+	}
+	return;
 
+/*未入力のテキストBOXを探す
+return 	== -1	未入力のテキストBOXは無い
+		>= 0	未入力のテキストBOXへのインデックス
+*/
+FindNoInputTextBox:
+	##i=0;
+	while(##i<#snippet_argument_num){
+		$$text = dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		$$text = dllfuncstr("LTRIM",$$text);
+		$$text = dllfuncstr("RTRIM",$$text);
+		if($$text==""){
+			return ##i;
+		}
+		##i = ##i + 1;
+	}
+	return -1;
+	
 TotalItemToTextExists:
 	##i=0;
 	while(##i<#snippet_argument_num){
 		$$text = dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		$$text = dllfuncstr("LTRIM",$$text);
+		$$text = dllfuncstr("RTRIM",$$text);
 		if($$text==""){
 			return false;
 		}
@@ -362,6 +450,16 @@ TotalItemToTextExists:
 	}
 	return true;
 
+FindGuiIndex:
+	$$id=$$1;
+	##i=0;
+	while(##i<#snippet_gui_all_id_num){
+		if($snippet_gui_all_id[##i]==$$id){
+			return ##i;
+		}
+		##i = ##i + 1;
+	}
+	return -1;
 
 LoadDengaku:
 	loaddll macrodir + "\\DengakuDLL.dll";
