@@ -125,14 +125,14 @@
 
 	コピー後のディレクトリ構成
 	hidemaru_macrodir
-	│  ya_config_menu.mac
-	│  ya_hidemaru_snippet.mac
 	└─ya_hidemaru_snippet
-	    ├─bonus
-	    ├─doc
-	    ├─image
-	    ├─internal
-	    └─snippets
+	    │  ya_hidemaru_snippet.mac
+	    └─ya_hidemaru_snippet
+	        ├─bonus
+	        ├─doc
+	        ├─image
+	        ├─internal
+	        └─snippets
 
 ## キーアサイン
 
@@ -144,15 +144,12 @@
 
 ちなみに、私はCtrl-Enterに割り当てています。
 
-ya_config_menu.mac は、この動的スニペットのマクロを更に便利にしたいときに利用します。<br>
-なので、初めのうちは無理にキー割り当てをしなくても良いです。（そもそも説明をこれから書くような段階です。）
 
 # ファイル構成
 
 |ファイル名|説明|
 |:---|:---|
 |ya_hidemaru_snippet.mac|動的スニペットマクロの本体|
-|ya_config_menu.mac|スニペットを更に便利に使うためのおまけマクロ|
 
 # 動作環境のカスタマイズ
 
@@ -184,6 +181,7 @@ ya_config_menu.mac は、この動的スニペットのマクロを更に便利�
 .mac=text-mode\hidemaru-macro-mode
 .cu=text-mode\c-mode\cuda-mode
 .bat=text-mode
+.go=text-mode\go-mode
 
 [python]
 ;version="2"
@@ -230,7 +228,21 @@ Pythonを利用したスニペットが動かないときは、[python]セクシ
 
 # 更新履歴
 
+### ????/??/?? ver ????
+
+- 非互換な更新
+-- スニペットファイルのディレクトリ構成を変更しました、移行方法の詳細は XXXX を参照して下さい。
+-- ya_config_menu.mac を削除しました。
+
+- 更新
+-- 空白行でスニペットを起動するとスニペット候補をメニューで一覧表示するようにしました。どんなスニペットが利用できるのかヘルプ代わりにご利用下さい。
+
+
+- 新規追加
+-- golangのスニペットを一つ追加しました。
+
 ### 2018/12/02 ver 1.1.0
+
 - テキストの選択範囲をスニペットとして認識するようにしました。
 - 利用頻度の低いスニペットは削除して高いスニペットは機能強化を行いました。
 - DLLの検索パスをhidemarudirとmacrodirの２箇所に変更しました。
