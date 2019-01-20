@@ -1,8 +1,0 @@
-﻿/*Description:Yet Another Hidemaru Snippet.
-*/
-$arg = getarg(16);
-if($arg=="help"){
-	execmacro currentmacrodirectory+"\\@yas.mac";
-	endmacro;
-}
-insert("Unknown command.\n");
