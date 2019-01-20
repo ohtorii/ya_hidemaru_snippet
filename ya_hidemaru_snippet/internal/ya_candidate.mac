@@ -29,6 +29,8 @@ endmacro $$return;
 
 
 main:
+	debuginfo 1;
+	debuginfo "Candidate";
 	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
 	$$snippet_root=getresultex(-1);
 	if($$snippet_root==""){
