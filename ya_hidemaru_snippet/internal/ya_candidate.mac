@@ -337,7 +337,7 @@ CreateDiralog:
 		return false;
 	}
 
-	##n = dllfunc("SHOWDIALOG", hidemaruhandle(0), 1);
+	##n = dllfunc("SHOWDIALOG", hidemaruhandle(0), 0);
 	return true;
 
 
