@@ -7,7 +7,6 @@
 	・スニペットのコマンド数は１６個まで。($0-$15)
 	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
 */
-disabledraw;
 disableinvert;
 disablebreak;
 
@@ -79,6 +78,7 @@ endmacro;
 
 
 Main:
+	debuginfo 1;
 	call SetGlovalValue;
 	if(! ##return){
 		message("setstaticvariableで失敗");
@@ -95,13 +95,18 @@ Main:
 		//
 		//パースした結果、空白行だった場合
 		//
-		
 		//補完候補を挿入する
 		call Candidate;
 		if(! ##return){
 			return false;
 		}
 	}
+
+	//ここでdisabledraw処理を行うこと。
+	//（メモ）main関数前でdisabledraw処理を行うとウインドウが再描画されなくなり、
+	//		  Candidate処理でメニューを表示したときにウインドウが黒一色になり見た目が悪い。
+	disabledraw;
+
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
 	$$abs_snippets_dir = getresultex(-1);
 
@@ -146,7 +151,7 @@ CheckEnvironment:
 		return false;
 	}
 	return true;
-	
+
 /*１行を空白文字列(半角空白)で分割して取り出す。
 パース結果は下記グローバル変数へ格納される。
 	$g_args[];
@@ -160,9 +165,9 @@ ParseLine:
 	if(selecting){
 		$$linetext = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
 	}else{
-		$$linetext = gettext2(0,column,linelen2,lineno);
+		$$linetext = gettext2(0,lineno,linelen2,lineno,1);
 	}
-	call TokenaizeArg $$linetext;
+	call TokenizeArg $$linetext;
 	return ##return;
 
 /*スニペット候補
@@ -170,18 +175,20 @@ ParseLine:
 Candidate:
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
 	$$linetext=getresultex(-1);
-	call TokenaizeArg $$linetext;
+	call TokenizeArg $$linetext;
 	return ##return;
 
-TokenaizeArg:
+
+TokenizeArg:
 	$$linetext = $$1;
+	debuginfo "$$1="+$$1;
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
 	$$linetext = dllfuncstr("RTRIM",$$linetext);
 	if($$linetext==""){
 		return false;
 	}
-	
+
 	#g_args_num=0;
 	$$tok = " ";
 	$$token = dllfuncstr("GETTOKEN",$$linetext,$$tok);
@@ -206,12 +213,13 @@ TokenaizeArg:
 			#g_args_num = #g_args_num+1;
 		}
 	}
-	if(#g_args_num){
-		$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
-		$g_args_line = dllfuncstr("LTRIM",$g_args_line);
-		return true;
+	if(#g_args_num==0){
+		return false;
 	}
-	return false;
+	$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
+	$g_args_line = dllfuncstr("LTRIM",$g_args_line);
+	return true;
+
 
 
 /* スニペットファイルを探す
@@ -438,4 +446,3 @@ LoadDengaku:
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
-	
