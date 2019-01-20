@@ -78,7 +78,6 @@ endmacro;
 
 
 Main:
-	debuginfo 1;
 	call SetGlovalValue;
 	if(! ##return){
 		message("setstaticvariableで失敗");
@@ -181,7 +180,6 @@ Candidate:
 
 TokenizeArg:
 	$$linetext = $$1;
-	debuginfo "$$1="+$$1;
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
 	$$linetext = dllfuncstr("RTRIM",$$linetext);
