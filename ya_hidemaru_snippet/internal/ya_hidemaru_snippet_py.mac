@@ -166,7 +166,7 @@ MakePythonArrayString:
 GetTempFile:
 	$$ext = $$1;
 	$$tempdir = getenv("tmp");
-	if( leftstr( $$tempdir, 1 ) != "\\" ) {
+	if( rightstr( $$tempdir, 1 ) != "\\" ) {
 		$$tempdir = $$tempdir + "\\";
 	}
 	##n		= tickcount;
