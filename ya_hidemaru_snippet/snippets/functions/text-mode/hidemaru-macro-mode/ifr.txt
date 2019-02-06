@@ -1,0 +1,12 @@
+#
+#   # before
+#   ifr
+#   
+#   # after
+#   if(result){
+#       |
+#   }
+# --
+%0(result){
+	%|
+}

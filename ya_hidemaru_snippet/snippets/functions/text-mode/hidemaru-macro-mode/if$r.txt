@@ -1,0 +1,12 @@
+#
+#   # before
+#   if$r
+#   
+#   # after
+#   if($$return){
+#       |
+#   }
+# --
+%0($$return){
+	%|
+}

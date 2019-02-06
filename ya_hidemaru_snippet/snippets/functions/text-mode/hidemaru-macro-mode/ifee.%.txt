@@ -1,0 +1,20 @@
+#
+#   # before
+#   ifee condition
+#
+#   # after
+#   if(condition){
+#       |
+#   }else if(){
+#       
+#   }else{
+#       
+#   }
+# --
+if(%1){
+	%|
+}else if(){
+	
+}else{
+	
+}
