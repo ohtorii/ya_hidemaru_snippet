@@ -1,0 +1,11 @@
+﻿/*
+#Description: sleep
+
+# before
+sleep 1
+
+# after
+ping localhost -n 2 > nul
+*/
+#sec=val(getarg(16)) + 1;
+insert(sprintf("REM sleep %d sec.\n%%|ping localhost /n %d >nul 2>&1",#sec,#sec));

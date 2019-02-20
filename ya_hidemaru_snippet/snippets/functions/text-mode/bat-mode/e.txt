@@ -1,0 +1,9 @@
+﻿#
+#   # before
+#   #e
+#
+#   # after
+#   #exit /b
+#
+# --
+exit /b

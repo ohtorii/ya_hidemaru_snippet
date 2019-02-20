@@ -1,0 +1,9 @@
+﻿#
+#   # before
+#   #time
+#
+#   # after
+#   #ECHO %TIME:~0,2%%TIME:~3,2%%TIME:~6,2%
+#
+# --
+%|ECHO %TIME:~0,2%%TIME:~3,2%%TIME:~6,2%

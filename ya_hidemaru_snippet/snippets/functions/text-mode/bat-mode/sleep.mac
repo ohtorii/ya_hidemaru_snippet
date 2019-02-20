@@ -1,0 +1,14 @@
+﻿/*
+#Description: sleep
+
+# before
+sleep
+
+# after
+REM sleep 1 sec.
+ping localhost -n 1 > nul
+*/
+insert(
+	"REM sleep 1 sec.\n" +
+	"%|ping localhost /n 1 >nul 2>&1"
+);

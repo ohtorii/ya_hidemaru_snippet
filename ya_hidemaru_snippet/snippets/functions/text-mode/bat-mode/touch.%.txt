@@ -1,0 +1,10 @@
+﻿#	#Description: 空ファイルを作成します(Linuxのtouchのようなもの)
+#
+#   # before
+#   #touch foo.txt
+#
+#   # after
+#   #type nul > foo.txt
+#
+# --
+type nul > %1
