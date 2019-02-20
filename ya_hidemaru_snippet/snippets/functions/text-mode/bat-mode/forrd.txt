@@ -1,0 +1,13 @@
+﻿#Description:ディレクトリを列挙する（再帰）
+#   # before
+#   #forrd
+#
+#   # after
+#	for /R c:\temp %%i in (.) do (
+#		
+#	)
+#
+# --
+for /R %|c:\temp %%i in (.) do (
+	
+)

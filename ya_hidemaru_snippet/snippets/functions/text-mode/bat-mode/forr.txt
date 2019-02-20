@@ -1,0 +1,14 @@
+﻿#Description:ファイルの列挙を行う（再帰）
+#
+#   # before
+#   #forr
+#
+#   # after
+#	for /R c:\temp %%i in (*.txt) do (
+#		
+#	)
+#
+# --
+for /R %|c:\temp %%i in (*.txt) do (
+	
+)

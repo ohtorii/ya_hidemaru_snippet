@@ -1,0 +1,14 @@
+﻿#Description:ファイルの列挙を行う（非再帰）
+#
+#   # before
+#   #for
+#
+#   # after
+#	for %%i in (*) do (
+#		
+#	)
+#
+# --
+for %%i in (*) do (
+	%|
+)

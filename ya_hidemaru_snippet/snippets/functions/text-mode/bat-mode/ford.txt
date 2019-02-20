@@ -1,0 +1,13 @@
+﻿#Description:ディレクトリを列挙する（非再帰）
+#   # before
+#   #for
+#
+#   # after
+#	for /D %%i in (*) do (
+#		
+#	)
+#
+# --
+for /D %%i in (*) do (
+	%|
+)
