@@ -9,6 +9,7 @@
 */
 disableinvert;
 disablebreak;
+disablehistory;
 
 ////////////////////////////////////////////////////////////////////////////
 //		内部処理
@@ -57,6 +58,10 @@ $g_snippet_file_basename[0]	= "";
 */
 #g_snippet_file_num	= 0;
 
+//田楽DLLを読み込んだかどうか
+#g_dengaku_loaded=false;
+
+
 $_g_old_searchbuffer = searchbuffer;
 #_g_searchoption 	 = searchoption;
 disablehistory 0xff;
@@ -71,7 +76,7 @@ if(##return){
 		call Main;
 		call ClearGlovalValue;
 		setsearch $_g_old_searchbuffer, #_g_searchoption;
-		freedll;
+		call UnLoadDengaku;
 	}
 }
 endmacro;
@@ -179,6 +184,10 @@ Candidate:
 
 
 TokenizeArg:
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
 	$$linetext = $$1;
 	$$linetext = dllfuncstr("LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
@@ -434,13 +443,26 @@ ClearGlovalValue:
 	return ;
 
 LoadDengaku:
+	if(#g_dengaku_loaded){
+		//return true;
+	}
 	loaddll macrodir + "\\DengakuDLL.dll";
 	if (result) {
+		#g_dengaku_loaded=true;
 		return true;
 	}
 	loaddll hidemarudir + "\\DengakuDLL.dll";
 	if (result) {
+		#g_dengaku_loaded=true;
 		return true;
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
+
+UnLoadDengaku:
+	if(#g_dengaku_loaded){
+		freedll;
+		#g_dengaku_loaded=false;
+	}
+	return;
+	

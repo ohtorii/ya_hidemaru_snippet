@@ -1,0 +1,264 @@
+﻿/*スニペットをメニューから選択する
+
+return	スニペットの絶対パス
+		(例) c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\dec.%.py
+*/
+
+
+#menu_array_len 	=0;
+
+/*メニューに表示する文字列
+(例)[0]	dec %0
+	[1]	if#r
+	[2]	@cmd %0 ...
+		:
+*/
+$menu_array[0]		=""; 
+
+/*
+(例)[0]	c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\dec.%.py
+	[1]	c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\if#r.txt
+	[2]	c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\@cmd.%._.mac
+		:
+*/
+$menu_filename[0]	="";
+
+//再帰呼び出しの回数を制限するためのカウンター
+//処理ミスで無限ループしてしまわないように念のため
+#recusive_guarder=0;
+
+
+call main;
+endmacro $$return;
+
+main:
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
+	$$snippet_root=getresultex(-1);
+	if($$snippet_root==""){
+		return "";
+	}
+	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+	$$snippet_dir=getresultex(-1);
+	if($$snippet_dir==""){
+		return "";
+	}
+
+	call LoadDengaku;
+	if(! ##return){
+		return "";
+	}
+
+	call MakeMenuArray $$snippet_root, $$snippet_dir;
+	if(!##return){
+		return "";
+	}
+	if(#menu_array_len==0){
+		return "";
+	}
+	//ファイル名をメニュー用に整形する
+	{
+		##i=0;
+		while(##i < #menu_array_len){
+			call RemoveExtension $menu_array[##i];
+			$$filename=$$return;
+			//$menu_filename[##i]	=$$filename;
+			call FormatFileName $$filename;
+			$menu_array[##i]=$$return;
+			##i = ##i + 1;
+		}
+	}
+	if(true){
+		debuginfo 1;
+		debuginfo "==== $menu_filename[] ====";
+		##i=0;
+		while(##i < #menu_array_len){
+			debuginfo $menu_filename[##i];
+			##i = ##i + 1;
+		}
+		
+		debuginfo "==== $menu_array[] ====";
+		##i=0;
+		while(##i < #menu_array_len){
+			debuginfo $menu_array[##i];
+			##i = ##i + 1;
+		}
+	}
+	menuarray $menu_array, #menu_array_len;
+	##index=result;
+	if(##index==0){
+		return "";
+	}
+	##index = ##index - 1;
+	return $menu_filename[##index];
+
+
+/*ファイル名をメニュー用に整形する
+main     -> main
+if.%.%._ -> if %1 %2 ...
+*/
+FormatFileName:
+	/*
+	if.%._
+	-> $$token_array[0]="if"
+	   $$token_array[0]="%1"
+	   $$token_array[0]="..."
+	*/
+	$$token_array[0]	="";
+	##token_array_num	=0;
+	if(true){
+		##arg_index			=0;
+
+		$$token = dllfuncstr("GETTOKEN",$$1,".");
+		while (1) {
+			if($$token==""){
+				break;
+			}else if($$token=="%"){
+				$$token_array[##token_array_num]="%"+str(##arg_index);
+				##arg_index = ##arg_index + 1;
+			}else if($$token=="_"){
+				$$token_array[##token_array_num]="...";
+			}else{
+				$$token_array[##token_array_num]=$$token;
+			}
+			##token_array_num = ##token_array_num + 1;
+
+			if (dllfunc("HASMORETOKENS") == 0) {
+				break;
+			}
+			$$token = dllfuncstr("GETTOKEN","",".");
+		}
+	}
+
+	/*join
+	$$token_array[0]="if"
+	$$token_array[0]="%1"
+	$$token_array[0]="..."
+	-> "if %1 ..."
+	*/
+	$$result="";
+	{
+		$$sep=" ";
+		##i=0;
+		while(##i < ##token_array_num){
+			if(0<##i){
+				$$result=$$result+$$sep;
+			}
+			$$result=$$result+$$token_array[##i];
+			##i = ##i + 1;
+		}
+	}
+	return $$result;
+
+
+MakeMenuArray:
+	if(10 < #recusive_guarder){
+		return;
+	}
+
+	$$snippet_root	= $$1;
+	$$current_dir	= $$2;
+
+	call SurroundDoubleQuotation $$current_dir + "\\*.*";
+	$$file_pattern	= $$return;
+
+	//スニペットのファイル名を集める
+	##r = dllfunc("ENUMFILE",$$file_pattern);
+	while (1) {
+		$$file = dllfuncstr("FINDNEXT");
+		if ($$file == "") {
+			break;
+		}
+		$$abs_filename = $$current_dir + "\\" + $$file;
+		$menu_filename[#menu_array_len]=$$abs_filename;
+		$menu_array[#menu_array_len]=$$file;
+		#menu_array_len = #menu_array_len + 1;
+	}
+	//親ディレクトリに向かってスニペットファイルを探す
+	call FindParentDir $$current_dir;
+	$$parent_dir = $$return;
+	if($$parent_dir==$$snippet_root){
+		return true;
+	}
+
+	#recusive_guarder = #recusive_guarder + 1;
+	call MakeMenuArray $$snippet_root,$$parent_dir;
+	return ##return;
+
+
+
+/*パスから親ディレクトリを見付ける
+
+（例）
+	"c:/foo/bar"
+	-> "c:/foo"
+
+	"c:/foo/bar//"
+	-> "c:/foo"
+
+	"c:/foo/bar/hoge.txt"
+	-> "c:/foo/bar"
+
+	"c:"
+	-> "c:"
+*/
+FindParentDir:
+	/*パス名の終端からディレクトリ区切り(\\/)を削除する
+	*/
+	call TrimString $$1, "\\/";
+	$$dir = $$return;
+
+	##index = strrstr($$dir,"\\");
+	if(##index==-1){
+		##index = strrstr($$dir,"/");
+	}
+	if(##index==-1){
+		return $$dir;
+	}
+	return leftstr($$dir,##index);
+
+
+TrimString:
+	$$space=$$2;
+	if($$space==""){
+		$$space="\r\n\t 　";
+	}
+	while(1){
+	  ##word=strlen($$1);
+	  //文字列の先頭に空白文字がある場合、空白文字を削除
+	  if(strstr($$space,leftstr($$1,2))!=-1)$$1=rightstr($$1,##word-2);
+	  else if(strstr($$space,rightstr($$1,2))!=-1)$$1=leftstr($$1,##word-2);
+	  //ここまで全角文字の対処
+	  else if(strstr($$space,leftstr($$1,1))!=-1)$$1=rightstr($$1,##word-1);
+	  else if(strstr($$space,rightstr($$1,1))!=-1)$$1=leftstr($$1,##word-1);
+	  else break;
+	}
+	return $$1;
+
+
+SurroundDoubleQuotation:
+	return "\"" + $$1 + "\"";
+
+
+/*ファイル拡張子を取り除く
+bar.txt     -> bar
+foo.bar.txt -> foo.bar
+*/
+RemoveExtension:
+	##index=strrstr($$1,".");
+	if(##index==-1){
+		return $$1;
+	}
+	return leftstr($$1,##index);
+
+
+LoadDengaku:
+	loaddll macrodir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;

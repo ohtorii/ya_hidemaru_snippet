@@ -1,51 +1,99 @@
 /*指定されたディレクトリ以下のスニペット定義ファイルを閲覧するダイアログ。
 
 （マクロ引数）
-	[0] ルートディレクトリ			"c:/foo/bar"
-	[1] 検索するファイル拡張子		"*.txt;*.log"
+	無し
 
 （マクロ返値）
 	選択されたファイル名
-	キャンセル／失敗すると空白の文字列を返します。
+	キャンセル or 失敗すると空白の文字列を返します。
 
 （使用例）
-	execmacro "ya_text_viewer.mac", "c:/foo/bar", "*.txt";
-
-（注意）
-このマクロ単体では動作しません。
+	execmacro "ya_text_viewer.mac";
 
 */
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		内部処理
+//		グローバル変数
 ////////////////////////////////////////////////////////////////////////////
+
+//--------------------------------------------------------------------------
+//DLL handle
+//--------------------------------------------------------------------------
 #g_dengaku_loaded		= false;
 #g_ht_tools_loaded		= false;
 #g_ht_tools_dll			= 0;
 
+//--------------------------------------------------------------------------
 //マクロ引数
+//--------------------------------------------------------------------------
 $g_snippets_abs_dir 	= "";
 $g_snippett_exts 		= "";
 
+//--------------------------------------------------------------------------
+//Dialog
+//--------------------------------------------------------------------------
 //GUIのリストに対応するファイル一覧
-$g_abs_snippets_dir		= "";
-#g_abs_snippets_dir_len	= 0;
+$g_abs_snippets_filename		= "";
+#g_abs_snippets_filename_len	= 0;
 
 //コントロール名
 $g_list_ctrl_name 		= "lst1";
 $g_text_ctrl_name 		= "mledt1";
 
+/*リストコントロールのアイテム数
+(memo)アイテムを1個追加したときに0となる。
+*/
+#g_list_ctrl_item_num	= -1;
 
 //ダイアログの通知メッセージ
 $g_notify_close="10";
 
 
+//--------------------------------------
+//スニペットモード名、スニペットモードのインデックス位置
+//--------------------------------------
+/* $g_snippet_mode_* 配列の個数
+*/
+#g_snippet_mode_num=0;
 
+/*
+(例)	[0]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode"
+		[1]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode"
+			:
+			:
+*/
+$g_snippet_mode_names[0]="";
+
+/*スニペットモード名がリストの何番目なのか。
+（例）	[0] 0		//$g_snippet_mode_names[0]に対応
+		[1] 8		//$g_snippet_mode_names[1]に対応
+*/
+#g_snippet_mode_index[0]=0;
+
+
+//--------------------------------------------------------------------------
+//状態
+//--------------------------------------------------------------------------
+/*現在のスニペットモード
+(例)"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode\cpp-mode"
+*/
+$g_current_snippet_mode="";
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//		処理
+////////////////////////////////////////////////////////////////////////////
 call Main;
 endmacro $$return;
 
 Main:
+	call Initialize;
+	if(! ##return){
+		return"" ;
+	}
 	call Run;
 	$$select_filename = $$return;
 	call UnloadDengaku;
@@ -53,10 +101,6 @@ Main:
 
 
 Run:
-	call Initialize;
-	if(! ##return){
-		return"" ;
-	}
 	call CreateDialog;
 	if(! ##return){
 		return "";
@@ -81,7 +125,8 @@ CreateDialog:
 	if(! ##return){
 		return false;
 	}
-
+	//call DebugPrintSnippetModeNameAndIndex;
+	
 	call CalcListHeight;
 	##height = ##return;
 	if(	dllfunc("SETCTRLHEIGHT","",##height) == 0	||
@@ -98,7 +143,12 @@ CreateDialog:
 		call FailedCreateDialog;
 		return false;
 	}
-
+	
+	call SelectSnippetModeItem $g_current_snippet_mode;
+	if(! ##return){
+		//未選択状態なので最初のアイテムを選択する。
+		##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
+	}
 	if (!dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
 		message("SHOWDIALOG に失敗しました");
 		return false;
@@ -107,7 +157,6 @@ CreateDialog:
 
 
 MessageLoop:
-	##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
 	$$prev_select_item 	= "?";
 
 	//リストで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
@@ -158,11 +207,11 @@ UpdateText:
 	if(##index < 0){
 		return "";
 	}
-	if(#g_abs_snippets_dir_len <= ##index){
+	if(#g_abs_snippets_filename_len <= ##index){
 		return"" ;
 	}
 
-	$$path = $g_abs_snippets_dir[##index];
+	$$path = $g_abs_snippets_filename[##index];
 	if(existfile($$path,1) & 0x00000010){
 		call ClearText;
 		return"" ;
@@ -189,15 +238,23 @@ MakeFileTree:
 	$$space			= $$2;
 	$$sub_dir		= "";
 	##sub_dir_len 	= 0;
-
+	
+	//
+	//カレントディレクトリにあるスニペットのファイル名を取得する（非再帰）
+	//
+	##prev__list_ctrl_item_num = #g_list_ctrl_item_num;
 	call MakeFileItems $$root_dir, $$space;
-	if(! ##return){
+	if(##return==-1){
 		return false;
+	}else if(0<##return){
+		call MakeSnippetModeNameAndIndex $$root_dir, ##prev__list_ctrl_item_num;
 	}
-
+	
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$file_pattern = $$return;
-
+	//
+	//サブディレクトリを列挙する（非再帰）
+	//
 	##r = dllfunc("ENUMDIR",$$file_pattern);
 	while (1) {
 	    $$dir = dllfuncstr("FINDNEXT");
@@ -207,17 +264,24 @@ MakeFileTree:
 		$$sub_dir[##sub_dir_len] = $$dir;
 		##sub_dir_len = ##sub_dir_len + 1;
 	}
-
+	
+	//
+	//先ほど列挙したサブディレクトリを辿る
+	//
 	##index = 0;
 	while (##index < ##sub_dir_len){
 		$$current_sub_dir	= $$sub_dir[##index];
 		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
 
+		//リストコントロールへディレクトリを追加する
 		call AppendListItem $$space, $$current_sub_dir, $$abs_path;
 		if(! ##return){
 			return false;
 		}
-
+		
+		//
+		//再帰的に処理する
+		//
 		call MakeFileTree $$abs_path, $$space+"　　　　";
 		if(! ##return){
 			return false;
@@ -226,52 +290,95 @@ MakeFileTree:
 	}
 	return true;
 
-
+/*
+return 	> 0		追加したアイテム数
+		== -1	失敗
+*/
 MakeFileItems:
 	$$root_dir	= $$1;
 	$$space		= $$2;
 
 	call SurroundDoubleQuotation $$root_dir + "\\" + $g_snippett_exts;
 	$$file_pattern	= $$return;
-
+	
+	##append_num=0;
 	##r = dllfunc("ENUMFILE",$$file_pattern);
 	while (1) {
-		$$file = dllfuncstr("FINDNEXT");
-		if ($$file == "") {
+		$$filename = dllfuncstr("FINDNEXT");
+		if ($$filename == "") {
 			break;
 		}
-		$$abs_filename = $$root_dir + "\\" + $$file;
-		call AppendListItem $$space,$$file,$$abs_filename;
+		$$abs_filename = $$root_dir + "\\" + $$filename;
+		call AppendListItem $$space,$$filename,$$abs_filename;
 		if(! ##return){
-			return false;
+			return -1;
 		}
+		##append_num = ##append_num + 1;
 	}
-	return true;
+	return ##append_num;
 
 
 AppendListItem:
 	$$space 		= $$1;
-	$$sub_dir_name 	= $$2;
+	$$rel_filename 	= $$2;
 	$$abs_filename	= $$3;
 
-	call AppendSnippetDir $$abs_filename;
-	$$item_name=$$space+$$sub_dir_name;
-	if(dllfunc("SETCTRLITEM","",$$item_name,"") == 0){
+	$g_abs_snippets_filename[#g_abs_snippets_filename_len]	= $$abs_filename;
+	#g_abs_snippets_filename_len 							= #g_abs_snippets_filename_len + 1;
+
+	$$item_name=$$space+$$rel_filename;
+	if(dllfunc("SETCTRLITEM",$g_list_ctrl_name,$$item_name) == 0){
 		call FailedCreateDialog;
 		return false;
 	}
+	#g_list_ctrl_item_num = #g_list_ctrl_item_num + 1;
 	return true;
 
 
+MakeSnippetModeNameAndIndex:
+	$$abs_path=$$1;
+	##index=##2;
+	$g_snippet_mode_names[#g_snippet_mode_num]=$$abs_path;
+	#g_snippet_mode_index[#g_snippet_mode_num]=##index;
+	#g_snippet_mode_num = #g_snippet_mode_num + 1;
+	return ;
+
+
+DebugPrintSnippetModeNameAndIndex:
+	debuginfo 1;
+	debuginfo "==== DebugPrintSnippetModeNameAndIndex ====";
+	##i=0;
+	while(##i<#g_snippet_mode_num){
+		debuginfo sprintf("[%d]%s",#g_snippet_mode_index[##i],$g_snippet_mode_names[##i]);
+		##i = ##i + 1;
+	}
+	return ;
+
+
+/*スニペットモードに対応するリストアイテムを選択する
+return 	true	リストアイテムの選択に成功した
+		false	リストアイテムの選択に失敗した
+*/
+SelectSnippetModeItem:
+	debuginfo 0;
+	debuginfo "==== SelectSnippetModeItem ====";
+	$$snippet_dir=$g_current_snippet_mode;
+	debuginfo "$$snippet_dir="+$$snippet_dir;
+	##i=0;
+	while(##i<#g_snippet_mode_num){
+		if($$snippet_dir==$g_snippet_mode_names[##i]){
+			//(memo)リストコントロールは1から開始なので+1する。
+			##index=#g_snippet_mode_index[##i]+1;
+			debuginfo "##index="+str(##index);
+			##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,str(##index));
+			return true;
+		}
+		##i = ##i + 1;
+	}
+	return false;
+
 FailedCreateDialog:
 	message "ダイアログの生成に失敗しました";
-	return;
-
-
-AppendSnippetDir:
-	$$abs_path=$$1;
-	$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$abs_path;
-	#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;
 	return;
 
 
@@ -280,10 +387,13 @@ SurroundDoubleQuotation:
 
 
 Initialize:
-	call InitArg;
-	if(! ##return){
-		return false;
-	}
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
+	$g_snippets_abs_dir = getresultex(-1);
+	$g_snippett_exts	= "*.*";
+
+	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+	$g_current_snippet_mode=getresultex(-1);
+
 	call LoadDengaku;
 	if(! ##return){
 		return false;
@@ -297,7 +407,7 @@ Finalize:
 
 
 CalcListHeight:
-	call Min #g_abs_snippets_dir_len, 80;
+	call Min #g_abs_snippets_filename_len, 80;
 	return ##return;
 
 
@@ -314,24 +424,8 @@ Max:
 	return  ##1;
 
 
-InitArg:
-	/*
-	$g_snippets_abs_dir = "C:\\Users\\hoge\\Documents\\github\\ya_hidemaru_snippet\\ya_hidemaru_snippet\\snippets\\text-mode";
-	$g_snippett_exts 	= "*.txt;*.mac;*.bat;*.vbs;*.js;*.py";
-	return true;
-	*/
-
-	if(2 != argcount){
-		message("引数が不正です");
-		return false;
-	}
-	$g_snippets_abs_dir = getarg(0);
-	$g_snippett_exts	= getarg(1);
-	return true;
-
-
 LoadDengaku:
-	if(! #g_dengaku_loaded){
+	if(#g_dengaku_loaded){
 		loaddll macrodir + "\\DengakuDLL.dll";
 		if (! result) {
 			loaddll hidemarudir + "\\DengakuDLL.dll";
@@ -342,7 +436,7 @@ LoadDengaku:
 		}
 		#g_dengaku_loaded=true;
 	}
-	
+
 	if(! #g_ht_tools_loaded){
 		#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
 		if (!result) {

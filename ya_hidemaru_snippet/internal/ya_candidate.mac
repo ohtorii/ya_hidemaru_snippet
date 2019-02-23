@@ -8,9 +8,6 @@ return	スニペット文字列
 //--------------------------------------------------------------------------
 //	グローバル変数
 //--------------------------------------------------------------------------
-#menu_array_len 	=0;
-$menu_array[0]		=""; //メニューの文字列
-$menu_filename[0]	="";
 
 //選択したスニペットのコマンド名と引数
 $snippet_command_name			="";
@@ -27,9 +24,10 @@ $snippet_gui_all_id[0]			="";
 //ダイアログで入力された文字列
 $message_loop_result			="";
 
-//再帰呼び出しの回数を制限するためのカウンター
-//処理ミスで無限ループしてしまわないように念のため
-#recusive_guarder=0;
+//--------------------------------------------------------------------------
+//	DLL
+//--------------------------------------------------------------------------
+#g_dengaku_loaded=false;
 
 //--------------------------------------------------------------------------
 //	通知コード(const)
@@ -52,54 +50,44 @@ endmacro $$return;
 
 
 main:
-	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
-	$$snippet_root=getresultex(-1);
-	if($$snippet_root==""){
-		return "";
-	}
-	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
-	$$snippet_dir=getresultex(-1);
-	if($$snippet_dir==""){
-		return "";
-	}
+	call Start;
+	$$ret=$$return;
+	call UnLoadDengaku;
+	return $$ret;
 
+Start:
+	debuginfo 1;
+	if(false){
+		execmacro currentmacrodirectory+"\\ya_candidate_menu.mac";
+	}else{
+		debuginfo "EXEC start";
+		execmacro currentmacrodirectory+"\\ya_candidate_listbox.mac";
+		debuginfo 1;
+		debuginfo "EXEC finish";
+	}
+	$$abs_snippet_filename=getresultex(-1);
+	if($$abs_snippet_filename==""){
+		return "";
+	}
+	debuginfo "LAOD";
 	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+	call GetFileName $$abs_snippet_filename;
+	call RemoveExtension $$return;
+	$$bodyname = $$return;
+	call ParseArgument $$bodyname;
 	if(! ##return){
 		return "";
 	}
-
-	call MakeMenuArray $$snippet_root, $$snippet_dir;
-	if(!##return){
-		return "";
-	}
-	if(#menu_array_len==0){
-		return "";
-	}
-	//ファイル名をメニュー用に整形する
-	{
-		##i=0;
-		while(##i < #menu_array_len){
-			call RemoveExtension $menu_array[##i];
-			$$filename			=$$return;
-			$menu_filename[##i]	=$$filename;
-			call FormatFileName $$filename;
-			$menu_array[##i]=$$return;
-			##i = ##i + 1;
-		}
-	}
-
-	menuarray $menu_array, #menu_array_len;
-	##index=result;
-	if(##index==0){
-		return "";
-	}
-	##index = ##index - 1;
-	call ParseArgument $menu_filename[##index];
 	if((#snippet_argument_num==0) && (#snippet_has_variable_argument==false)){
 		//引数無し
-		return $menu_array[##index];
+		return $$bodyname;
 	}
-	call CreateDiralog $menu_array[##index];
+	call FormatFileName $$bodyname;
+	$$title = $$return;
+	call CreateDiralog $$title;
 	if(! ##return){
 		return "";
 	}
@@ -111,104 +99,16 @@ main:
 	return $snippet_command_name + " " + $message_loop_result;
 
 
-MakeMenuArray:
-	if(10 < #recusive_guarder){
-		return;
-	}
-
-	$$snippet_root	= $$1;
-	$$current_dir	= $$2;
-
-	call SurroundDoubleQuotation $$current_dir + "\\*.*";
-	$$file_pattern	= $$return;
-
-	//スニペットのファイル名を集める
-	##r = dllfunc("ENUMFILE",$$file_pattern);
-	while (1) {
-		$$file = dllfuncstr("FINDNEXT");
-		if ($$file == "") {
-			break;
-		}
-		$$abs_filename = $$current_dir + "\\" + $$file;
-		$menu_array[#menu_array_len]=$$file;
-		#menu_array_len = #menu_array_len + 1;
-	}
-	//親ディレクトリに向かってスニペットファイルを探す
-	call FindParentDir $$current_dir;
-	$$parent_dir = $$return;
-	if($$parent_dir==$$snippet_root){
-		return true;
-	}
-
-	#recusive_guarder = #recusive_guarder + 1;
-	call MakeMenuArray $$snippet_root,$$parent_dir;
-	return ##return;
-
-
-/*パスから親ディレクトリを見付ける
-
-（例）
-	"c:/foo/bar"
-	-> "c:/foo"
-
-	"c:/foo/bar//"
-	-> "c:/foo"
-
-	"c:/foo/bar/hoge.txt"
-	-> "c:/foo/bar"
-
-	"c:"
-	-> "c:"
-*/
-FindParentDir:
-	/*パス名の終端からディレクトリ区切り(\\/)を削除する
-	*/
-	call TrimString $$1, "\\/";
-	$$dir = $$return;
-
-	##index = strrstr($$dir,"\\");
-	if(##index==-1){
-		##index = strrstr($$dir,"/");
-	}
-	if(##index==-1){
-		return $$dir;
-	}
-	return leftstr($$dir,##index);
-
-
-SurroundDoubleQuotation:
-	return "\"" + $$1 + "\"";
-
-TrimString:
-	$$space=$$2;
-	if($$space==""){
-		$$space="\r\n\t 　";
-	}
-	while(1){
-	  ##word=strlen($$1);
-	  //文字列の先頭に空白文字がある場合、空白文字を削除
-	  if(strstr($$space,leftstr($$1,2))!=-1)$$1=rightstr($$1,##word-2);
-	  else if(strstr($$space,rightstr($$1,2))!=-1)$$1=leftstr($$1,##word-2);
-	  //ここまで全角文字の対処
-	  else if(strstr($$space,leftstr($$1,1))!=-1)$$1=rightstr($$1,##word-1);
-	  else if(strstr($$space,rightstr($$1,1))!=-1)$$1=leftstr($$1,##word-1);
-	  else break;
-	}
-	return $$1;
-
-
-/*ファイル拡張子を取り除く
-bar.txt     -> bar
-foo.bar.txt -> foo.bar
-*/
-RemoveExtension:
-	##index=strrstr($$1,".");
-	if(##index==-1){
-		return $$1;
-	}
-	return leftstr($$1,##index);
-
 /*
+引数	スニペットのボディー名
+		(例)dec.%
+			if#r
+			@cmd.%._
+
+return 	以下変数に結果を返す。
+		$snippet_command_name;
+		#snippet_argument_num;
+		#snippet_has_variable_argument;
 */
 ParseArgument:
 	$snippet_command_name="";
@@ -218,7 +118,7 @@ ParseArgument:
 	$$token = dllfuncstr("GETTOKEN",$$1,".");
 	$snippet_command_name=$$token;
 	if (dllfunc("HASMORETOKENS") == 0) {
-		return;
+		return true;
 	}
 	$$token = dllfuncstr("GETTOKEN","",".");
 	while (1) {
@@ -237,7 +137,38 @@ ParseArgument:
 		}
 		$$token = dllfuncstr("GETTOKEN","",".");
 	}
-	return;
+	return true;
+
+
+/*ファイル拡張子を取り除く
+bar.txt     -> bar
+foo.bar.txt -> foo.bar
+*/
+RemoveExtension:
+	##index=strrstr($$1,".");
+	if(##index==-1){
+		return $$1;
+	}
+	return leftstr($$1,##index);
+
+
+/*ファイル名を取得する
+c:\hoge\foo.txt     ->  foo.txt
+c:\hoge/foo.bar.txt ->  foo.bar.txt
+*/
+GetFileName:
+	##index_yen=strrstr($$1,"\\");
+	##index_slash=strrstr($$1,"/");
+	if((##index_yen==-1) && (##index_slash==-1)){
+		//ディレクトリ区切り無し
+		return $$1;
+	}
+	//memo:ディレクトリ区切りを読み飛ばすため +1 している
+	if(##index_slash < ##index_yen){
+		return midstr($$1,##index_yen+1);
+	}
+	return midstr($$1,##index_slash+1);
+
 
 /*ファイル名をメニュー用に整形する
 main     -> main
@@ -296,6 +227,10 @@ FormatFileName:
 	}
 	return $$result;
 
+
+/*ダイアログを作成する
+引数	ダイアログのタイトル名
+*/
 CreateDiralog:
 	$$title = $$1;
 	##default_width = 100;
@@ -308,7 +243,7 @@ CreateDiralog:
 		$snippet_gui_argument_id[##i] = sprintf("Yas@Argument%d",##i);
 		$snippet_gui_all_id[#snippet_gui_all_id_num] = $snippet_gui_argument_id[##i];
 		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
-		
+
 		if(	dllfunc("NEWCONTROL", "text", "", sprintf("引数[%d]",##i)) == 0			||
 			dllfunc("SETCTRLWIDTH", "", 8) == 0 						||
 			dllfunc("NEWCONTROL", "edit", $snippet_gui_argument_id[##i], "") == 0		){
@@ -326,7 +261,7 @@ CreateDiralog:
 		$snippet_gui_all_id[#snippet_gui_all_id_num] = $$variable_argument_id;
 		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
 	}
-	
+
 	if(	dllfunc("NEWCONTROL", "text", "Yas@Message", "") == 0){
 		return false;
 	}
@@ -356,12 +291,12 @@ MessageLoopCore:
 		}else if($$item==$notify_ok){
 			break;			//okボタン
 		}
-		
+
 		if(iskeydown(#VK_ESCAPE)){
 			//ESCキーが押されたのでキャンセルにする
 			return false;
 		}
-		
+
 		//固定引数に全て入力した時に「OKボタン」を有効にする。
 		call FindNoInputTextBox;
 		if(##return == -1){
@@ -369,13 +304,13 @@ MessageLoopCore:
 		}else{
 			##n = dllfunc("ENABLECTRL",false,"Yas@Ok");
 		}
-		
+
 		//Enterで引数を確定して次の引数へフォーカスを移す
 		if(iskeydown(#VK_RETURN)){
 			call ChangeForcus;
 		}
 	}
-	
+
 	//
 	//ダイアログに入力した文字を連結して返す
 	//
@@ -409,7 +344,7 @@ ChangeForcus:
 	if($$text==""){
 		return ;
 	}
-	
+
 	##gui_index = ##gui_index + 1;
 	if(#snippet_gui_all_id_num<=##gui_index){
 		//未入力のTextBoxへ移動する
@@ -436,7 +371,8 @@ FindNoInputTextBox:
 		##i = ##i + 1;
 	}
 	return -1;
-	
+
+/*
 TotalItemToTextExists:
 	##i=0;
 	while(##i<#snippet_argument_num){
@@ -449,6 +385,7 @@ TotalItemToTextExists:
 		##i = ##i + 1;
 	}
 	return true;
+*/
 
 FindGuiIndex:
 	$$id=$$1;
@@ -462,13 +399,25 @@ FindGuiIndex:
 	return -1;
 
 LoadDengaku:
+	if(#g_dengaku_loaded){
+		return true;
+	}
 	loaddll macrodir + "\\DengakuDLL.dll";
 	if (result) {
+		#g_dengaku_loaded=true;
 		return true;
 	}
 	loaddll hidemarudir + "\\DengakuDLL.dll";
 	if (result) {
+		#g_dengaku_loaded=true;
 		return true;
 	}
 	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
+
+UnLoadDengaku:
+	if(#g_dengaku_loaded){
+		freedll;
+		#g_dengaku_loaded=false;
+	}
+	return;
