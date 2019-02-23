@@ -1,0 +1,11 @@
+/*
+#Description: copyrightを挿入する
+
+#before
+(c)
+
+#after
+Copyright (c) YEAR YOURE_NAME. All Rights Reserved.
+*/
+$copyright=sprintf("Copyright (c) %s YOURE_NAME. All Rights Reserved.", year);
+insert($copyright);
