@@ -1,0 +1,8 @@
+@echo off
+
+call :Main
+exit /b %errorlevel%
+
+:Main
+	%|echo Hello world.
+	exit /b 0
