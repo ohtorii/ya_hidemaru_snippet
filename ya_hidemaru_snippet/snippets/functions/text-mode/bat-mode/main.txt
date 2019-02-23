@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 call :Main
 exit /b %errorlevel%
