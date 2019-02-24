@@ -1,0 +1,26 @@
+/*スニペットの挿入
+
+*/
+
+$g_snippets_abs_dir_name = "";
+$g_macro_abs_filename 	= currentmacrodirectory+"\\ya_text_viewer.mac";
+
+call Main;
+endmacro;
+
+Main:
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
+	$g_snippets_abs_dir_name = getresultex(-1);
+	if($g_snippets_abs_dir_name==""){
+		return ;
+	}
+	execmacro $g_macro_abs_filename,$g_snippets_abs_dir_name,"*.txt;*.mac;*.bat;*.vbs;*.js;*.py";
+	$$snippet_filename = getresultex(-1);
+	
+	/*
+	message($$snippet_filename);
+	スニペットを挿入する処理をここに記述する。
+	*/
+	
+	return ;
+	
