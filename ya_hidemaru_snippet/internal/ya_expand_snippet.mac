@@ -1,0 +1,325 @@
+/* スニペットの展開と挿入を行う。
+
+引数
+1	スニペットファイル名
+2	スニペットが起動された行の文字列
+3	引数の個数
+4	引数0
+5	引数1
+	 :
+	 :
+20	引数15
+
+
+
+*/
+$g_snippets_abs_dir_name	= currentmacrodirectory;
+
+////////////////////////////////////////////
+//		拡張子毎の処理マクロ登録
+////////////////////////////////////////////
+#g_expand_files_num=0;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_txt.mac";
+$g_expand_files_ext[#g_expand_files_num]=".txt";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_mac.mac";
+$g_expand_files_ext[#g_expand_files_num]=".mac";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_py.mac";
+$g_expand_files_ext[#g_expand_files_num]=".py";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_bat.mac";
+$g_expand_files_ext[#g_expand_files_num]=".bat";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_vbs.mac";
+$g_expand_files_ext[#g_expand_files_num]=".vbs";
+#g_expand_files_num=#g_expand_files_num+1;
+
+$g_expand_files[#g_expand_files_num]	="ya_expand_snippet_js.mac";
+$g_expand_files_ext[#g_expand_files_num]=".js";
+#g_expand_files_num=#g_expand_files_num+1;
+
+
+////////////////////////////////////////////
+//	Pythonの情報（iniファイルの内容で上書きされます）
+////////////////////////////////////////////
+//Pythonへのパス
+//$g_python_exe = "C:\\Python27\\python.exe";
+//$g_python_exe = "C:\\Python32\\python.exe";
+$g_python_exe 		= "python.exe";
+
+//Pythonのバージョン。"2" or "3"
+$g_python_version 	= "3";
+
+
+
+////////////////////////////////////////////
+//	内部利用の値
+////////////////////////////////////////////
+$g_cursor_marker	= "%|";
+
+$g_args[0]	= "";
+#g_args_num	= 0;
+$g_args_line="";
+
+
+call Main;
+endmacro str(##return);
+
+Main:
+	$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
+	call ParseIni $$ini_abs_filename;
+	if(! ##return){
+		return false;
+	}
+	
+	$$abs_snippet_filename	= getarg(0);
+	$g_args_line			= getarg(1);
+	#g_args_num				= val(getarg(2));
+	$g_args[0]				= getarg(3);
+	$g_args[1]				= getarg(4);
+	$g_args[2]				= getarg(5);
+	$g_args[3]				= getarg(6);
+	$g_args[4]				= getarg(7);
+	$g_args[5]				= getarg(8);
+	$g_args[6]				= getarg(9);
+	$g_args[7]				= getarg(10);
+	$g_args[8]				= getarg(11);
+	$g_args[9]				= getarg(12);
+	$g_args[10]				= getarg(13);
+	$g_args[11]				= getarg(14);
+	$g_args[12]				= getarg(15);
+	$g_args[13]				= getarg(16);
+	$g_args[14]				= getarg(17);
+	$g_args[15]				= getarg(18);
+
+	
+	call GetHeadSpace;
+	$$head_str=$$return;
+
+	//
+	//新しい秀丸を非表示で開き、そこへスニペットを展開する。
+	//
+	##old_hidemaru = hidemaruhandle(0);
+	openfile "/h ", noaddhist;
+	if(! result){
+		message("非表示状態で秀丸エディタを開けませんでした。");
+		return false;
+	}
+	
+	disabledraw;
+	disableinvert;
+	
+	##cur_hidemaru = hidemaruhandle(0);
+	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
+	##result=##return;
+	call InsertHeadStr $$head_str;
+	selectall;
+	$$expand_text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno);
+	setactivehidemaru ##old_hidemaru;
+	closehidemaruforced ##cur_hidemaru;
+	if(! ##result){
+		return false;
+	}
+
+	disabledraw;
+	disableinvert;
+	/*コマンド行を削除する
+	(before)
+		prev-line
+		|current-line	<-- この行を削除
+		next-line
+
+	(after)
+		prev-line
+		|				<-- 空行を作る
+		next-line
+	*/
+	deleteline2;
+	insertfix("\n");
+
+	##old_linecount2=linecount2;
+	insertfix($$expand_text);
+	//挿入された行数を計算する。
+	##num_insert_lineno = linecount2 - ##old_linecount2;
+	call  AdjustCursorPos, ##num_insert_lineno;
+	return ##result;
+
+
+/*全ての先頭行に文字を挿入する。
+memo:インデントを合わせている。*/
+InsertHeadStr:
+	$$head_str=$$1;
+	##i=1;
+	##n=linecount2;
+	while(##i<=##n){
+		movetolineno 1,##i;
+		insert($$head_str);
+		##i=##i+1;
+	}
+	return ;
+
+
+/*先頭の空白行を取得する*/
+GetHeadSpace:
+	if(selecting){
+		$$head = gettext2(0,seltoplineno,seltopcolumn,seltoplineno,1);
+		return $$head;
+	}
+	##old_column=column;
+	##old_lineno=lineno;
+	escape;
+	golinetop2;
+	searchdown2 "[^ \\t]+",regular;
+	if(result){
+		//pass
+	}else{
+		return "";
+	}
+
+	//先頭行の空白を取得する。
+	/*escape;
+	beginsel;
+	golinetop2;
+	endsel;
+	$$head=gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno,1);
+	*/
+	$$head=gettext2(0,##old_lineno,seltopcolumn,##old_lineno);
+	movetolineno ##old_column+1, ##old_lineno;
+	return $$head;
+
+
+ExpandSnippetFile:
+	$$abs_snippet_filename	= $$1;
+	##old_hidemaru_handle	= ##2;
+
+	call GetSnippetFileExt $$abs_snippet_filename;
+	$$ext = tolower($$return);
+
+	$$filename 	= "";
+	##i			= 0;
+	while(##i < #g_expand_files_num){
+		if($$ext == $g_expand_files_ext[##i]){
+			$$filename = $g_expand_files[##i];
+			break;
+		}
+		##i=##i+1;
+	}
+	if(""==$$filename){
+		message("未対応の拡張子です。\n" + $$abs_snippet_filename);
+		return false;
+	}
+	
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_modules_dir.mac";
+	$$modules_dir = getresultex(-1);
+	if($$modules_dir==""){
+		message("スニペットのモジュールディレクトリを取得できませんでした。");
+		return false;
+	}
+	
+	//
+	//拡張子毎の展開マクロを呼ぶ。
+	//
+	$$abs_expand_file = $g_snippets_abs_dir_name + "\\" + $$filename;
+
+	$$reserve="";
+	execmacro 	$$abs_expand_file,
+				$$abs_snippet_filename,		//[0]
+				str(##old_hidemaru_handle),	//[1]
+				$g_args_line,
+				$g_python_exe,
+				$g_python_version,
+				$$modules_dir,
+				currentmacrodirectory,
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				$$reserve,					//[10]
+				$$reserve,
+				$$reserve,
+				$$reserve,
+				str(#g_args_num),			//[14]
+				$g_args[0],
+				$g_args[1],
+				$g_args[2],
+				$g_args[3],
+				$g_args[4],
+				$g_args[5],					//[20]
+				$g_args[6],
+				$g_args[7],
+				$g_args[8],
+				$g_args[9],
+				$g_args[10],
+				$g_args[11],
+				$g_args[12],
+				$g_args[13],
+				$g_args[14],
+				$g_args[15];				//[30]
+
+	##result = val(getresultex(-1));
+	if(! ##result){
+		message("スニペットの展開に失敗したようです。\n"					+
+				"【ファイル】\n"											+
+				$$abs_expand_file
+		);
+		return false;
+	}
+	return ##result;
+
+/*ファイル拡張子を取得する
+(ex)hoge.ext1.ext2.txt -> .txt
+*/
+GetSnippetFileExt:
+	$$fn	= $$1;
+	##index = strrstr($$fn,".");
+	if(0 < ##index){
+		$$fn = rightstr($$fn,strlen($$fn)-##index);
+	}
+	return $$fn;
+
+
+/*	%| へカーソルを移動する。
+*/
+AdjustCursorPos:
+	##num_insert_lineno = ##1;
+	##old_column = column;
+	##old_lineno = lineno;
+
+	searchdown2 $g_cursor_marker,word,nocasesense,nohilight;
+	if(result && (lineno <= (##old_lineno + ##num_insert_lineno))){
+		//"%|" を消す。
+		delete;
+	}else{
+		//検索失敗、または、マーカーが見つからない。
+		movetolineno 1+##old_column, ##old_lineno;
+	}
+	return true;
+
+ParseIni:
+	$$ini_abs_filename = $$1;
+	if($$ini_abs_filename==""){
+		message("内部エラー：getstaticvariable(\"ini_abs_filename\",1)が空文字を返した。\n"	+
+				"作者へお問い合わせ下さい。"
+		);
+		return false;
+	}
+	if(! existfile($$ini_abs_filename)){
+		message("INIファイルが見つかりません\n"	+
+				"file=" + $$ini_abs_filename
+		);
+		return false;
+	}
+	
+	$$section = "python";
+	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
+	$$ver = getinistr($$ini_abs_filename,$$section,"version");
+	
+	
+	$g_python_exe		= $$exe;
+	$g_python_version	= $$ver;
+	return true;

@@ -1,0 +1,251 @@
+/* Yet another snippet for hidemaru editor.
+内部実装。
+
+(.py)の展開。
+
+
+＊やっていること
+
+*/
+
+////////////////////////////////////////////////////////////////////////////
+//	Pythonの情報
+////////////////////////////////////////////////////////////////////////////
+//Pythonへのパス
+$g_python_exe 		= "python.exe";
+//Pythonのバージョン。"2" or "3"
+$g_python_version 	= "3";
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//		定数
+////////////////////////////////////////////////////////////////////////////
+#g_args_index_num	= 14;
+#g_args_index_start	= 15;
+
+
+////////////////////////////////////////////////////////////////////////////
+//		内部処理
+////////////////////////////////////////////////////////////////////////////
+
+//テンポラリファイル名（ベース名）
+//環境変数TMPのディレクトリに生成する。（可能な限り削除される）
+$g_tmpfile_base_name 	= "tmp_hidemaru_ya_snippet_py_macro";
+
+//テンポラリファイル（絶対パス）
+$g_tmp_in_filename 		= "";
+
+#g_ht_tools_dll=0;
+
+
+call LoadDengaku;
+if(! ##return){
+	endmacro str(false);
+}
+call LoadHtToolsDll;
+if(! ##return){
+	endmacro str(false);
+}
+if(##return){
+	call Main;
+	call RemoveTmpFile;
+}
+endmacro str(##return);
+
+
+Main:
+	/*$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
+	call ParseIni $$ini_abs_filename;
+	if(! ##return){
+		return false;
+	}*/
+	$g_python_exe			= getarg(3);
+	$g_python_version		= getarg(4);
+	
+	$$abs_snippet_filename 	= getarg(0);
+
+	call MakePythonArrayString;
+	$$array_str = $$return;
+	//message($$array_str);
+
+	call MakePythonExecFileString $$abs_snippet_filename, $$array_str;
+	$$python_script_str = $$return;
+	if("" == $$python_script_str){
+		return false;
+	}
+
+	call GetTempFile ".py";
+	$g_tmp_in_filename=$$return;
+	if(""==$g_tmp_in_filename){
+		return false;
+	}
+
+	//Pythonスクリプトをテンポラリファイルへ書き出す。
+	call WriteFile $g_tmp_in_filename, $$python_script_str;
+	if(! ##return){
+		return false;
+	}
+
+	//テンポラリファイルを実行する
+	$$cmd = $g_python_exe + " " + "\"" + $g_tmp_in_filename + "\"";
+	runex $$cmd
+		, 1 			//sync	  0:async 1:sync
+		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+		, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+		, 2 			//show	  0:auto 1:show 2:hide
+		, 1 			//nodraw  0:draw 1:no draw
+		, 0 			//unicode 0:ansi 2:unicode
+		;
+	if(! result){
+		message("runexで失敗しました。[Python]\n"	+
+				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
+				"多分、exeのパスが間違っているのかも・・・"
+		);
+		return false;
+	}
+	return true;
+
+
+/*
+return	execfile("hoge.py",{},{"argv":argv});
+*/
+MakePythonExecFileString:
+	$$file_name = $$1;
+	//\ -> \\
+	$$file_name = dllfuncstr("GSUB",$$file_name,"\\","\\\\",-1);
+
+	$$array_str = $$2;
+	$$result = "";
+	$$result = $$result + "# -*- coding: cp932 -*-\n";
+	$$result = $$result + $$array_str + "\n";
+	if("3" == $g_python_version){
+		//Python3
+		//exec(compile(open('a_filename').read(), 'a_filename', 'exec'), )
+		$$result = $$result + "exec(compile(open('" + $$file_name + "').read(), '" + $$file_name + "', 'exec'),{\"argv\":argv})";
+	}else if("2" == $g_python_version){
+		//Python2
+		$$result = $$result + "execfile(\"" + $$file_name + "\",{\"argv\":argv});";
+	}else{
+		message("対応していないPythonのバージョンです。\n"	+
+				"INIファイル中の記述を間違えている可能性があります。\n"	+
+				"[python] → ver"
+		);
+		$$result="";
+	}
+	return $$result;
+
+/*
+return	argv=["arg1","arg2"]
+*/
+MakePythonArrayString:
+	#g_args_num = val(getarg(#g_args_index_num));
+	##i=0;
+	$$result="argv=[";
+
+	while(##i < #g_args_num){
+		$$str 	= getarg(#g_args_index_start + ##i);
+
+		// " -> \"
+		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
+
+		if(0 < ##i){
+			$$result = $$result + ",";
+		}
+		$$result= $$result + "\"" + $$str + "\"";
+		##i=##i+1;
+	}
+	$$result=$$result+"]";
+	return $$result;
+
+
+//テンポラリファイル作成サブルーチン
+GetTempFile:
+	$$ext = $$1;
+	$$tempdir = getenv("tmp");
+	if( rightstr( $$tempdir, 1 ) != "\\" ) {
+		$$tempdir = $$tempdir + "\\";
+	}
+	##n		= tickcount;
+	##end 	= ##n + 1000;
+	while(##n < ##end){
+	 	$$tempfile = $$tempdir + $g_tmpfile_base_name + str(##n) + $$ext;
+	 	if( !existfile( $$tempfile ) ) {
+			return $$tempfile;
+		}
+	 	##n = ##n + 1;
+	}
+	message "テンポラリファイルが作成できません\n" + $$tempfile;
+	return "";
+
+
+WriteFile:
+	##file = dllfunc(#g_ht_tools_dll, "FileOpen", $$1, "w");
+	if(##file==0){
+		return false;
+	}
+	##n = dllfunc(#g_ht_tools_dll, "WrFile", ##file, $$2);
+	if(##n==0){
+		return false;
+	}
+	##n = dllfunc(#g_ht_tools_dll,"FileClose",##file);
+	return true;
+
+
+RemoveTmpFile:
+	if(strlen($g_tmp_in_filename)){
+		deletefile $g_tmp_in_filename;
+		$g_tmp_in_filename="";
+	}
+	return ;
+
+ParseIni:
+	$$ini_abs_filename = $$1;
+	if(! strlen($$ini_abs_filename)){
+		message("内部エラー：getstaticvariable(\"ini_abs_filename\",1)が空文字を返した。\n"	+
+				"作者へお問い合わせ下さい。"
+		);
+		return false;
+	}
+	if(! existfile($$ini_abs_filename)){
+		message("INIファイルが見つかりません\n"	+
+				"file=" + $$ini_abs_filename
+		);
+		return false;
+	}
+	
+	$$section = "python";
+	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
+	$$ver = getinistr($$ini_abs_filename,$$section,"version");
+	
+	
+	$g_python_exe		= $$exe;
+	$g_python_version	= $$ver;
+	return true;
+
+LoadDengaku:
+	loaddll macrodir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (result) {
+		return true;
+	}
+	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;
+
+LoadHtToolsDll:
+	#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
+	if (result) {
+		return true;
+	}
+	#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
+	if (result) {
+		return true;
+	}
+	message "ht_tool.dllのロードに失敗しました\n" + "ht_tool.dllが秀丸のディレクトリに存在するか確認してください";
+	return false;

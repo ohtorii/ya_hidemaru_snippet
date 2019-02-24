@@ -119,7 +119,7 @@ Main:
 	if("" == $$abs_snippet_filename){
 		return false;
 	}
-	$$run_snippet_mac = $g_internal_abs_dir + "\\ya_run_snippet_file.mac";
+	$$run_snippet_mac = $g_internal_abs_dir + "\\ya_expand_snippet.mac";
 	execmacro 	$$run_snippet_mac,
 				$$abs_snippet_filename,
 				$g_args_line,
