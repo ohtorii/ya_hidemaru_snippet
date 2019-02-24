@@ -12,7 +12,7 @@ disablebreak;
 disablehistory;
 
 ////////////////////////////////////////////////////////////////////////////
-//		内部処理
+//		グローバル変数
 ////////////////////////////////////////////////////////////////////////////
 $g_internal_sub_dir = "ya_hidemaru_snippet\\internal";
 $g_internal_abs_dir = currentmacrodirectory + "\\" + $g_internal_sub_dir;
@@ -27,36 +27,10 @@ execmacro $g_internal_abs_dir + "\\ya_util_get_ini_filename.mac";
 $g_ini_abs_filename = getresultex(-1);
 
 
-
-$g_file_attr_arg	= ".%";
-$g_file_attr_varg	= "._";
-
-
 $g_args[0]	= "";
 #g_args_num	= 0;
 $g_args_line="";
 
-/*スニペットファイルへの絶対パス
-	(ex)
-	[0]="c:/hidemaru_macro/snippets/.c.cpp/for.txt"
-	[1]="c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
-	[2]="c:/hidemaru_macro/snippets/.c.cpp/for.%.%.txt"
-*/
-$g_snippet_file[0]			= "";
-
-/*スニペットファイルのパスと拡張子を取り除いたベース名
-	(ex)
-	[0]="for"
-	[1]="for.%"
-	[2]="for.%.%"
-
-（備考）検索で利用。
-*/
-$g_snippet_file_basename[0]	= "";
-
-/* $g_snippet_file と $g_snippet_file_basename の長さ。
-*/
-#g_snippet_file_num	= 0;
 
 //田楽DLLを読み込んだかどうか
 #g_dengaku_loaded=false;
@@ -110,12 +84,8 @@ Main:
 	//（メモ）main関数前でdisabledraw処理を行うとウインドウが再描画されなくなり、
 	//		  Candidate処理でメニューを表示したときにウインドウが黒一色になり見た目が悪い。
 	disabledraw;
-
-	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_util_get_current_snippet_mode.mac";
-	$$abs_snippets_dir = getresultex(-1);
-
-	call FindSnippetFile $$abs_snippets_dir,$g_args[0],#g_args_num;
-	$$abs_snippet_filename = $$return;
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_match_snippet.mac", $g_args[0],str(#g_args_num);
+	$$abs_snippet_filename = getresultex(-1);
 	if("" == $$abs_snippet_filename){
 		return false;
 	}
@@ -228,194 +198,6 @@ TokenizeArg:
 	return true;
 
 
-
-/* スニペットファイルを探す
-return
-	"c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
-*/
-FindSnippetFile:
-	$$abs_snippets_dir=$$1;
-	$$cmd=$$2;
-	##num=##3;
-
-	##count=32;//無限ループ防止（念のため）
-	while((0 < ##count) && (""!=$$abs_snippets_dir)){
-		call FindSnippetFileInternal $$abs_snippets_dir+"\\", $$cmd, ##num;
-		if("" != $$return){
-			return $$return;
-		}
-
-		call GetParentFolderName $$abs_snippets_dir;
-		$$abs_snippets_dir = $$return;
-
-		call IsFolderFinish $$abs_snippets_dir;
-		if(##return){
-			break;
-		}
-		##count=##count-1;
-	}
-	return "";
-
-FindSnippetFileInternal:
-	$$abs_snippets_dir=$$1;
-	$$cmd=$$2;
-	##num=##3;
-
-	//
-	//$$cmd にマッチするファイルを列挙する。
-	//
-	call EnumeSnippetFileNames $$abs_snippets_dir, $$cmd;
-	if(! ##return){
-		return "";
-	}
-
-	//
-	//完全一致を探す
-	//
-	call MakeSnippetBaseFileName $$cmd,##num-1;
-	$$result=$$return;
-	call MatchSnippetFileName $$result;
-	$$result = $$return;
-	if(""!=$$result){
-		return $$result;
-	}
-
-	//
-	//_を使ったパターンを探す。
-	//(ex) 	hoge.%._
-	//		hoge._
-	//
-	##i=##num-1;
-	while(0 <= ##i){
-		call MakeSnippetBaseFileName $$cmd,##i;
-		$$result = $$return + $g_file_attr_varg;
-		call MatchSnippetFileName $$result;
-		$$result = $$return;
-		if(""!=$$result){
-			return $$result;
-		}
-		##i=##i-1;
-	}
-	return "";
-
-MatchSnippetFileName:
-	$$basename = $$1;
-	##i=0;
-	while(##i < #g_snippet_file_num){
-		if($g_snippet_file_basename[##i] == $$basename){
-			return $g_snippet_file[##i];
-		}
-		##i=##i+1;
-	}
-	return "";
-
-
-/*ファイルのベース名を作る
-(ex)
-	$$cmd	= for
-	##num	= 3
-	return	= for.%.%.%
-*/
-MakeSnippetBaseFileName:
-	$$cmd 	= $$1;
-	##num 	= ##2;
-	$$result= $$cmd;
-	##i=0;
-	while(##i < ##num){
-		$$result=$$result+$g_file_attr_arg;
-		##i=##i+1;
-	}
-	return $$result;
-
-EnumeSnippetFileNames:
-	$$abs_snippets_dir	= $$1;
-	$$cmd 				= $$2;
-	$$pattern 			= $$abs_snippets_dir + $$cmd + "*.*";
-
-	#g_snippet_file_num=0;
-	##r = dllfunc("ENUMFILE",$$pattern);
-	if(! ##r){
-		return false;
-	}
-
-	##count = 1000;
-	while (##count) {
-		$$file = dllfuncstr("FINDNEXT");
-		if ($$file == "") {
-			break
-		}
-		$g_snippet_file[#g_snippet_file_num]=$$abs_snippets_dir + $$file;
-		call MakeSnippetBaseName $$file;
-		$g_snippet_file_basename[#g_snippet_file_num]=$$return;
-		#g_snippet_file_num=#g_snippet_file_num+1;
-		##count=##count-1;
-	}
-	if(#g_snippet_file_num){
-		return true;
-	}
-	return false;
-
-/*スニペットファイルのベース名を作る
-"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt" → "for.%"
-*/
-MakeSnippetBaseName:
-	$$name 	= $$1;
-	##len 	= strlen($$name);
-
-	//
-	//拡張子の削除
-	//
-	##index=strrstr($$name,".");
-	if(0 == ##index){
-		//全部拡張子。とりあえず無視する。
-		return "";
-	}
-	if(0 < ##index){
-		$$name = leftstr($$name,##index);
-	}
-	if(0){
-		//ディレクトリは無いのでコメントアウト
-
-		//
-		//ディレクトリの削除
-		//
-		##index_0=strrstr($$name,"/");
-		##index_1=strrstr($$name,"\\");
-		if(##index_0 < ##index_1){
-			##index = ##index_1;
-		}else{
-			##index = ##index_0;
-		}
-		if(-1 != ##index){
-			$$name=rightstr($$name,(##len-##index)+1);
-		}
-	}
-	return $$name;
-
-/*スニペットが置いてあるディレクトリかどうか
-memo:「パス区切り(/\)・大文字小文字」の違いがあるのでファイルシステムに任せる。
-*/
-IsFolderFinish:
-	$$dir = $$1;
-	##obj 	= createobject("Scripting.FileSystemObject");
-	##fld0 	= callmethod_returnobj( ##obj, "GetFolder", $g_snippets_abs_dir);
-	##fld1 	= callmethod_returnobj( ##obj, "GetFolder", $$dir);
-	$$path0	= getpropstr(##fld0,"Path");
-	$$path1	= getpropstr(##fld1,"Path");
-	releaseobject ##fld0;
-	releaseobject ##fld1;
-	releaseobject ##obj;
-	return $$path0 == $$path1;
-
-
-/*親フォルダを返す*/
-GetParentFolderName:
-	$$dir = $$1;
-	##obj = createobject("Scripting.FileSystemObject");
-	$$result = callmethod_returnstr( ##obj, "GetParentFolderName", $$dir);
-	releaseobject ##obj;
-	return $$result;
-
 GetShortPath:
 	$$path=$$1;
 	##obj=createobject("Scripting.FileSystemObject");
@@ -424,15 +206,6 @@ GetShortPath:
     releaseobject ##f;
     releaseobject ##obj;
     return $$ret;
-
-/*フォルダの存在検査*/
-IsFolderExists:
-	$$dir = $$1;
-	##obj = createobject("Scripting.FileSystemObject");
-	##result = callmethod_returnnum( ##obj, "FolderExists", $$dir);
-	releaseobject ##obj;
-	return ##result;
-
 
 SetGlovalValue:
 	setstaticvariable "ini_abs_filename",$g_ini_abs_filename,1;

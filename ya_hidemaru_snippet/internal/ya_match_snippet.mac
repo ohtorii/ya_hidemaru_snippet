@@ -1,0 +1,232 @@
+﻿/*マッチするスニペットファイルを返す
+
+引数	コマンド名
+		コマンド数
+return	スニペットファイルの絶対パス
+		(例) "c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
+*/
+
+
+$g_file_attr_arg	= ".%";
+$g_file_attr_varg	= "._";
+
+/*スニペットファイルへの絶対パス
+	(ex)
+	[0]="c:/hidemaru_macro/snippets/.c.cpp/for.txt"
+	[1]="c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
+	[2]="c:/hidemaru_macro/snippets/.c.cpp/for.%.%.txt"
+*/
+$g_snippet_file[0]			= "";
+
+
+/*スニペットファイルのパスと拡張子を取り除いたベース名
+	(ex)
+	[0]="for"
+	[1]="for.%"
+	[2]="for.%.%"
+
+（備考）検索で利用。
+*/
+$g_snippet_file_basename[0]	= "";
+
+/* $g_snippet_file と $g_snippet_file_basename の長さ。
+*/
+#g_snippet_file_num	= 0;
+
+
+
+debuginfo 1;
+debuginfo "----";
+
+call main getarg(0),val(getarg(1));
+endmacro $$return;
+
+main:
+	$$cmd=$$1;
+	##num=##2;
+	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+	$$abs_snippets_dir = getresultex(-1);
+	if($$abs_snippets_dir==""){
+		return "";
+	}
+
+	##count=32;//無限ループ防止（念のため）
+	while((0 < ##count) && (""!=$$abs_snippets_dir)){
+		call FindSnippetFile $$abs_snippets_dir+"\\", $$cmd, ##num;
+		if("" != $$return){
+			return $$return;
+		}
+
+		call GetParentFolderName $$abs_snippets_dir;
+		$$abs_snippets_dir = $$return;
+
+		call IsFolderFinish $$abs_snippets_dir;
+		if(##return){
+			break;
+		}
+		##count=##count-1;
+	}
+	return "";
+
+
+FindSnippetFile:
+	$$abs_snippets_dir=$$1;
+	$$cmd=$$2;
+	##num=##3;
+	
+	debuginfo "@1";
+	//
+	//$$cmd にマッチするファイルを列挙する。
+	//
+	call EnumeSnippetFileNames $$abs_snippets_dir, $$cmd;
+	if(! ##return){
+		return "";
+	}
+	debuginfo "@2";
+	//
+	//完全一致を探す
+	//
+	call MakeSnippetBaseFileName $$cmd,##num-1;
+	$$result=$$return;
+	call MatchSnippetFileName $$result;
+	$$result = $$return;
+	if(""!=$$result){
+		return $$result;
+	}
+debuginfo "@1";
+	//
+	//_を使ったパターンを探す。
+	//(ex) 	hoge.%._
+	//		hoge._
+	//
+	##i=##num-1;
+	while(0 <= ##i){
+		call MakeSnippetBaseFileName $$cmd,##i;
+		$$result = $$return + $g_file_attr_varg;
+		call MatchSnippetFileName $$result;
+		$$result = $$return;
+		if(""!=$$result){
+			return $$result;
+		}
+		##i=##i-1;
+	}
+	return "";
+
+MatchSnippetFileName:
+	$$basename = $$1;
+	##i=0;
+	while(##i < #g_snippet_file_num){
+		if($g_snippet_file_basename[##i] == $$basename){
+			return $g_snippet_file[##i];
+		}
+		##i=##i+1;
+	}
+	return "";
+
+
+/*ファイルのベース名を作る
+(ex)
+	$$cmd	= for
+	##num	= 3
+	return	= for.%.%.%
+*/
+MakeSnippetBaseFileName:
+	$$cmd 	= $$1;
+	##num 	= ##2;
+	$$result= $$cmd;
+	##i=0;
+	while(##i < ##num){
+		$$result=$$result+$g_file_attr_arg;
+		##i=##i+1;
+	}
+	return $$result;
+
+EnumeSnippetFileNames:
+	$$abs_snippets_dir	= $$1;
+	$$cmd 				= $$2;
+	$$pattern 			= $$abs_snippets_dir + $$cmd + "*.*";
+
+	#g_snippet_file_num=0;
+	##r = dllfunc("ENUMFILE",$$pattern);
+	if(! ##r){
+		return false;
+	}
+
+	##count = 1000;
+	while (##count) {
+		$$file = dllfuncstr("FINDNEXT");
+		if ($$file == "") {
+			break
+		}
+		$g_snippet_file[#g_snippet_file_num]=$$abs_snippets_dir + $$file;
+		call MakeSnippetBaseName $$file;
+		$g_snippet_file_basename[#g_snippet_file_num]=$$return;
+		#g_snippet_file_num=#g_snippet_file_num+1;
+		##count=##count-1;
+	}
+	if(#g_snippet_file_num){
+		return true;
+	}
+	return false;
+
+/*スニペットファイルのベース名を作る
+"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt" → "for.%"
+*/
+MakeSnippetBaseName:
+	$$name 	= $$1;
+	##len 	= strlen($$name);
+
+	//
+	//拡張子の削除
+	//
+	##index=strrstr($$name,".");
+	if(0 == ##index){
+		//全部拡張子。とりあえず無視する。
+		return "";
+	}
+	if(0 < ##index){
+		$$name = leftstr($$name,##index);
+	}
+	if(0){
+		//ディレクトリは無いのでコメントアウト
+
+		//
+		//ディレクトリの削除
+		//
+		##index_0=strrstr($$name,"/");
+		##index_1=strrstr($$name,"\\");
+		if(##index_0 < ##index_1){
+			##index = ##index_1;
+		}else{
+			##index = ##index_0;
+		}
+		if(-1 != ##index){
+			$$name=rightstr($$name,(##len-##index)+1);
+		}
+	}
+	return $$name;
+
+/*スニペットが置いてあるディレクトリかどうか
+memo:「パス区切り(/\)・大文字小文字」の違いがあるのでファイルシステムに任せる。
+*/
+IsFolderFinish:
+	$$dir = $$1;
+	##obj 	= createobject("Scripting.FileSystemObject");
+	##fld0 	= callmethod_returnobj( ##obj, "GetFolder", $g_snippets_abs_dir);
+	##fld1 	= callmethod_returnobj( ##obj, "GetFolder", $$dir);
+	$$path0	= getpropstr(##fld0,"Path");
+	$$path1	= getpropstr(##fld1,"Path");
+	releaseobject ##fld0;
+	releaseobject ##fld1;
+	releaseobject ##obj;
+	return $$path0 == $$path1;
+
+
+/*親フォルダを返す*/
+GetParentFolderName:
+	$$dir = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	$$result = callmethod_returnstr( ##obj, "GetParentFolderName", $$dir);
+	releaseobject ##obj;
+	return $$result;
+
