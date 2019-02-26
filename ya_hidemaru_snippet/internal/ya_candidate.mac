@@ -27,7 +27,7 @@ $message_loop_result			="";
 //--------------------------------------------------------------------------
 //	DLL
 //--------------------------------------------------------------------------
-#g_dengaku_loaded=false;
+#g_dengaku_dll=0;
 
 //--------------------------------------------------------------------------
 //	通知コード(const)
@@ -115,12 +115,12 @@ ParseArgument:
 	#snippet_argument_num=0;
 	#snippet_has_variable_argument=false;
 
-	$$token = dllfuncstr("GETTOKEN",$$1,".");
+	$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN",$$1,".");
 	$snippet_command_name=$$token;
-	if (dllfunc("HASMORETOKENS") == 0) {
+	if (dllfunc(#g_dengaku_dll,"HASMORETOKENS") == 0) {
 		return true;
 	}
-	$$token = dllfuncstr("GETTOKEN","",".");
+	$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
 	while (1) {
 		if($$token==""){
 			break;
@@ -132,10 +132,10 @@ ParseArgument:
 
 		}
 		##token_array_num = ##token_array_num + 1;
-		if (dllfunc("HASMORETOKENS") == 0) {
+		if (dllfunc(#g_dengaku_dll,"HASMORETOKENS") == 0) {
 			break;
 		}
-		$$token = dllfuncstr("GETTOKEN","",".");
+		$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
 	}
 	return true;
 
@@ -186,7 +186,7 @@ FormatFileName:
 	if(true){
 		##arg_index			=0;
 
-		$$token = dllfuncstr("GETTOKEN",$$1,".");
+		$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN",$$1,".");
 		while (1) {
 			if($$token==""){
 				break;
@@ -200,10 +200,10 @@ FormatFileName:
 			}
 			##token_array_num = ##token_array_num + 1;
 
-			if (dllfunc("HASMORETOKENS") == 0) {
+			if (dllfunc(#g_dengaku_dll,"HASMORETOKENS") == 0) {
 				break;
 			}
-			$$token = dllfuncstr("GETTOKEN","",".");
+			$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
 		}
 	}
 
@@ -234,7 +234,7 @@ FormatFileName:
 CreateDiralog:
 	$$title = $$1;
 	##default_width = 100;
-	if(	dllfunc("NEWDIALOG","コマンドの引数を入力します ("+$$title+")",##default_width,"") == 0 ){
+	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","コマンドの引数を入力します ("+$$title+")",##default_width,"") == 0 ){
 		return false;
 	}
 
@@ -244,48 +244,48 @@ CreateDiralog:
 		$snippet_gui_all_id[#snippet_gui_all_id_num] = $snippet_gui_argument_id[##i];
 		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
 
-		if(	dllfunc("NEWCONTROL", "text", "", sprintf("引数[%d]",##i)) == 0			||
-			dllfunc("SETCTRLWIDTH", "", 8) == 0 						||
-			dllfunc("NEWCONTROL", "edit", $snippet_gui_argument_id[##i], "") == 0		){
+		if(	dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", sprintf("引数[%d]",##i)) == 0			||
+			dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 						||
+			dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", $snippet_gui_argument_id[##i], "") == 0		){
 			return false;
 		}
 		##i = ##i + 1;
 	}
 	if(#snippet_has_variable_argument){
 		$$variable_argument_id="Yas@VariableArgument";
-		if(	dllfunc("NEWCONTROL", "text", "", "引数[...]") == 0				||
-			dllfunc("SETCTRLWIDTH", "", 8) == 0 							||
-			dllfunc("NEWCONTROL", "edit", $$variable_argument_id, "") == 0){
+		if(	dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", "引数[...]") == 0				||
+			dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 							||
+			dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", $$variable_argument_id, "") == 0){
 			return false;
 		}
 		$snippet_gui_all_id[#snippet_gui_all_id_num] = $$variable_argument_id;
 		#snippet_gui_all_id_num = #snippet_gui_all_id_num + 1;
 	}
 
-	if(	dllfunc("NEWCONTROL", "text", "Yas@Message", "") == 0){
+	if(	dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "Yas@Message", "") == 0){
 		return false;
 	}
-	if(	dllfunc("NEWCONTROL", "button", "Yas@Ok", "OK") == 0||
-		dllfunc("SETCTRLNOTIFY","",$notify_ok) == 0 ||
-		dllfunc("NEWCONTROL", "button", "Yas@Cancel", "Cancel") == 0	||
-		dllfunc("SETCTRLNOTIFY","",$notify_cancel) == 0 ){
+	if(	dllfunc(#g_dengaku_dll,"NEWCONTROL", "button", "Yas@Ok", "OK") == 0||
+		dllfunc(#g_dengaku_dll,"SETCTRLNOTIFY","",$notify_ok) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "button", "Yas@Cancel", "Cancel") == 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLNOTIFY","",$notify_cancel) == 0 ){
 		return false;
 	}
 
-	##n = dllfunc("SHOWDIALOG", hidemaruhandle(0), 0);
+	##n = dllfunc(#g_dengaku_dll,"SHOWDIALOG", hidemaruhandle(0), 0);
 	return true;
 
 
 MessageLoop:
 	call MessageLoopCore;
 	##ret = ##return;
-	#n = dllfunc("ENDDIALOG");
+	#n = dllfunc(#g_dengaku_dll,"ENDDIALOG");
 	return ##ret;
 
 
 MessageLoopCore:
 	while (1) {
-		$$item = dllfuncstr("WAITCTRLNOTIFY",100);
+		$$item = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",100);
 		if($$item==$notify_cancel){
 			return false;	//cancelボタン
 		}else if($$item==$notify_ok){
@@ -300,9 +300,9 @@ MessageLoopCore:
 		//固定引数に全て入力した時に「OKボタン」を有効にする。
 		call FindNoInputTextBox;
 		if(##return == -1){
-			##n = dllfunc("ENABLECTRL",true, "Yas@Ok");
+			##n = dllfunc(#g_dengaku_dll,"ENABLECTRL",true, "Yas@Ok");
 		}else{
-			##n = dllfunc("ENABLECTRL",false,"Yas@Ok");
+			##n = dllfunc(#g_dengaku_dll,"ENABLECTRL",false,"Yas@Ok");
 		}
 
 		//Enterで引数を確定して次の引数へフォーカスを移す
@@ -320,27 +320,27 @@ MessageLoopCore:
 		if(0<##i){
 			$message_loop_result=$message_loop_result+" ";
 		}
-		$message_loop_result = $message_loop_result + dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		$message_loop_result = $message_loop_result + dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING", $snippet_gui_argument_id[##i]);
 		##i = ##i + 1;
 	}
 	if(#snippet_has_variable_argument){
 		if(#snippet_argument_num){
 			$message_loop_result=$message_loop_result+" ";
 		}
-		$message_loop_result = $message_loop_result + dllfuncstr("GETCTRLSTRING", "Yas@VariableArgument");
+		$message_loop_result = $message_loop_result + dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING", "Yas@VariableArgument");
 	}
 	return true;
 
 ChangeForcus:
-	$$forcused_control = dllfuncstr("GETFOCUSEDCTRL");
+	$$forcused_control = dllfuncstr(#g_dengaku_dll,"GETFOCUSEDCTRL");
 	call FindGuiIndex $$forcused_control;
 	##gui_index=##return;
 	if(##gui_index == -1){
 		return ;
 	}
-	$$text = dllfuncstr("GETCTRLSTRING", $$forcused_control);
-	$$text = dllfuncstr("LTRIM",$$text);
-	$$text = dllfuncstr("RTRIM",$$text);
+	$$text = dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING", $$forcused_control);
+	$$text = dllfuncstr(#g_dengaku_dll,"LTRIM",$$text);
+	$$text = dllfuncstr(#g_dengaku_dll,"RTRIM",$$text);
 	if($$text==""){
 		return ;
 	}
@@ -351,7 +351,7 @@ ChangeForcus:
 		//pass
 	}else{
 		//次のコントロールへフォーカスを移す
-		##n = dllfunc("SETFOCUSEDCTRL", $snippet_gui_all_id[##gui_index]);
+		##n = dllfunc(#g_dengaku_dll,"SETFOCUSEDCTRL", $snippet_gui_all_id[##gui_index]);
 	}
 	return;
 
@@ -362,9 +362,9 @@ return 	== -1	未入力のテキストBOXは無い
 FindNoInputTextBox:
 	##i=0;
 	while(##i<#snippet_argument_num){
-		$$text = dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
-		$$text = dllfuncstr("LTRIM",$$text);
-		$$text = dllfuncstr("RTRIM",$$text);
+		$$text = dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		$$text = dllfuncstr(#g_dengaku_dll,"LTRIM",$$text);
+		$$text = dllfuncstr(#g_dengaku_dll,"RTRIM",$$text);
 		if($$text==""){
 			return ##i;
 		}
@@ -376,9 +376,9 @@ FindNoInputTextBox:
 TotalItemToTextExists:
 	##i=0;
 	while(##i<#snippet_argument_num){
-		$$text = dllfuncstr("GETCTRLSTRING", $snippet_gui_argument_id[##i]);
-		$$text = dllfuncstr("LTRIM",$$text);
-		$$text = dllfuncstr("RTRIM",$$text);
+		$$text = dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING", $snippet_gui_argument_id[##i]);
+		$$text = dllfuncstr(#g_dengaku_dll,"LTRIM",$$text);
+		$$text = dllfuncstr(#g_dengaku_dll,"RTRIM",$$text);
 		if($$text==""){
 			return false;
 		}
@@ -399,25 +399,23 @@ FindGuiIndex:
 	return -1;
 
 LoadDengaku:
-	if(#g_dengaku_loaded){
+	if(#g_dengaku_dll){
 		return true;
 	}
-	loaddll macrodir + "\\DengakuDLL.dll";
+	#g_dengaku_dll=loaddll(macrodir + "\\DengakuDLL.dll");
 	if (result) {
-		#g_dengaku_loaded=true;
 		return true;
 	}
-	loaddll hidemarudir + "\\DengakuDLL.dll";
+	#g_dengaku_dll=loaddll(hidemarudir + "\\DengakuDLL.dll");
 	if (result) {
-		#g_dengaku_loaded=true;
 		return true;
 	}
 	//message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
 
 UnLoadDengaku:
-	if(#g_dengaku_loaded){
-		freedll;
-		#g_dengaku_loaded=false;
+	if(#g_dengaku_dll){
+		freedll #g_dengaku_dll;
+		#g_dengaku_dll=0;
 	}
 	return;

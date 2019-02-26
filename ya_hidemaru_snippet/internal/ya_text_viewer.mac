@@ -1,31 +1,38 @@
-/*w’è‚³‚ê‚½ƒfƒBƒŒƒNƒgƒŠˆÈ‰º‚ÌƒXƒjƒyƒbƒg’è‹`ƒtƒ@ƒCƒ‹‚ğ‰{——‚·‚éƒ_ƒCƒAƒƒOB
+ï»¿/*æŒ‡å®šã•ã‚ŒãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªä»¥ä¸‹ã®ã‚¹ãƒ‹ãƒšãƒƒãƒˆå®šç¾©ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–²è¦§ã™ã‚‹ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã€‚
 
-iƒ}ƒNƒˆø”j
-	–³‚µ
+ï¼ˆãƒã‚¯ãƒ­å¼•æ•°ï¼‰
+	ç„¡ã—
 
-iƒ}ƒNƒ•Ô’lj
-	‘I‘ğ‚³‚ê‚½ƒtƒ@ƒCƒ‹–¼
-	ƒLƒƒƒ“ƒZƒ‹ or ¸”s‚·‚é‚Æ‹ó”’‚Ì•¶š—ñ‚ğ•Ô‚µ‚Ü‚·B
+ï¼ˆãƒã‚¯ãƒ­è¿”å€¤ï¼‰
+	é¸æŠã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«å
+	ã‚­ãƒ£ãƒ³ã‚»ãƒ« or å¤±æ•—ã™ã‚‹ã¨ç©ºç™½ã®æ–‡å­—åˆ—ã‚’è¿”ã—ã¾ã™ã€‚
 
-ig—p—áj
+ï¼ˆä½¿ç”¨ä¾‹ï¼‰
 	execmacro "ya_text_viewer.mac";
 
 */
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		ƒOƒ[ƒoƒ‹•Ï”
+//		ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°(const)
+////////////////////////////////////////////////////////////////////////////
+#g_snippets_list_width=30;
+#g_dialog_height=50;
+#g_dialog_width=100;
+
+
+////////////////////////////////////////////////////////////////////////////
+//		ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 ////////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
 //DLL handle
 //--------------------------------------------------------------------------
-#g_dengaku_loaded		= false;
-#g_ht_tools_loaded		= false;
-#g_ht_tools_dll			= 0;
+#g_dengaku_dll	=0;
+#g_ht_tools_dll	=0;
 
 //--------------------------------------------------------------------------
-//ƒ}ƒNƒˆø”
+//ãƒã‚¯ãƒ­å¼•æ•°
 //--------------------------------------------------------------------------
 $g_snippets_abs_dir 	= "";
 $g_snippett_exts 		= "";
@@ -33,50 +40,47 @@ $g_snippett_exts 		= "";
 //--------------------------------------------------------------------------
 //Dialog
 //--------------------------------------------------------------------------
-//GUI‚ÌƒŠƒXƒg‚É‘Î‰‚·‚éƒtƒ@ƒCƒ‹ˆê——
+//GUIã®ãƒªã‚¹ãƒˆã«å¯¾å¿œã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ä¸€è¦§
 $g_abs_snippets_filename		= "";
 #g_abs_snippets_filename_len	= 0;
 
-//ƒRƒ“ƒgƒ[ƒ‹–¼
+//ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«å
 $g_list_ctrl_name 		= "lst1";
 $g_text_ctrl_name 		= "mledt1";
 
-/*ƒŠƒXƒgƒRƒ“ƒgƒ[ƒ‹‚ÌƒAƒCƒeƒ€”
-(memo)ƒAƒCƒeƒ€‚ğ1ŒÂ’Ç‰Á‚µ‚½‚Æ‚«‚É0‚Æ‚È‚éB
+/*ãƒªã‚¹ãƒˆã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã®ã‚¢ã‚¤ãƒ†ãƒ æ•°
+(memo)ã‚¢ã‚¤ãƒ†ãƒ ã‚’1å€‹è¿½åŠ ã—ãŸã¨ãã«0ã¨ãªã‚‹ã€‚
 */
 #g_list_ctrl_item_num	= -1;
 
-//ƒ_ƒCƒAƒƒO‚Ì’Ê’mƒƒbƒZ[ƒW
-$g_notify_close="10";
-
 
 //--------------------------------------
-//ƒXƒjƒyƒbƒgƒ‚[ƒh–¼AƒXƒjƒyƒbƒgƒ‚[ƒh‚ÌƒCƒ“ƒfƒbƒNƒXˆÊ’u
+//ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰åã€ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä½ç½®
 //--------------------------------------
-/* $g_snippet_mode_* ”z—ñ‚ÌŒÂ”
+/* $g_snippet_mode_* é…åˆ—ã®å€‹æ•°
 */
 #g_snippet_mode_num=0;
 
 /*
-(—á)	[0]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode"
+(ä¾‹)	[0]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode"
 		[1]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode"
 			:
 			:
 */
 $g_snippet_mode_names[0]="";
 
-/*ƒXƒjƒyƒbƒgƒ‚[ƒh–¼‚ªƒŠƒXƒg‚Ì‰½”Ô–Ú‚È‚Ì‚©B
-i—áj	[0] 0		//$g_snippet_mode_names[0]‚É‘Î‰
-		[1] 8		//$g_snippet_mode_names[1]‚É‘Î‰
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰åãŒãƒªã‚¹ãƒˆã®ä½•ç•ªç›®ãªã®ã‹ã€‚
+ï¼ˆä¾‹ï¼‰	[0] 0		//$g_snippet_mode_names[0]ã«å¯¾å¿œ
+		[1] 8		//$g_snippet_mode_names[1]ã«å¯¾å¿œ
 */
 #g_snippet_mode_index[0]=0;
 
 
 //--------------------------------------------------------------------------
-//ó‘Ô
+//çŠ¶æ…‹
 //--------------------------------------------------------------------------
-/*Œ»İ‚ÌƒXƒjƒyƒbƒgƒ‚[ƒh
-(—á)"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode\cpp-mode"
+/*ç¾åœ¨ã®ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰
+(ä¾‹)"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode\cpp-mode"
 */
 $g_current_snippet_mode="";
 
@@ -84,7 +88,7 @@ $g_current_snippet_mode="";
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		ˆ—
+//		å‡¦ç†
 ////////////////////////////////////////////////////////////////////////////
 call Main;
 endmacro $$return;
@@ -96,7 +100,7 @@ Main:
 	}
 	call Run;
 	$$select_filename = $$return;
-	call UnloadDengaku;
+	call UnloadDll;
 	return $$select_filename;
 
 
@@ -112,45 +116,45 @@ Run:
 
 
 CreateDialog:
-	##default_width = 100;
-
-	if(	dllfunc("NEWDIALOG","ƒXƒjƒyƒbƒgˆê——",##default_width,"") == 0 ||
-		dllfunc("NEWCONTROL","list",$g_list_ctrl_name,"") == 0)
+	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","ã‚¹ãƒ‹ãƒšãƒƒãƒˆä¸€è¦§",#g_dialog_width,"") == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL","list",$g_list_ctrl_name,"") == 0)
 	{
 		call FailedCreateDialog;
 		return false;
 	}
 
-	call MakeFileTree $g_snippets_abs_dir, "";
-	if(! ##return){
-		return false;
-	}
 	//call DebugPrintSnippetModeNameAndIndex;
 	
-	call CalcListHeight;
-	##height = ##return;
-	if(	dllfunc("SETCTRLHEIGHT","",##height) == 0	||
-		dllfunc("SETCTRLWIDTH","",30) == 0)
+	if(	dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT","",#g_dialog_height) == 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",#g_snippets_list_width) == 0)
 	{
+		call FailedCreateDialog;
+		return false;
 	}
 
-	if(	dllfunc("NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
-		dllfunc("SETCTRLHEIGHT","",##height)==0 ||
-	 	dllfunc("NEWPAGE",##default_width)==0 ||
-		dllfunc("NEWCONTROL","defbutton","","Close") == 0 ||
-		dllfunc("SETCTRLNOTIFY", "", $g_notify_close) == 0
+	if(	dllfunc(#g_dengaku_dll,"NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT",$g_text_ctrl_name,#g_dialog_height)==0 ||
+		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,$g_text_ctrl_name)==0
+		
+		/*å¼•æ•°å…¥åŠ›ã®ãƒšãƒ¼ã‚¸*/
+		/*dllfunc(#g_dengaku_dll,"NEWPAGE",#g_dialog_width)==0 ||*/
 	){
 		call FailedCreateDialog;
 		return false;
 	}
 	
+	call MakeFileTree $g_snippets_abs_dir, "";
+	if(! ##return){
+		return false;
+	}
+	
 	call SelectSnippetModeItem $g_current_snippet_mode;
 	if(! ##return){
-		//–¢‘I‘ğó‘Ô‚È‚Ì‚ÅÅ‰‚ÌƒAƒCƒeƒ€‚ğ‘I‘ğ‚·‚éB
-		##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,"1");
+		//æœªé¸æŠçŠ¶æ…‹ãªã®ã§æœ€åˆã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’é¸æŠã™ã‚‹ã€‚
+		##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,"1");
 	}
-	if (!dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
-		message("SHOWDIALOG ‚É¸”s‚µ‚Ü‚µ‚½");
+	if (!dllfunc(#g_dengaku_dll,"SHOWDIALOG",hidemaruhandle(0),1)){
+		message("SHOWDIALOG ã«å¤±æ•—ã—ã¾ã—ãŸ");
 		return false;
 	}
 	return true;
@@ -159,7 +163,7 @@ CreateDialog:
 MessageLoop:
 	$$prev_select_item 	= "?";
 
-	//ƒŠƒXƒg‚Åã‰ºƒL[‚ğ‰Ÿ‚µ‘±‚¯‚½‚Æ‚«‚É“K“x‚ÈŠÔŠu‚Åƒtƒ@ƒCƒ‹“à—e‚ğXV‚·‚éB
+	//ãƒªã‚¹ãƒˆã§ä¸Šä¸‹ã‚­ãƒ¼ã‚’æŠ¼ã—ç¶šã‘ãŸã¨ãã«é©åº¦ãªé–“éš”ã§ãƒ•ã‚¡ã‚¤ãƒ«å†…å®¹ã‚’æ›´æ–°ã™ã‚‹ã€‚
 	##interval			= 60;
 	##prev_tick 		= 0;
 
@@ -170,7 +174,7 @@ MessageLoop:
 		while (strlen($$name) == 0) {
 			##current_tick = tickcount;
 			if(##interval < (##current_tick - ##prev_tick)){
-				$$select_item = dllfuncstr("GETCTRLSTATE",$g_list_ctrl_name);
+				$$select_item = dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
 				if($$select_item != $$prev_select_item){
 					if($$select_item=="0"){
 						call ClearText;
@@ -182,7 +186,7 @@ MessageLoop:
 				}
 				##prev_tick = ##current_tick;
 			}
-			$$name = dllfuncstr("WAITCTRLNOTIFY",10);
+			$$name = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
 		}
 
 		if($$name == "0"){
@@ -190,15 +194,13 @@ MessageLoop:
 			break;
 		}else if($$name == "1"){
 			break;
-		}else if($$name == $g_notify_close){
-			break;
 		}
 	}
 	return $$select_file;
 
 
 ClearText:
-	##n=dllfunc("SETCTRLSTRING",$g_text_ctrl_name,"");
+	##n=dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_text_ctrl_name,"");
 	return;
 
 
@@ -218,18 +220,18 @@ UpdateText:
 	}
 	call LoadText $$path;
 	$$text = $$return;
-	##n=dllfunc("SETCTRLSTRING",$g_text_ctrl_name,$$text);
-	//ƒtƒH[ƒJƒX‚ªGŠÛ‚ÉˆÚ“®‚µ‚Ä‚¢‚é‚Ì‚ÅAƒŠƒXƒg‚ÖƒtƒH[ƒJƒX‚ğ‚ ‚Ä‚éB
-	##n=dllfunc("SETFOCUSEDCTRL", $g_list_ctrl_name);
+	##n=dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_text_ctrl_name,$$text);
+	//ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ãŒç§€ä¸¸ã«ç§»å‹•ã—ã¦ã„ã‚‹ã®ã§ã€ãƒªã‚¹ãƒˆã¸ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ã‚ã¦ã‚‹ã€‚
+	##n=dllfunc(#g_dengaku_dll,"SETFOCUSEDCTRL", $g_list_ctrl_name);
 	return $$path;
 
 
 LoadText:
-	$$filename = $$1;
-	##file_size = dllfunc(#g_ht_tools_dll, "GetFileSizeByte", $$filename);
-	##file_handle = dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
-	$$text = dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
-	##dummy = dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
+	$$filename 		= $$1;
+	##file_size 	= dllfunc(#g_ht_tools_dll, "GetFileSizeByte", $$filename);
+	##file_handle 	= dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
+	$$text 			= dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
+	##dummy 		= dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
 	return $$text;
 
 
@@ -240,7 +242,7 @@ MakeFileTree:
 	##sub_dir_len 	= 0;
 	
 	//
-	//ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚É‚ ‚éƒXƒjƒyƒbƒg‚Ìƒtƒ@ƒCƒ‹–¼‚ğæ“¾‚·‚éi”ñÄ‹Aj
+	//ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚ã‚‹ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ãƒ•ã‚¡ã‚¤ãƒ«åã‚’å–å¾—ã™ã‚‹ï¼ˆéå†å¸°ï¼‰
 	//
 	##prev__list_ctrl_item_num = #g_list_ctrl_item_num;
 	call MakeFileItems $$root_dir, $$space;
@@ -253,11 +255,11 @@ MakeFileTree:
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$file_pattern = $$return;
 	//
-	//ƒTƒuƒfƒBƒŒƒNƒgƒŠ‚ğ—ñ‹“‚·‚éi”ñÄ‹Aj
+	//ã‚µãƒ–ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’åˆ—æŒ™ã™ã‚‹ï¼ˆéå†å¸°ï¼‰
 	//
-	##r = dllfunc("ENUMDIR",$$file_pattern);
+	##r = dllfunc(#g_dengaku_dll,"ENUMDIR",$$file_pattern);
 	while (1) {
-	    $$dir = dllfuncstr("FINDNEXT");
+	    $$dir = dllfuncstr(#g_dengaku_dll,"FINDNEXT");
 	    if ($$dir == "") break;
 	    else if ($$dir == "." || $$dir == "..") continue;
 
@@ -266,23 +268,23 @@ MakeFileTree:
 	}
 	
 	//
-	//æ‚Ù‚Ç—ñ‹“‚µ‚½ƒTƒuƒfƒBƒŒƒNƒgƒŠ‚ğ’H‚é
+	//å…ˆã»ã©åˆ—æŒ™ã—ãŸã‚µãƒ–ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¾¿ã‚‹
 	//
 	##index = 0;
 	while (##index < ##sub_dir_len){
 		$$current_sub_dir	= $$sub_dir[##index];
 		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
 
-		//ƒŠƒXƒgƒRƒ“ƒgƒ[ƒ‹‚ÖƒfƒBƒŒƒNƒgƒŠ‚ğ’Ç‰Á‚·‚é
+		//ãƒªã‚¹ãƒˆã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¸ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¿½åŠ ã™ã‚‹
 		call AppendListItem $$space, $$current_sub_dir, $$abs_path;
 		if(! ##return){
 			return false;
 		}
 		
 		//
-		//Ä‹A“I‚Éˆ—‚·‚é
+		//å†å¸°çš„ã«å‡¦ç†ã™ã‚‹
 		//
-		call MakeFileTree $$abs_path, $$space+"@@@@";
+		call MakeFileTree $$abs_path, $$space+"ã€€ã€€ã€€ã€€";
 		if(! ##return){
 			return false;
 		}
@@ -291,8 +293,8 @@ MakeFileTree:
 	return true;
 
 /*
-return 	> 0		’Ç‰Á‚µ‚½ƒAƒCƒeƒ€”
-		== -1	¸”s
+return 	> 0		è¿½åŠ ã—ãŸã‚¢ã‚¤ãƒ†ãƒ æ•°
+		== -1	å¤±æ•—
 */
 MakeFileItems:
 	$$root_dir	= $$1;
@@ -302,9 +304,9 @@ MakeFileItems:
 	$$file_pattern	= $$return;
 	
 	##append_num=0;
-	##r = dllfunc("ENUMFILE",$$file_pattern);
+	##r = dllfunc(#g_dengaku_dll,"ENUMFILE",$$file_pattern);
 	while (1) {
-		$$filename = dllfuncstr("FINDNEXT");
+		$$filename = dllfuncstr(#g_dengaku_dll,"FINDNEXT");
 		if ($$filename == "") {
 			break;
 		}
@@ -327,7 +329,7 @@ AppendListItem:
 	#g_abs_snippets_filename_len 							= #g_abs_snippets_filename_len + 1;
 
 	$$item_name=$$space+$$rel_filename;
-	if(dllfunc("SETCTRLITEM",$g_list_ctrl_name,$$item_name) == 0){
+	if(dllfunc(#g_dengaku_dll,"SETCTRLITEM",$g_list_ctrl_name,$$item_name) == 0){
 		call FailedCreateDialog;
 		return false;
 	}
@@ -355,9 +357,9 @@ DebugPrintSnippetModeNameAndIndex:
 	return ;
 
 
-/*ƒXƒjƒyƒbƒgƒ‚[ƒh‚É‘Î‰‚·‚éƒŠƒXƒgƒAƒCƒeƒ€‚ğ‘I‘ğ‚·‚é
-return 	true	ƒŠƒXƒgƒAƒCƒeƒ€‚Ì‘I‘ğ‚É¬Œ÷‚µ‚½
-		false	ƒŠƒXƒgƒAƒCƒeƒ€‚Ì‘I‘ğ‚É¸”s‚µ‚½
+/*ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰ã«å¯¾å¿œã™ã‚‹ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã‚’é¸æŠã™ã‚‹
+return 	true	ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®é¸æŠã«æˆåŠŸã—ãŸ
+		false	ãƒªã‚¹ãƒˆã‚¢ã‚¤ãƒ†ãƒ ã®é¸æŠã«å¤±æ•—ã—ãŸ
 */
 SelectSnippetModeItem:
 	debuginfo 0;
@@ -367,10 +369,10 @@ SelectSnippetModeItem:
 	##i=0;
 	while(##i<#g_snippet_mode_num){
 		if($$snippet_dir==$g_snippet_mode_names[##i]){
-			//(memo)ƒŠƒXƒgƒRƒ“ƒgƒ[ƒ‹‚Í1‚©‚çŠJn‚È‚Ì‚Å+1‚·‚éB
+			//(memo)ãƒªã‚¹ãƒˆã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¯1ã‹ã‚‰é–‹å§‹ãªã®ã§+1ã™ã‚‹ã€‚
 			##index=#g_snippet_mode_index[##i]+1;
 			debuginfo "##index="+str(##index);
-			##n = dllfunc("SETCTRLSTATE",$g_list_ctrl_name,str(##index));
+			##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,str(##index));
 			return true;
 		}
 		##i = ##i + 1;
@@ -378,7 +380,7 @@ SelectSnippetModeItem:
 	return false;
 
 FailedCreateDialog:
-	message "ƒ_ƒCƒAƒƒO‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½";
+	message "ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸ";
 	return;
 
 
@@ -394,7 +396,7 @@ Initialize:
 	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
 	$g_current_snippet_mode=getresultex(-1);
 
-	call LoadDengaku;
+	call LoadDll;
 	if(! ##return){
 		return false;
 	}
@@ -402,62 +404,41 @@ Initialize:
 
 
 Finalize:
-	##n=dllfunc("ENDDIALOG");
+	##n=dllfunc(#g_dengaku_dll,"ENDDIALOG");
 	return ;
 
-
-CalcListHeight:
-	call Min #g_abs_snippets_filename_len, 80;
-	return ##return;
-
-
-Min:
-	if(##1 < ##2){
-		return ##1;
-	}
-	return ##2;
-
-Max:
-	if(##1 <= ##2){
-		return ##2;
-	}
-	return  ##1;
-
-
-LoadDengaku:
-	if(#g_dengaku_loaded){
-		loaddll macrodir + "\\DengakuDLL.dll";
+LoadDll:
+	if(#g_dengaku_dll==0){
+		#g_dengaku_dll=loaddll(macrodir + "\\DengakuDLL.dll");
 		if (! result) {
-			loaddll hidemarudir + "\\DengakuDLL.dll";
+			#g_dengaku_dll=loaddll(hidemarudir + "\\DengakuDLL.dll");
 			if (! result) {
-				message "“cŠyDLL‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "DengakuDLL.dll‚ªGŠÛ‚ÌƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
+				message "ç”°æ¥½DLLã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸ\n" + "DengakuDLL.dllãŒç§€ä¸¸ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å­˜åœ¨ã™ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„";
 				return false;
 			}
 		}
-		#g_dengaku_loaded=true;
 	}
 
-	if(! #g_ht_tools_loaded){
+	if(#g_ht_tools_dll==0){
 		#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
 		if (!result) {
 			#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
 			if (!result) {
-				message "ht_tool.dll‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "ht_tool.dll‚ªGŠÛ‚ÌƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
+				message "ht_tool.dllã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸ\n" + "ht_tool.dllãŒç§€ä¸¸ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å­˜åœ¨ã™ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„";
 				return false;
 			}
 		}
-		#g_ht_tools_loade=true;
 	}
 	return true;
 
 
-UnloadDengaku:
-	if(#g_dengaku_loaded){
-		freedll;
-		#g_dengaku_loaded=false;
+UnloadDll:
+	if(#g_dengaku_dll){
+		freedll #g_dengaku_dll;
+		#g_dengaku_dll=0;
 	}
-	if(#g_ht_tools_loade){
+	if(#g_ht_tools_dll){
 		freedll #g_ht_tools_dll;
-		#g_ht_tools_loade=false;
+		#g_ht_tools_dll=0;
 	}
 	return;
