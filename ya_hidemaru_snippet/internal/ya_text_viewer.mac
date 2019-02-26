@@ -5,7 +5,7 @@
 
 （マクロ返値）
 	選択されたファイル名
-	キャンセル or 失敗すると空白の文字列を返します。
+	キャンセル or 失敗すると空白文字列を返します。
 
 （使用例）
 	execmacro "ya_text_viewer.mac";
@@ -19,6 +19,8 @@
 #g_snippets_list_width=30;
 #g_dialog_height=50;
 #g_dialog_width=100;
+#g_max_args_num=16;
+
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -40,9 +42,20 @@ $g_snippett_exts 		= "";
 //--------------------------------------------------------------------------
 //Dialog
 //--------------------------------------------------------------------------
-//GUIのリストに対応するファイル一覧
-$g_abs_snippets_filename		= "";
+/*リストに対応するファイル名（絶対パス）
+(例) [0] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\email.txt"
+	 [1] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\@cmd.%._.txt"
+	 		:
+	 		:
+*/
+$g_abs_snippets_filename[0]		= "";
 #g_abs_snippets_filename_len	= 0;
+
+/*	$g_abs_snippets_filename[]に対応する引数情報
+*/
+#g_fixed_argumet_num[0]		=0;
+#g_has_variable_argument[0]	=false;
+
 
 //コントロール名
 $g_list_ctrl_name 		= "lst1";
@@ -114,57 +127,11 @@ Run:
 	call Finalize;
 	return $$select_filename;
 
-
-CreateDialog:
-	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","スニペット一覧",#g_dialog_width,"") == 0 ||
-		dllfunc(#g_dengaku_dll,"NEWCONTROL","list",$g_list_ctrl_name,"") == 0)
-	{
-		call FailedCreateDialog;
-		return false;
-	}
-
-	//call DebugPrintSnippetModeNameAndIndex;
-	
-	if(	dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT","",#g_dialog_height) == 0	||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",#g_snippets_list_width) == 0)
-	{
-		call FailedCreateDialog;
-		return false;
-	}
-
-	if(	dllfunc(#g_dengaku_dll,"NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
-		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT",$g_text_ctrl_name,#g_dialog_height)==0 ||
-		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,$g_text_ctrl_name)==0
-		
-		/*引数入力のページ*/
-		/*dllfunc(#g_dengaku_dll,"NEWPAGE",#g_dialog_width)==0 ||*/
-	){
-		call FailedCreateDialog;
-		return false;
-	}
-	
-	call MakeFileTree $g_snippets_abs_dir, "";
-	if(! ##return){
-		return false;
-	}
-	
-	call SelectSnippetModeItem $g_current_snippet_mode;
-	if(! ##return){
-		//未選択状態なので最初のアイテムを選択する。
-		##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,"1");
-	}
-	if (!dllfunc(#g_dengaku_dll,"SHOWDIALOG",hidemaruhandle(0),1)){
-		message("SHOWDIALOG に失敗しました");
-		return false;
-	}
-	return true;
-
-
 MessageLoop:
 	$$prev_select_item 	= "?";
 
 	//リストで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
-	##interval			= 60;
+	##interval			= 200;
 	##prev_tick 		= 0;
 
 	$$select_file		= "";
@@ -179,7 +146,9 @@ MessageLoop:
 					if($$select_item=="0"){
 						call ClearText;
 					}else{
-						call UpdateText val($$select_item)-1;
+						##select = val($$select_item)-1;
+						call UpdateText ##select;
+						call UpdateArgumentEditor ##select;
 						$$select_file = $$return;
 					}
 					$$prev_select_item=$$select_item;
@@ -221,8 +190,6 @@ UpdateText:
 	call LoadText $$path;
 	$$text = $$return;
 	##n=dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_text_ctrl_name,$$text);
-	//フォーカスが秀丸に移動しているので、リストへフォーカスをあてる。
-	##n=dllfunc(#g_dengaku_dll,"SETFOCUSEDCTRL", $g_list_ctrl_name);
 	return $$path;
 
 
@@ -233,6 +200,109 @@ LoadText:
 	$$text 			= dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
 	##dummy 		= dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
 	return $$text;
+
+
+/* 引数エディタのGUIを更新する
+
+(memo)手抜き実装です。
+*/
+UpdateArgumentEditor:
+	##select = ##1;
+	
+	//無効化（キーボードフォーカスを得ない）＆空欄にする
+	##frame_no=0;
+	while(##frame_no<#g_max_args_num){
+		$$frame=sprintf("frame%d",##frame_no);
+		
+		//無効化
+		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",false,sprintf("edit%d_0",##frame_no));
+		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",false,sprintf("edit%d_1",##frame_no));
+		
+		//空欄
+		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
+		
+		##frame_no = ##frame_no + 1;
+	}
+	
+	//引数の情報にもとづいて適切なPageを表示する
+	##argument_num = #g_fixed_argumet_num[##select];
+	##has_variable_argument=#g_has_variable_argument[##select];
+	##frame_no=0;
+	while(##frame_no<##argument_num){
+		$$frame=sprintf("frame%d",##frame_no);
+		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"1");
+		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",true,sprintf("edit%d_0",##frame_no));
+		
+		##frame_no = ##frame_no + 1;
+	}
+	if(##has_variable_argument){
+		$$frame=sprintf("frame%d",##frame_no);
+		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"2");
+		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",true,sprintf("edit%d_1",##frame_no));
+	}
+	return ;
+
+
+CreateDialog:
+	//call DebugPrintSnippetModeNameAndIndex;
+	call CreatePageAll;
+	if(! ##return){
+		call FailedCreateDialog;
+		return false;
+	}
+	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","スニペット一覧",#g_snippets_list_width,"") == 0 ||
+		/*スニペット一覧*/
+		dllfunc(#g_dengaku_dll,"NEWCONTROL","list",$g_list_ctrl_name,"") == 0||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT","",#g_dialog_height) == 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",#g_snippets_list_width) == 0||
+		dllfunc(#g_dengaku_dll,"NEWCOLUMN",80)==0||
+		/*複数行テキスト表示*/
+		dllfunc(#g_dengaku_dll,"NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT",$g_text_ctrl_name,#g_dialog_height)==0 ||
+		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,$g_text_ctrl_name)==0
+	){
+		call FailedCreateDialog;
+		return false;
+	}
+	call NewFrameAll;
+	if(! ##return){
+		call FailedCreateDialog;
+		return false;
+	}
+	
+	##frame_no=0;
+	while(##frame_no<#g_max_args_num){
+		$$frame=sprintf("frame%d",##frame_no);
+		//$$frame=sprintf("frame%d",#g_max_args_num-##frame_no-1);
+		
+		//とりあえず空欄を表示しておく
+		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
+		
+		/*##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",true,sprintf("edit%d_0",##frame_no));
+		
+		//非表示のコントロールは無効化する
+		//そうしないと非表示のコントロールにキーボードフォーカスが移動し大変使いにくい。
+		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",false,sprintf("edit%d_1",##frame_no));*/
+		
+		##frame_no = ##frame_no + 1;
+	}
+	
+	call MakeFileTree $g_snippets_abs_dir, "";
+	if(! ##return){
+		return false;
+	}
+	call MakeSnippetsArgumentInfo;
+	
+	call SelectSnippetModeItem $g_current_snippet_mode;
+	if(! ##return){
+		//未選択状態なので最初のアイテムを選択する。
+		##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,"1");
+	}
+	if (!dllfunc(#g_dengaku_dll,"SHOWDIALOG",hidemaruhandle(0),1)){
+		message("SHOWDIALOG に失敗しました");
+		return false;
+	}
+	return true;
 
 
 MakeFileTree:
@@ -378,6 +448,125 @@ SelectSnippetModeItem:
 		##i = ##i + 1;
 	}
 	return false;
+
+
+CreatePageAll:
+	##frame_no=0;
+	while(##frame_no<#g_max_args_num){
+		call CreatePage ##frame_no;
+		//call CreatePage #g_max_args_num-##frame_no-1;
+		if(!##return){
+			return false;
+		}
+		##frame_no = ##frame_no + 1;
+	}
+	return true;
+	
+
+CreatePage:
+	##frame_no=##1;
+	
+		//Page0 (固定引数)
+	if (dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_0",##frame_no),40) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", sprintf("引数[%d]",##frame_no)) == 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 						||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", sprintf("edit%d_0",##frame_no), "") == 0		||
+		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,   sprintf("edit%d_0",##frame_no))==0||
+	
+		//Page1 (可変引数)
+		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_1",##frame_no),40) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", "引数[...]") == 0		||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 						||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", sprintf("edit%d_1",##frame_no), "") == 0		||
+		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,   sprintf("edit%d_1",##frame_no))==0||
+
+		//Page2（空欄）
+		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_2",##frame_no),40) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", "") == 0		)
+	{
+		return false;
+	}
+	return true;
+
+
+NewFrameAll:
+	##frame_no=0;
+	while(##frame_no<#g_max_args_num){
+		/*引数入力のページ*/
+		$$frame=sprintf("frame%d",##frame_no);
+		//$$frame=sprintf("frame%d",#g_max_args_num-##frame_no-1);
+		if(	
+			dllfunc(#g_dengaku_dll,"NEWCONTROL","frame",$$frame,"") == 0 	||
+			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_0",##frame_no),"-1") == 0 	||
+			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_1",##frame_no),"-1") == 0 	||
+			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_2",##frame_no),"-1") == 0
+		){
+			return false;
+		}
+		##frame_no = ##frame_no + 1;
+	}
+	return ;
+
+
+/*スニペットの引数情報を作る
+
+（入力）$g_abs_snippets_filename[]
+
+（出力）#g_fixed_argumet_num[]
+		#g_has_variable_argument[]
+*/
+MakeSnippetsArgumentInfo:
+	##i=0;
+	while (##i<#g_abs_snippets_filename_len) {
+		call MakeSnippetsArgumentInfoOne ##i;
+		##i = ##i + 1;
+	}
+	return true;
+
+
+MakeSnippetsArgumentInfoOne:
+	##index=##1;
+	
+	call GetFileName $g_abs_snippets_filename[##index];
+	$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN",$$return,".");
+	
+	##num_argument			=0;
+	##has_variable_argument	=false;
+	while($$token != ""){
+		if($$token=="%"){
+			##num_argument = ##num_argument + 1;
+		}else if($$token=="_"){
+			##has_variable_argument=true;
+		}else{
+			//pass
+		}
+		if (dllfunc(#g_dengaku_dll,"HASMORETOKENS") == 0) {
+			break;
+		}
+		$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
+	}
+	#g_fixed_argumet_num[##index]	 =##num_argument;
+	#g_has_variable_argument[##index]=##has_variable_argument;
+	return ;
+
+
+/*ファイル名を取得する
+c:\hoge\foo.txt     ->  foo.txt
+c:\hoge/foo.bar.txt ->  foo.bar.txt
+*/
+GetFileName:
+	##index_yen=strrstr($$1,"\\");
+	##index_slash=strrstr($$1,"/");
+	if((##index_yen==-1) && (##index_slash==-1)){
+		//ディレクトリ区切り無し
+		return $$1;
+	}
+	//memo:ディレクトリ区切りを読み飛ばすため +1 している
+	if(##index_slash < ##index_yen){
+		return midstr($$1,##index_yen+1);
+	}
+	return midstr($$1,##index_slash+1);
+
 
 FailedCreateDialog:
 	message "ダイアログの生成に失敗しました";
