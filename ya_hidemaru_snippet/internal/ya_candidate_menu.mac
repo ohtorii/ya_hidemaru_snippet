@@ -100,8 +100,8 @@ FormatFileName:
 	/*
 	if.%._
 	-> $$token_array[0]="if"
-	   $$token_array[0]="%1"
-	   $$token_array[0]="..."
+	   $$token_array[1]="%1"
+	   $$token_array[2]="..."
 	*/
 	$$token_array[0]	="";
 	##token_array_num	=0;
@@ -131,8 +131,8 @@ FormatFileName:
 
 	/*join
 	$$token_array[0]="if"
-	$$token_array[0]="%1"
-	$$token_array[0]="..."
+	$$token_array[1]="%1"
+	$$token_array[2]="..."
 	-> "if %1 ..."
 	*/
 	$$result="";
