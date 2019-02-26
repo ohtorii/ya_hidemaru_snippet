@@ -16,9 +16,10 @@
 ////////////////////////////////////////////////////////////////////////////
 //		グローバル変数(const)
 ////////////////////////////////////////////////////////////////////////////
-#g_snippets_list_width=30;
-#g_dialog_height=50;
-#g_dialog_width=100;
+#g_snippets_list_width=50;
+#g_snippets_list_height=50;
+#g_snippets_text_width=80;
+#g_dialog_width=50;
 #g_max_args_num=16;
 
 
@@ -245,20 +246,20 @@ UpdateArgumentEditor:
 
 CreateDialog:
 	//call DebugPrintSnippetModeNameAndIndex;
-	call CreatePageAll;
+	call CreatePageAll #g_snippets_text_width;
 	if(! ##return){
 		call FailedCreateDialog;
 		return false;
 	}
-	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","スニペット一覧",#g_snippets_list_width,"") == 0 ||
+	if(	dllfunc(#g_dengaku_dll,"NEWDIALOG","スニペット挿入",#g_dialog_width,"0 0 center 'ＭＳ ゴシック'") == 0 ||
 		/*スニペット一覧*/
 		dllfunc(#g_dengaku_dll,"NEWCONTROL","list",$g_list_ctrl_name,"") == 0||
-		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT","",#g_dialog_height) == 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT","",#g_snippets_list_height) == 0	||
 		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",#g_snippets_list_width) == 0||
-		dllfunc(#g_dengaku_dll,"NEWCOLUMN",80)==0||
 		/*複数行テキスト表示*/
+		dllfunc(#g_dengaku_dll,"NEWCOLUMN",#g_snippets_text_width)==0||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL","mledit",$g_text_ctrl_name)==0 ||
-		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT",$g_text_ctrl_name,#g_dialog_height)==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT",$g_text_ctrl_name,#g_snippets_list_height)==0 ||
 		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,$g_text_ctrl_name)==0
 	){
 		call FailedCreateDialog;
@@ -451,9 +452,10 @@ SelectSnippetModeItem:
 
 
 CreatePageAll:
+	##width=##1;
 	##frame_no=0;
 	while(##frame_no<#g_max_args_num){
-		call CreatePage ##frame_no;
+		call CreatePage ##frame_no,##width;
 		//call CreatePage #g_max_args_num-##frame_no-1;
 		if(!##return){
 			return false;
@@ -465,23 +467,24 @@ CreatePageAll:
 
 CreatePage:
 	##frame_no=##1;
+	##width=##2;
 	
 		//Page0 (固定引数)
-	if (dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_0",##frame_no),40) == 0 ||
+	if (dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_0",##frame_no),##width) == 0 ||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", sprintf("引数[%d]",##frame_no)) == 0	||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 						||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 10) == 0 						||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", sprintf("edit%d_0",##frame_no), "") == 0		||
 		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,   sprintf("edit%d_0",##frame_no))==0||
 	
 		//Page1 (可変引数)
-		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_1",##frame_no),40) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_1",##frame_no),##width) == 0 ||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", "引数[...]") == 0		||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 8) == 0 						||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 10) == 0 						||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL", "edit", sprintf("edit%d_1",##frame_no), "") == 0		||
 		dllfunc(#g_dengaku_dll,"ENABLECTRL",false,   sprintf("edit%d_1",##frame_no))==0||
 
 		//Page2（空欄）
-		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_2",##frame_no),40) == 0 ||
+		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",sprintf("page%d_2",##frame_no),##width) == 0 ||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL", "text", "", "") == 0		)
 	{
 		return false;
