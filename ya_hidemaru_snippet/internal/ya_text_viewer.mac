@@ -16,10 +16,10 @@
 ////////////////////////////////////////////////////////////////////////////
 //		グローバル変数(const)
 ////////////////////////////////////////////////////////////////////////////
-#g_snippets_list_width=50;
-#g_snippets_list_height=50;
-#g_snippets_text_width=80;
-#g_dialog_width=50;
+#g_snippets_list_width	=50;
+#g_snippets_list_height	=25;
+#g_snippets_text_width	=100;
+#g_dialog_width			=50;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -59,10 +59,11 @@ $g_abs_snippets_filename[0] 	= "";
 */
 $g_snippets_list_item[0]		= "";
 
-/*	$g_abs_snippets_filename[]に対応する引数情報
+/*	$g_abs_snippets_filename[]に対応する情報
 */
-#g_fixed_argumet_num[0]		=0;
-#g_has_variable_argument[0]	=false;
+$g_command_name[0]			= "";		//コマンド名
+#g_fixed_argumet_num[0]		=0;			//引数の個数
+#g_has_variable_argument[0]	=false;		//可変引数の有無
 
 
 //コントロール名
@@ -121,9 +122,9 @@ Main:
 		return"" ;
 	}
 	call Run;
-	$$select_filename = $$return;
+	$$command_line = $$return;
 	call UnloadDll;
-	return $$select_filename;
+	return $$command_line;
 
 
 Run:
@@ -149,59 +150,54 @@ Run:
 		return "";
 	}
 	call MessageLoop;
-	$$select_filename = $$return;
-	call Finalize;
-	return $$select_filename;
+	$$command_line = $$return;
+	call EndDialog;
+	return $$command_line;
 
 
 MessageLoop:
-	$$prev_select_item 	= "?";
-
-	//リストで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
-	##interval			= 150;
-	##prev_tick 		= 0;
-
-	$$select_file		= "";
-
+	/*
+	返値	コマンド名　引数1 引数2 ... 引数N
+			キャンセル or 失敗すると空白文字列を返します。
+	*/
+	//(memo)リストコントロールで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
+	##interval_tick			= 150;
+	##prev_tick 			= 0;
+	
+	##prev_select_item 		= -1;
+	##current_list_index 	= -1;
 	while(1){
 		$$name = "";
 		while ($$name == "") {
 			##current_tick = tickcount;
-			if(##interval < (##current_tick - ##prev_tick)){
-				$$select_item = dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
-				if($$select_item != $$prev_select_item){
-					if($$select_item=="0"){
-						$$select_file="";
+			if(##interval_tick < (##current_tick - ##prev_tick)){
+				$$select_item 		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
+				##current_list_index= val($$select_item) - 1;
+				if(##current_list_index != ##prev_select_item){
+					if(##current_list_index == 0){
 						call ClearTextViewer;
 						call ClearCommandViewer;
 					}else{
-						##select = val($$select_item) - 1;
-						call UpdateTextViewer 		##select;
-						call UpdateArgumentEditor 	##select;
-						call UpdateCommandViewer	##select;
-						$$select_file = $$return;
+						call UpdateTextViewer 		##current_list_index;
+						call UpdateArgumentEditor 	##current_list_index;
 					}
-					$$prev_select_item=$$select_item;
+					##prev_select_item=##current_list_index;
 				}
+				call UpdateCommandViewer ##current_list_index;
 				##prev_tick = ##current_tick;
 			}
 			$$name = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
 		}
 
 		if($$name == "0"){
-			$$select_file="";
 			break;
 		}else if($$name == "1"){
 			break;
 		}
-		/*引数入力BOXが更新された
-		*/
 	}
 	
-	/*引数の取得
-	*/
-	
-	return $$select_file;
+	call GetCommandLine ##current_list_index;
+	return $$return;
 
 
 ClearTextViewer:
@@ -213,9 +209,6 @@ UpdateTextViewer:
 	##index = ##1;
 	if(##index < 0){
 		return "";
-	}
-	if(#g_abs_snippets_filename_len <= ##index){
-		return"" ;
 	}
 
 	$$path = $g_abs_snippets_filename[##index];
@@ -252,8 +245,8 @@ UpdateArgumentEditor:
 	//引数情報にもとづいて適切なPageを表示する
 	//
 	//(memo)
-	//0...Nの順でコントロールを有効化するとタブによるフォーカス移動が何故か逆順になる。
-	//そのため逆順で有効化し問題を回避している。
+	//0→Nの順でコントロールを有効化するとタブによるフォーカス移動が何故か逆順になる。
+	//そのため逆順(0←N)で有効化し問題を回避している。
 	//
 	
 	##argument_num 			= #g_fixed_argumet_num[##select];
@@ -309,20 +302,19 @@ ClearCommandViewer:
 UpdateCommandViewer:
 	/*コマンドビューアーを更新する
 	*/
-	##select = ##1;
-	if($g_abs_snippets_filename[##select]==""){
+	##list_index = ##1;
+	if($g_abs_snippets_filename[##list_index]==""){
 		return ;
 	}
 	
-	##argument_num 	= #g_fixed_argumet_num[##select];
-	##has_variable_argument	= #g_has_variable_argument[##select];
-	
-	//$g_abs_snippets_filename[]
-	$$command="dummy";
+	$$command				= $g_command_name[##list_index];
+	##argument_num 			= #g_fixed_argumet_num[##list_index];
+	##has_variable_argument	= #g_has_variable_argument[##list_index];
 	
 	$$text = $$command;
 	
-	
+	/*固定引数の更新
+	*/
 	##frame_no = 0;
 	while(##frame_no < ##argument_num){
 		$$s=dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_0",##frame_no));
@@ -334,6 +326,8 @@ UpdateCommandViewer:
 		##frame_no = ##frame_no + 1;
 	}
 	
+	/*可変引数の更新
+	*/
 	if(##has_variable_argument){
 		##variable_argument_frame_no = ##argument_num;
 		$$frame=sprintf("frame%d",##variable_argument_frame_no);
@@ -349,6 +343,47 @@ UpdateCommandViewer:
 	return ;
 
 
+GetCommandLine:
+	/* ユーザーが入力したコマンドラインを取得する
+	返値	コマンドライン文字列
+			(例) "for i < 10"
+	*/
+	##list_index			= ##1;
+	##argument_num 			= #g_fixed_argumet_num[##list_index];
+	##has_variable_argument	= #g_has_variable_argument[##list_index];
+	$$argument				= "";
+
+	//
+	//コマンド名の取得
+	//
+	$$argument = $g_command_name[##list_index];
+
+	//
+	//固定引数の取得
+	//
+	##frame_no=0;
+	while(##frame_no<##argument_num){
+		if(0<##frame){
+			$$argument = $$argument + " ";
+		}
+		$$argument=$$argument+dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_0",##frame_no));
+		##frame_no = ##frame_no + 1;
+	}
+
+	//
+	//可変引数の取得
+	//
+	if(##has_variable_argument){
+		if(0<##argument_num){
+			$$argument = $$argument + " ";
+		}
+		##variable_argument_frame_no = ##argument_num;
+		$$argument=$$argument+dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_1",##variable_argument_frame_no));
+	}
+
+	return $$argument;
+	
+	
 CreateDialog:
 	call CreatePageAll #g_snippets_text_width;
 	if(! ##return){
@@ -628,7 +663,8 @@ MakeSnippetsArgumentInfo:
 
 	（入力）$g_abs_snippets_filename[]
 
-	（出力）#g_fixed_argumet_num[]
+	（出力）$g_command_name[]
+			#g_fixed_argumet_num[]
 			#g_has_variable_argument[]
 	*/
 	##i=0;
@@ -646,6 +682,9 @@ MakeSnippetsArgumentInfoOne:
 	/*スニペットの引数情報を１つ作る
 	*/
 	##index=##1;
+	
+	execmacro currentmacrodirectory+"\\ya_util_parse_snippet_command.mac", $g_abs_snippets_filename[##index];
+	$$command=getresultex(-1);
 	
 	call GetFileName $g_abs_snippets_filename[##index];
 	$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN",$$return,".");
@@ -665,8 +704,9 @@ MakeSnippetsArgumentInfoOne:
 		}
 		$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
 	}
-	#g_fixed_argumet_num[##index]	 =##num_argument;
-	#g_has_variable_argument[##index]=##has_variable_argument;
+	$g_command_name[##index]			=$$command;
+	#g_fixed_argumet_num[##index]	 	=##num_argument;
+	#g_has_variable_argument[##index]	=##has_variable_argument;
 	return true;
 
 
@@ -751,7 +791,7 @@ Initialize:
 	return true;
 
 
-Finalize:
+EndDialog:
 	##n=dllfunc(#g_dengaku_dll,"ENDDIALOG");
 	return ;
 

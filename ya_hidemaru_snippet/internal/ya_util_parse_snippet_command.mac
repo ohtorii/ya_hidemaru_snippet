@@ -1,0 +1,76 @@
+﻿/*スニペット名を解析する
+
+＊取得できる情報
+	コマンド名・引数の個数・可変引数の有無
+
+＊使用例
+	in 	"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
+	out	"3for010"
+	
+	＊返値の仕様
+		文字数
+		------------------------------------------
+		1		コマンド文字列の文字数(10進数)
+		N		コマンド文字列
+		2		引数の個数(10進数)
+		1		可変引数の有無(bool)
+	
+＊返値についての備考
+	複数の情報を文字列で返すためこのような仕様にしました。
+
+*/
+
+
+call main getarg(0);
+endmacro $$return;
+
+main:
+	$$filename 	= $$1;
+	
+	call GetFileName $$filename;
+	$$filename=$$return;
+	
+	//
+	//拡張子の削除
+	//
+	//(memo) "for.%.txt" -> "for.%"
+	//
+	##index=strrstr($$filename,".");
+	if(##index == -1){
+		$$snippet = $$filename;
+	}else{
+		$$snippet = leftstr($$filename,##index);
+	}
+	
+	//
+	//コマンド名の取得
+	//
+	//(memo) "for.%" -> "for"
+	##index=strstr($$snippet,".");
+	if(##index==-1){
+		$$command="";
+	}else{
+		$$command=leftstr($$snippet,##index);
+	}
+	return $$command;
+	/*return 	str(strlen($$command)) + 
+			$$command;*/
+			
+
+/*ファイル名を取得する
+c:\hoge\foo.txt     ->  foo.txt
+c:\hoge/foo.bar.txt ->  foo.bar.txt
+*/
+GetFileName:
+	##index_yen=strrstr($$1,"\\");
+	##index_slash=strrstr($$1,"/");
+	if((##index_yen==-1) && (##index_slash==-1)){
+		//ディレクトリ区切り無し
+		return $$1;
+	}
+	//memo:ディレクトリ区切りを読み飛ばすため +1 している
+	if(##index_slash < ##index_yen){
+		return midstr($$1,##index_yen+1);
+	}
+	return midstr($$1,##index_slash+1);
+			
