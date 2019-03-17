@@ -5,15 +5,14 @@
 
 ＊使用例
 	in 	"c:/hidemaru_macro/snippets/.c.cpp/for.%.txt"
-	out	"3for010"
+	out	"001for"
 	
 	＊返値の仕様
 		文字数
 		------------------------------------------
-		1		コマンド文字列の文字数(10進数)
-		N		コマンド文字列
-		2		引数の個数(10進数)
 		1		可変引数の有無(bool)
+		2		引数の個数(10進数)
+		N		コマンド文字列
 	
 ＊返値についての備考
 	複数の情報を文字列で返すためこのような仕様にしました。
@@ -35,12 +34,8 @@ main:
 	//
 	//(memo) "for.%.txt" -> "for.%"
 	//
-	##index=strrstr($$filename,".");
-	if(##index == -1){
-		$$snippet = $$filename;
-	}else{
-		$$snippet = leftstr($$filename,##index);
-	}
+	call RemoveExtension $$filename;
+	$$snippet = $$return;
 	
 	//
 	//コマンド名の取得
@@ -52,16 +47,34 @@ main:
 	}else{
 		$$command=leftstr($$snippet,##index);
 	}
-	return $$command;
-	/*return 	str(strlen($$command)) + 
-			$$command;*/
+	
+	//
+	//固定引数の個数を調べる
+	//
+	call CalcFixedArgumentNum $$filename;
+	##num_argument=##return;
+	
+	//
+	//可変引数の有無を調べる
+	//
+	//(memo) "for.%._.txt" -> true
+	//
+	if(strstr($$filename,"._.")==-1){
+		##has_variable_argument=false;
+	}else{
+		##has_variable_argument=true;
+	}
+	
+	call MakeResult $$command,##num_argument,##has_variable_argument;
+	return 	$$return;
+			
 			
 
-/*ファイル名を取得する
-c:\hoge\foo.txt     ->  foo.txt
-c:\hoge/foo.bar.txt ->  foo.bar.txt
-*/
 GetFileName:
+	/*ファイル名を取得する
+	c:\hoge\foo.txt     ->  foo.txt
+	c:\hoge/foo.bar.txt ->  foo.bar.txt
+	*/
 	##index_yen=strrstr($$1,"\\");
 	##index_slash=strrstr($$1,"/");
 	if((##index_yen==-1) && (##index_slash==-1)){
@@ -73,4 +86,58 @@ GetFileName:
 		return midstr($$1,##index_yen+1);
 	}
 	return midstr($$1,##index_slash+1);
-			
+
+
+RemoveExtension:
+	/*拡張子を１つ削除する
+	c:\hoge\foo.txt     ->  c:\hoge\foo
+	c:\hoge\foo.bar.txt ->  c:\hoge\foo.bar
+	*/
+	##index=strrstr($$1,".");
+	if(##index == -1){
+		return $$1;
+	}
+	return leftstr($$1,##index);
+
+
+CalcFixedArgumentNum:
+	/*固定引数の個数を取得する
+	
+	(例) "for.%._.txt" -> 1
+	*/
+	##num   = 0;
+	##index = strstr($$1,".%.",0);
+	while(##index != -1){
+		##num 	= ##num + 1;
+		##index = strstr($$1,".%.",##index + 1);
+	}
+	return ##num;
+
+
+/*数値を２桁の文字列にする
+*/
+IntTo2DigitString:
+	$$num=str(##1);
+	##len=strlen($$num);
+	if(##len==2){
+		return $$num;
+	}
+	if(##len==1){
+		return "0"+$$num;
+	}
+	return "00";
+
+
+MakeResult:
+	/*返値を作る
+	*/
+	$$command=$$1;
+	##num_argument=##2;
+	##has_variable_argument=##3;
+	
+	call IntTo2DigitString ##num_argument;
+	$$num=$$return;
+	
+	return	str(##has_variable_argument)+
+			$$num+
+			$$command;

@@ -684,26 +684,12 @@ MakeSnippetsArgumentInfoOne:
 	##index=##1;
 	
 	execmacro currentmacrodirectory+"\\ya_util_parse_snippet_command.mac", $g_abs_snippets_filename[##index];
-	$$command=getresultex(-1);
+	$$parsed=getresultex(-1);
 	
-	call GetFileName $g_abs_snippets_filename[##index];
-	$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN",$$return,".");
+	##has_variable_argument	=val(midstr($$parsed,0,1));
+	##num_argument			=val(midstr($$parsed,1,2));
+	$$command				=midstr($$parsed,3);
 	
-	##num_argument			=0;
-	##has_variable_argument	=false;
-	while($$token != ""){
-		if($$token=="%"){
-			##num_argument = ##num_argument + 1;
-		}else if($$token=="_"){
-			##has_variable_argument=true;
-		}else{
-			//pass
-		}
-		if (dllfunc(#g_dengaku_dll,"HASMORETOKENS") == 0) {
-			break;
-		}
-		$$token = dllfuncstr(#g_dengaku_dll,"GETTOKEN","",".");
-	}
 	$g_command_name[##index]			=$$command;
 	#g_fixed_argumet_num[##index]	 	=##num_argument;
 	#g_has_variable_argument[##index]	=##has_variable_argument;
