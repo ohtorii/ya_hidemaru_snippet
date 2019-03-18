@@ -147,7 +147,7 @@ ParseLine:
 /*スニペット候補
 */
 Candidate:
-	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_candidate.mac";
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_input_command_line.mac";
 	$$linetext=getresultex(-1);
 	call TokenizeArg $$linetext;
 	return ##return;
