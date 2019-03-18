@@ -35,9 +35,6 @@ $g_snippet_file_basename[0]	= "";
 
 
 
-debuginfo 1;
-debuginfo "----";
-
 call main getarg(0),val(getarg(1));
 endmacro $$return;
 
@@ -74,7 +71,6 @@ FindSnippetFile:
 	$$cmd=$$2;
 	##num=##3;
 	
-	debuginfo "@1";
 	//
 	//$$cmd にマッチするファイルを列挙する。
 	//
@@ -82,7 +78,6 @@ FindSnippetFile:
 	if(! ##return){
 		return "";
 	}
-	debuginfo "@2";
 	//
 	//完全一致を探す
 	//
@@ -93,7 +88,6 @@ FindSnippetFile:
 	if(""!=$$result){
 		return $$result;
 	}
-debuginfo "@1";
 	//
 	//_を使ったパターンを探す。
 	//(ex) 	hoge.%._
