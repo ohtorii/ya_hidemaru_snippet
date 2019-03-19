@@ -33,6 +33,7 @@ main:
 	//拡張子の削除
 	//
 	//(memo) "for.%.txt" -> "for.%"
+	//(memo) "while.txt" -> "while"
 	//
 	call RemoveExtension $$filename;
 	$$snippet = $$return;
@@ -41,9 +42,10 @@ main:
 	//コマンド名の取得
 	//
 	//(memo) "for.%" -> "for"
+	//		 "while" -> "while"
 	##index=strstr($$snippet,".");
 	if(##index==-1){
-		$$command="";
+		$$command=$$snippet;
 	}else{
 		$$command=leftstr($$snippet,##index);
 	}
