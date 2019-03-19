@@ -668,9 +668,6 @@ MakeSnippetsArgumentInfo:
 	##i=0;
 	while (##i<#g_abs_snippets_filename_len) {
 		call MakeSnippetsArgumentInfoOne ##i;
-		if(! ##return){
-			return false;
-		}
 		##i = ##i + 1;
 	}
 	return true;
@@ -690,7 +687,7 @@ MakeSnippetsArgumentInfoOne:
 	$g_command_name[##index]			=$$command;
 	#g_fixed_argumet_num[##index]	 	=##num_argument;
 	#g_has_variable_argument[##index]	=##has_variable_argument;
-	return true;
+	return;
 
 
 CalcMaxArgNum:
@@ -709,24 +706,6 @@ CalcMaxArgNum:
 		##i = ##i + 1;
 	}
 	return ##max_args;
-
-
-/*ファイル名を取得する
-c:\hoge\foo.txt     ->  foo.txt
-c:\hoge/foo.bar.txt ->  foo.bar.txt
-*/
-GetFileName:
-	##index_yen=strrstr($$1,"\\");
-	##index_slash=strrstr($$1,"/");
-	if((##index_yen==-1) && (##index_slash==-1)){
-		//ディレクトリ区切り無し
-		return $$1;
-	}
-	//memo:ディレクトリ区切りを読み飛ばすため +1 している
-	if(##index_slash < ##index_yen){
-		return midstr($$1,##index_yen+1);
-	}
-	return midstr($$1,##index_slash+1);
 
 
 FailedCreateDialog:
