@@ -304,6 +304,7 @@ UpdateCommandViewer:
 	*/
 	##list_index = ##1;
 	if($g_abs_snippets_filename[##list_index]==""){
+		#n = dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_command_ctrl_name,"");
 		return ;
 	}
 	
@@ -686,7 +687,6 @@ MakeSnippetsArgumentInfoOne:
 	##has_variable_argument	=val(midstr($$parsed,0,1));
 	##num_argument			=val(midstr($$parsed,1,2));
 	$$command				=midstr($$parsed,3);
-	
 	$g_command_name[##index]			=$$command;
 	#g_fixed_argumet_num[##index]	 	=##num_argument;
 	#g_has_variable_argument[##index]	=##has_variable_argument;
