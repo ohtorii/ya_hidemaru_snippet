@@ -4,8 +4,13 @@
 	無し
 
 （マクロ返値）
-	コマンド名　引数1 引数2 ... 引数N
-	//キャンセル or 失敗すると空白文字列を返します。
+	スニペットファイル名 <tab> コマンドライン文字列
+
+		スニペットファイル名		絶対パス
+		コマンドライン文字列		コマンド名 引数1 引数2 ... 引数N
+
+		- キャンセル or 失敗すると空白文字列を返します。
+		- スニペットファイル名とコマンドライン文字列を区切るためにTAB文字を使用します。
 
 （使用例）
 	execmacro "ya_text_viewer.mac";
@@ -17,9 +22,9 @@
 //		グローバル変数(const)
 ////////////////////////////////////////////////////////////////////////////
 #g_snippets_list_width	=50;
-#g_snippets_list_height	=25;
+#g_snippets_list_height =25;
 #g_snippets_text_width	=100;
-#g_dialog_width			=50;
+#g_dialog_width 		=50;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -33,7 +38,7 @@
 //DLL handle
 //--------------------------------------------------------------------------
 #g_dengaku_dll	=0;
-#g_ht_tools_dll	=0;
+#g_ht_tools_dll =0;
 
 //--------------------------------------------------------------------------
 //マクロ引数
@@ -49,8 +54,8 @@ $g_snippets_abs_dir 	= "";
 (例) [0] ""
 	 [1] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\email.txt"
 	 [2] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\@cmd.%._.txt"
-	 		:
-	 		:
+			:
+			:
 */
 $g_abs_snippets_filename[0] 	= "";
 #g_abs_snippets_filename_len	= 0;
@@ -62,13 +67,13 @@ $g_snippets_list_item[0]		= "";
 /*	$g_abs_snippets_filename[]に対応する情報
 */
 $g_command_name[0]			= "";		//コマンド名
-#g_fixed_argumet_num[0]		=0;			//引数の個数
-#g_has_variable_argument[0]	=false;		//可変引数の有無
+#g_fixed_argumet_num[0] 	=0; 		//引数の個数
+#g_has_variable_argument[0] =false; 	//可変引数の有無
 
 
 //コントロール名
-$g_list_ctrl_name 		= "candidate";
-$g_text_ctrl_name 		= "viewer";
+$g_list_ctrl_name		= "candidate";
+$g_text_ctrl_name		= "viewer";
 $g_command_ctrl_name	= "command";
 
 /*リストコントロールのアイテム数
@@ -85,8 +90,8 @@ $g_command_ctrl_name	= "command";
 #g_snippet_mode_num=0;
 
 /*
-(例)	[0]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode"
-		[1]	"c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode"
+(例)	[0] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode"
+		[1] "c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode"
 			:
 			:
 */
@@ -122,9 +127,9 @@ Main:
 		return"" ;
 	}
 	call Run;
-	$$command_line = $$return;
+	$$result_string = $$return;
 	call UnloadDll;
-	return $$command_line;
+	return $$result_string;
 
 
 Run:
@@ -133,53 +138,49 @@ Run:
 		return false;
 	}
 	//call DebugPrintSnippetModeNameAndIndex;
-	
+
 	call MakeSnippetsArgumentInfo;
 	if(! ##return){
 		return false;
 	}
-	
+
 	call CalcMaxArgNum;
 	#g_max_args_num=##return;
-	
+
 	/*call DebugPrintAbsSnippetsFilename;
 	return "";*/
-	
+
 	call CreateDialog;
 	if(! ##return){
 		return "";
 	}
 	call MessageLoop;
-	$$command_line = $$return;
+	$$result_string = $$return;
 	call EndDialog;
-	return $$command_line;
+	return $$result_string;
 
 
 MessageLoop:
-	/*
-	返値	コマンド名　引数1 引数2 ... 引数N
-			キャンセル or 失敗すると空白文字列を返します。
-	*/
 	//(memo)リストコントロールで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
-	##interval_tick			= 150;
+	##interval_tick 		= 150;
 	##prev_tick 			= 0;
-	
-	##prev_select_item 		= -1;
-	##current_list_index 	= -1;
+
+	##prev_select_item		= -1;
+	##current_list_index	= -1;
 	while(1){
 		$$name = "";
 		while ($$name == "") {
 			##current_tick = tickcount;
 			if(##interval_tick < (##current_tick - ##prev_tick)){
-				$$select_item 		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
+				$$select_item		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
 				##current_list_index= val($$select_item) - 1;
 				if(##current_list_index != ##prev_select_item){
 					if(##current_list_index == 0){
 						call ClearTextViewer;
 						call ClearCommandViewer;
 					}else{
-						call UpdateTextViewer 		##current_list_index;
-						call UpdateArgumentEditor 	##current_list_index;
+						call UpdateTextViewer		##current_list_index;
+						call UpdateArgumentEditor	##current_list_index;
 					}
 					##prev_select_item=##current_list_index;
 				}
@@ -196,9 +197,9 @@ MessageLoop:
 			break;
 		}
 	}
-	
+
 	call GetCommandLine ##current_list_index;
-	return $$return;
+	return $g_abs_snippets_filename[##current_list_index] + "\t" + $$return;
 
 
 ClearTextViewer:
@@ -209,33 +210,34 @@ ClearTextViewer:
 UpdateTextViewer:
 	##index = ##1;
 	if(##index < 0){
-		return "";
+		return ;
 	}
 
 	$$path = $g_abs_snippets_filename[##index];
 	if($$path==""){
-		return "";
+		call ClearTextViewer;
+		return ;
 	}
 	if(existfile($$path,1) & 0x00000010){
 		call ClearTextViewer;
-		return"" ;
+		return ;
 	}
 	call LoadText $$path;
 	$$text = $$return;
 	##n=dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_text_ctrl_name,$$text);
-	return $$path;
+	return ;
 
 
 LoadText:
-	$$filename 		= $$1;
+	$$filename		= $$1;
 	##file_size 	= dllfunc(#g_ht_tools_dll, "GetFileSizeByte", $$filename);
-	##file_handle 	= dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
-	$$text 			= dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
+	##file_handle	= dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
+	$$text			= dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
 	##dummy 		= dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
-	
-	//TAB -> spacex4
-	
-	
+
+	//TAB -> space
+	$$text = dllfuncstr(#g_dengaku_dll,"GSUB",$$text,"\t","    ",-1);
+
 	if(strlen($$text) <= 3){
 		return $$text;
 	}
@@ -252,15 +254,16 @@ LoadText:
 	}
 	##ret = dllfunc(#g_ht_tools_dll,"SetUTF16ConvertString", $$text);
 	$$text=dllfuncstrw(#g_ht_tools_dll,"GetResultW");
+	return $$text;
 
 
 UpdateArgumentEditor:
 	/* 引数エディタのGUIを更新する
 	*/
 	##select = ##1;
-	
+
 	call DisableAllFrame;
-	
+
 	//
 	//引数情報にもとづいて適切なPageを表示する
 	//
@@ -268,45 +271,45 @@ UpdateArgumentEditor:
 	//0→Nの順でコントロールを有効化するとタブによるフォーカス移動が何故か逆順になる。
 	//そのため逆順(0←N)で有効化し問題を回避している。
 	//
-	
-	##argument_num 			= #g_fixed_argumet_num[##select];
-	##has_variable_argument	= #g_has_variable_argument[##select];
+
+	##argument_num			= #g_fixed_argumet_num[##select];
+	##has_variable_argument = #g_has_variable_argument[##select];
 	if(##has_variable_argument){
 		##variable_argument_frame_no = ##argument_num;
 		$$frame=sprintf("frame%d",##variable_argument_frame_no);
 		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"2");
 		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",true,sprintf("edit%d_1",##variable_argument_frame_no));
 	}
-	
-	
+
+
 	##frame_no = ##argument_num - 1;
 	while(0 <= ##frame_no){
 		$$frame=sprintf("frame%d",##frame_no);
 		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"1");
 		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",true,sprintf("edit%d_0",##frame_no));
-		
+
 		##frame_no = ##frame_no - 1;
 	}
-	
+
 	return ;
 
 
 DisableAllFrame:
 	/*全フレームを無効化する
-	
+
 	memo: 無効化（キーボードフォーカスを得ない）＆空欄ページを表示する
 	*/
 	##frame_no=0;
 	while(##frame_no<#g_max_args_num){
 		$$frame=sprintf("frame%d",##frame_no);
-		
+
 		//無効化
 		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",false,sprintf("edit%d_0",##frame_no));
 		##n=dllfunc(#g_dengaku_dll,"ENABLECTRL",false,sprintf("edit%d_1",##frame_no));
-		
+
 		//空欄ページを表示する
 		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
-		
+
 		##frame_no = ##frame_no + 1;
 	}
 	return ;
@@ -327,13 +330,13 @@ UpdateCommandViewer:
 		#n = dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_command_ctrl_name,"");
 		return ;
 	}
-	
+
 	$$command				= $g_command_name[##list_index];
-	##argument_num 			= #g_fixed_argumet_num[##list_index];
-	##has_variable_argument	= #g_has_variable_argument[##list_index];
-	
+	##argument_num			= #g_fixed_argumet_num[##list_index];
+	##has_variable_argument = #g_has_variable_argument[##list_index];
+
 	$$text = $$command;
-	
+
 	/*固定引数の更新
 	*/
 	##frame_no = 0;
@@ -346,7 +349,7 @@ UpdateCommandViewer:
 		}
 		##frame_no = ##frame_no + 1;
 	}
-	
+
 	/*可変引数の更新
 	*/
 	if(##has_variable_argument){
@@ -359,7 +362,7 @@ UpdateCommandViewer:
 			$$text = $$text + " " + $$s;
 		}
 	}
-	
+
 	#n = dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_command_ctrl_name,$$text);
 	return ;
 
@@ -370,8 +373,8 @@ GetCommandLine:
 			(例) "for i < 10"
 	*/
 	##list_index			= ##1;
-	##argument_num 			= #g_fixed_argumet_num[##list_index];
-	##has_variable_argument	= #g_has_variable_argument[##list_index];
+	##argument_num			= #g_fixed_argumet_num[##list_index];
+	##has_variable_argument = #g_has_variable_argument[##list_index];
 	$$argument				= "";
 
 	//
@@ -387,7 +390,7 @@ GetCommandLine:
 		$$argument=$$argument+" " + dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_0",##frame_no));
 		##frame_no = ##frame_no + 1;
 	}
-	
+
 	//
 	//可変引数の取得
 	//
@@ -398,10 +401,10 @@ GetCommandLine:
 		##variable_argument_frame_no = ##argument_num;
 		$$argument=$$argument+" "+dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_1",##variable_argument_frame_no));
 	}
-	
+
 	return $$argument;
-	
-	
+
+
 CreateDialog:
 	call CreatePageAll #g_snippets_text_width;
 	if(! ##return){
@@ -413,7 +416,7 @@ CreateDialog:
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
 		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", "", 				#g_snippets_list_height)	==0 ||
 		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH",	"", 				#g_snippets_list_width) 	==0 ||
-		/*複数行テキスト表示*/		
+		/*複数行テキスト表示*/
 		dllfunc(#g_dengaku_dll,"NEWCOLUMN", 						#g_snippets_text_width) 	==0 ||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"mledit",			$g_text_ctrl_name)			==0 ||
 		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", $g_text_ctrl_name,	#g_snippets_list_height)	==0 ||
@@ -428,7 +431,7 @@ CreateDialog:
 		call FailedCreateDialog;
 		return false;
 	}
-	
+
 	##frame_no=0;
 	while(##frame_no<#g_max_args_num){
 		//引数エディタは空欄ページを表示する
@@ -436,12 +439,12 @@ CreateDialog:
 		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
 		##frame_no = ##frame_no + 1;
 	}
-	
+
 	call MakeSnippetTree;
 	if(! ##return){
 		return false;
 	}
-	
+
 	call SelectSnippetModeItem $g_current_snippet_mode;
 	if(! ##return){
 		//未選択状態なので最初のアイテムを選択する。
@@ -458,11 +461,11 @@ GatherSnippetInfo:
 	/*スニペットの情報を集める。
 	集めた情報はグロバール変数へ格納する。
 	*/
-	$$root_dir 		= $$1;
-	$$space			= $$2;
+	$$root_dir		= $$1;
+	$$space 		= $$2;
 	$$sub_dir		= "";
-	##sub_dir_len 	= 0;
-	
+	##sub_dir_len	= 0;
+
 	//
 	//カレントディレクトリにあるスニペットのファイル名を取得する（非再帰）
 	//
@@ -473,7 +476,7 @@ GatherSnippetInfo:
 	}else if(0<##return){
 		call MakeSnippetModeNameAndIndex $$root_dir, ##prev__list_ctrl_item_num;
 	}
-	
+
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$file_pattern = $$return;
 	//
@@ -481,28 +484,28 @@ GatherSnippetInfo:
 	//
 	##r = dllfunc(#g_dengaku_dll,"ENUMDIR",$$file_pattern);
 	while (1) {
-	    $$dir = dllfuncstr(#g_dengaku_dll,"FINDNEXT");
-	    if ($$dir == "") break;
-	    else if ($$dir == "." || $$dir == "..") continue;
+		$$dir = dllfuncstr(#g_dengaku_dll,"FINDNEXT");
+		if ($$dir == "") break;
+		else if ($$dir == "." || $$dir == "..") continue;
 
 		$$sub_dir[##sub_dir_len] = $$dir;
 		##sub_dir_len = ##sub_dir_len + 1;
 	}
-	
+
 	//
 	//先ほど列挙したサブディレクトリを辿る
 	//
 	##index = 0;
 	while (##index < ##sub_dir_len){
 		$$current_sub_dir	= $$sub_dir[##index];
-		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
+		$$abs_path			= $$root_dir + "\\" + $$current_sub_dir;
 
 		//リストコントロールへディレクトリを追加する
 		call AppendListItem $$space, $$current_sub_dir, $$abs_path, true;
 		if(! ##return){
 			return false;
 		}
-		
+
 		//
 		//再帰的に処理する
 		//
@@ -515,16 +518,16 @@ GatherSnippetInfo:
 	return true;
 
 /*
-return 	> 0		追加したアイテム数
+return	> 0 	追加したアイテム数
 		== -1	失敗
 */
 MakeFileItems:
 	$$root_dir	= $$1;
-	$$space		= $$2;
+	$$space 	= $$2;
 
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$file_pattern	= $$return;
-	
+
 	##append_num=0;
 	##r = dllfunc(#g_dengaku_dll,"ENUMFILE",$$file_pattern);
 	while (1) {
@@ -544,10 +547,10 @@ MakeFileItems:
 
 AppendListItem:
 	$$space 		= $$1;
-	$$rel_filename 	= $$2;
+	$$rel_filename	= $$2;
 	$$abs_filename	= $$3;
-	##is_folder		= ##4;
-	
+	##is_folder 	= ##4;
+
 	if(##is_folder){
 		$g_abs_snippets_filename[#g_abs_snippets_filename_len]	= "";
 	}else{
@@ -555,7 +558,7 @@ AppendListItem:
 	}
 	$$listctrl_item_name=$$space+$$rel_filename;
 	$g_snippets_list_item[#g_abs_snippets_filename_len]=$$listctrl_item_name;
-	
+
 	#g_abs_snippets_filename_len= #g_abs_snippets_filename_len + 1;
 	#g_list_ctrl_item_num		= #g_list_ctrl_item_num + 1;
 	return true;
@@ -586,7 +589,7 @@ MakeSnippetTree:
 
 SelectSnippetModeItem:
 	/*スニペットモードに対応するリストアイテムを選択する
-	return 	true	リストアイテムの選択に成功した
+	return	true	リストアイテムの選択に成功した
 			false	リストアイテムの選択に失敗した
 	*/
 	$$snippet_dir=$g_current_snippet_mode;
@@ -594,7 +597,8 @@ SelectSnippetModeItem:
 	while(##i<#g_snippet_mode_num){
 		if($$snippet_dir==$g_snippet_mode_names[##i]){
 			//(memo)リストコントロールは1から開始なので+1する。
-			##index=#g_snippet_mode_index[##i]+1;
+			//		更に最初のスニペットを選択するため+1する。
+			##index=#g_snippet_mode_index[##i]+1+1;
 			##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,str(##index));
 			return true;
 		}
@@ -616,35 +620,37 @@ CreatePageAll:
 		##frame_no = ##frame_no + 1;
 	}
 	return true;
-	
+
 
 CreatePage:
 	/*引数エディタで利用するページを一つ作成する
 	*/
 	##frame_no=##1;
 	##width=##2;
-	
+
 	$$page0=sprintf("page%d_0",##frame_no);
 	$$page1=sprintf("page%d_1",##frame_no);
 	$$page2=sprintf("page%d_2",##frame_no);
-	
+
 	$$edit0=sprintf("edit%d_0",##frame_no);
 	$$edit1=sprintf("edit%d_1",##frame_no);
 	$$edit2=sprintf("edit%d_2",##frame_no);
-	
-	$$text0=sprintf("引数[%d]",##frame_no);
-	
-		//Page0 (固定引数)
+
+	$$text0=sprintf("%%%d",##frame_no);
+
+	##static_text_width=3;
+
+	//Page0 (固定引数)
 	if (dllfunc(#g_dengaku_dll,"NEWDLGPAGE",  $$page0,	##width)		== 0	||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",  "text",	"", $$text0)	== 0	||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",		10) 			== 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",		##static_text_width)== 0	||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",  "edit",	$$edit0, "")	== 0	||
 		dllfunc(#g_dengaku_dll,"ENABLECTRL",  false,	$$edit0)		== 0	||
-	
+
 		//Page1 (可変引数)
 		dllfunc(#g_dengaku_dll,"NEWDLGPAGE",  $$page1,	##width)		== 0	||
-		dllfunc(#g_dengaku_dll,"NEWCONTROL",  "text",	"", "引数[...]")== 0	||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",		10) 			== 0	||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL",  "text",	"", "...")		== 0	||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH","",		##static_text_width)== 0	||
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",  "edit",	$$edit1, "")	== 0	||
 		dllfunc(#g_dengaku_dll,"ENABLECTRL",  false,	$$edit1)		== 0	||
 
@@ -664,9 +670,9 @@ NewFrameAll:
 	while(##frame_no<#g_max_args_num){
 		/*引数入力のページ*/
 		$$frame=sprintf("frame%d",##frame_no);
-		if(	dllfunc(#g_dengaku_dll,"NEWCONTROL","frame",$$frame,"") == 0 	||
-			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_0",##frame_no),"-1") == 0 	||
-			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_1",##frame_no),"-1") == 0 	||
+		if( dllfunc(#g_dengaku_dll,"NEWCONTROL","frame",$$frame,"") == 0	||
+			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_0",##frame_no),"-1") == 0	||
+			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_1",##frame_no),"-1") == 0	||
 			dllfunc(#g_dengaku_dll,"SETCTRLITEM",$$frame,sprintf("page%d_2",##frame_no),"-1") == 0
 		){
 			return false;
@@ -697,15 +703,15 @@ MakeSnippetsArgumentInfoOne:
 	/*スニペットの引数情報を１つ作る
 	*/
 	##index=##1;
-	
+
 	execmacro currentmacrodirectory+"\\ya_util_parse_snippet_command.mac", $g_abs_snippets_filename[##index];
 	$$parsed=getresultex(-1);
-	
-	##has_variable_argument	=val(midstr($$parsed,0,1));
+
+	##has_variable_argument =val(midstr($$parsed,0,1));
 	##num_argument			=val(midstr($$parsed,1,2));
 	$$command				=midstr($$parsed,3);
 	$g_command_name[##index]			=$$command;
-	#g_fixed_argumet_num[##index]	 	=##num_argument;
+	#g_fixed_argumet_num[##index]		=##num_argument;
 	#g_has_variable_argument[##index]	=##has_variable_argument;
 	return;
 
@@ -714,7 +720,7 @@ CalcMaxArgNum:
 	/*スニペット引数の最大個数を計算する
 	*/
 	##max_args	=0;
-	##i			=0;
+	##i 		=0;
 	while (##i<#g_abs_snippets_filename_len) {
 		##n=#g_fixed_argumet_num[##i];
 		if(#g_has_variable_argument[##i]){
@@ -757,8 +763,8 @@ DebugPrintAbsSnippetsFilename:
 		##i = ##i + 1;
 	}
 	return ;
-	
-	
+
+
 Initialize:
 	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
 	$g_snippets_abs_dir = getresultex(-1);
