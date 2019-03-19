@@ -26,11 +26,12 @@ $g_snippets_abs_dir		= $$return + "\\";
 execmacro $g_internal_abs_dir + "\\ya_util_get_ini_filename.mac";
 $g_ini_abs_filename = getresultex(-1);
 
-
+/*コマンドの引数情報
+*/
 $g_args[0]	= "";
 #g_args_num	= 0;
 $g_args_line="";
-
+$g_snippet_abs_filename="";
 
 //田楽DLLを読み込んだかどうか
 #g_dengaku_loaded=false;
@@ -84,7 +85,7 @@ Main:
 	//（メモ）main関数前でdisabledraw処理を行うとウインドウが再描画されなくなり、
 	//		  Candidate処理でメニューを表示したときにウインドウが黒一色になり見た目が悪い。
 	disabledraw;
-	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_match_snippet.mac", $g_args[0],str(#g_args_num);
+	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_match_snippet.mac", $g_args[0],str(#g_args_num),$g_snippet_abs_filename;
 	$$abs_snippet_filename = getresultex(-1);
 	if("" == $$abs_snippet_filename){
 		return false;
@@ -148,8 +149,17 @@ ParseLine:
 */
 Candidate:
 	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_input_command_line.mac";
-	$$linetext=getresultex(-1);
-	call TokenizeArg $$linetext;
+	$$result_string=getresultex(-1);
+	##tab_index=strstr($$result_string,"\t");
+	if(##tab_index <= 0){
+		return false;
+	}
+	
+	$g_snippet_abs_filename=midstr($$result_string,0,##tab_index);
+	call GetDirectoryName $g_snippet_abs_filename;
+	$g_snippet_abs_filename=$$return;
+	
+	call TokenizeArg midstr($$result_string,##tab_index);
 	return ##return;
 
 
@@ -196,6 +206,24 @@ TokenizeArg:
 	$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
 	$g_args_line = dllfuncstr("LTRIM",$g_args_line);
 	return true;
+
+
+GetDirectoryName:
+	/*ディレクトリ名を取得する
+	"c:\hoge\foo.txt"	  -> "c:\hoge"
+	"c:\hoge/foo.bar.txt" -> "c:\hoge"
+	"foo.txt2             -> ""
+	*/
+	##index_yen=strrstr($$1,"\\");
+	##index_slash=strrstr($$1,"/");
+	if((##index_yen==-1) && (##index_slash==-1)){
+		//ディレクトリ区切り無し
+		return "";
+	}
+	if(##index_slash < ##index_yen){
+		return midstr($$1,0,##index_yen);
+	}
+	return midstr($$1,0,##index_slash);
 
 
 GetShortPath:
