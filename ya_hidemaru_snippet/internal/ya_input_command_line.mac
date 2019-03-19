@@ -190,7 +190,8 @@ MessageLoop:
 		}
 
 		if($$name == "0"){
-			break;
+			//キャンセル
+			return "";
 		}else if($$name == "1"){
 			break;
 		}
