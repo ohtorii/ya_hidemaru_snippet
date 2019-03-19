@@ -232,7 +232,26 @@ LoadText:
 	##file_handle 	= dllfunc(#g_ht_tools_dll, "FileOpen", $$filename, "r");
 	$$text 			= dllfuncstr(#g_ht_tools_dll, "RdFileByte", ##file_handle, ##file_size);
 	##dummy 		= dllfunc(#g_ht_tools_dll, "FileClose", ##file_handle);
-	return $$text;
+	
+	//TAB -> spacex4
+	
+	
+	if(strlen($$text) <= 3){
+		return $$text;
+	}
+	##s0 = ascii(midstr($$text,0,1));
+	##s1 = ascii(midstr($$text,1,1));
+	##s2 = ascii(midstr($$text,2,1));
+	if((##s0==0xEF)&&(##s1==0xBB)&&(##s2==0xBF)){
+		//UFT8 -> UTF16-LE
+		//(memo)BOMを削除する
+		$$text=midstr($$text,3);
+	}else{
+		//UTF8 -> UTF16-LE
+		//pass
+	}
+	##ret = dllfunc(#g_ht_tools_dll,"SetUTF16ConvertString", $$text);
+	$$text=dllfuncstrw(#g_ht_tools_dll,"GetResultW");
 
 
 UpdateArgumentEditor:
