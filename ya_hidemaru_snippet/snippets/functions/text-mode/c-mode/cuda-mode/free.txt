@@ -1,4 +1,4 @@
-#Description:cudaFreeに対するスニペット
+﻿#Description:cudaFreeに対するスニペット
 #
 #   # before
 #   free

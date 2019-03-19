@@ -1,4 +1,4 @@
-%|type name <
+﻿%|type name <
 	string	UIName		= "";
 	string	UIObject	= "";
 	string	UIWidget	= "Slider" | "Color";

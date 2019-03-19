@@ -1,4 +1,4 @@
-#Description:cudaMemcpyに対するスニペット
+﻿#Description:cudaMemcpyに対するスニペット
 #
 #   # before
 #   free

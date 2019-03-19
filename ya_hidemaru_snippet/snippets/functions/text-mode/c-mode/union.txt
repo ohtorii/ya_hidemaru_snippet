@@ -1,4 +1,4 @@
-#Description: unionに対するスニペット
+﻿#Description: unionに対するスニペット
 #
 #   # before
 #   union

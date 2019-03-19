@@ -1,5 +1,5 @@
-/*
-#Description:•¶š—ñ‚ğw’è‰ñ”‚¾‚¯‘}“ü‚·‚éB
+ï»¿/*
+#Description:æ–‡å­—åˆ—ã‚’æŒ‡å®šå›æ•°ã ã‘æŒ¿å…¥ã™ã‚‹ã€‚
 
 #Before
    @rep 4 @
@@ -8,22 +8,22 @@
    @@@@
 
 #Format
-    rep ‰ñ” •¶š—ñ
+    rep å›æ•° æ–‡å­—åˆ—
 
 #Memo
     argv[0]="@rep"
-    argv[1]=ƒŠƒs[ƒg‰ñ”
-    argv[2]=•¶š—ñ
+    argv[1]=ãƒªãƒ”ãƒ¼ãƒˆå›æ•°
+    argv[2]=æ–‡å­—åˆ—
 */
 call Main;
 endmacro;
 
 
 Main:
-	$$line_str = getarg(2);			//ƒRƒ}ƒ“ƒh‚ğœ‚¢‚½ˆês‚Ì•¶š—ñ
+	$$line_str = getarg(2);			//ã‚³ãƒãƒ³ãƒ‰ã‚’é™¤ã„ãŸä¸€è¡Œã®æ–‡å­—åˆ—
 	call ParseString $$line_str;
 	$$str = $$return;
-	##num = val(getarg(16));		//ˆø”2
+	##num = val(getarg(16));		//å¼•æ•°2
 
 	begingroupundo;
 	while(0 < ##num){
@@ -34,29 +34,29 @@ Main:
 	return ;
 
 
-/*•¶š—ñ‚Ì”²‚«o‚µ
+/*æ–‡å­—åˆ—ã®æŠœãå‡ºã—
 
-—á
-“ü—ÍF10  == -- 
-o—ÍF== -- 
+ä¾‹
+å…¥åŠ›ï¼š10  == -- 
+å‡ºåŠ›ï¼š== -- 
 
-à–¾
-num=”’l
-string=‹ó”’ƒ^ƒu‚ğŠÜ‚Ş•¶š—ñ
+èª¬æ˜
+num=æ•°å€¤
+string=ç©ºç™½ã‚¿ãƒ–ã‚’å«ã‚€æ–‡å­—åˆ—
 */
 ParseString:
 	$$str = $$1;
 	##len = strlen($$str);
 	##i=0;
 
-	//”’l‚ğ“Ç‚İ”ò‚Î‚·
+	//æ•°å€¤ã‚’èª­ã¿é£›ã°ã™
 	##c = ascii(midstr($$str,##i,1));
 	while((##i < ##len) && ((0x30<=##c) && (##c<=0x39))){
 		##i=##i+1;
 		##c = ascii(midstr($$str,##i,1));
 	}
 
-	//‹ó”’•¶š‚Ì“Ç‚İ”ò‚Î‚µ
+	//ç©ºç™½æ–‡å­—ã®èª­ã¿é£›ã°ã—
 	##c = ascii(midstr($$str,##i,1));
 	while((##i < ##len) && (##c<=0x20)){
 		##i=##i+1;

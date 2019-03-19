@@ -1,4 +1,4 @@
-#Description: regionに対するスニペット
+﻿#Description: regionに対するスニペット
 #
 #   # before
 #   region MyRegion

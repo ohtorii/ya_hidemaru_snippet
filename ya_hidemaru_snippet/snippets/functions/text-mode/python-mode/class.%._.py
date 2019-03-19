@@ -1,4 +1,4 @@
-"""
+﻿"""
 # before
 class hoge x y z __flag
 

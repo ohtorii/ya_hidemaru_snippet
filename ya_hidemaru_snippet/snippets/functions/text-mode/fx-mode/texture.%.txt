@@ -1,4 +1,4 @@
-%0 %1<
+﻿%0 %1<
 	string ResourceName = "texture.dds";
 	string UIName		= "%1";
 	string ResourceType = "2D";

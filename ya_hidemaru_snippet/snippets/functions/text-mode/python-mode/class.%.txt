@@ -1,4 +1,4 @@
-#contributor : ohtorii
+﻿#contributor : ohtorii
 #url : https://github.com/ohtorii/ya_hidemaru_snippet
 #
 #   #before

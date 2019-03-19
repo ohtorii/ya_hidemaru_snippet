@@ -1,4 +1,4 @@
-%0 Sampler%| = sampler_state {
+﻿%0 Sampler%| = sampler_state {
 	Texture 	= <Texture???>;
 	MagFilter	= Linear;
 	MinFilter	= Linear;

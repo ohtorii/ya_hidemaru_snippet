@@ -1,4 +1,4 @@
-call main;
+﻿call main;
 endmacro;
 
 main:

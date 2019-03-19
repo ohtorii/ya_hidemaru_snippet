@@ -1,5 +1,5 @@
-/*
-#Description: ƒRƒ}ƒ“ƒhƒvƒƒ“ƒvƒg‚ğÀs‚·‚éƒXƒjƒyƒbƒg
+ï»¿/*
+#Description: ã‚³ãƒãƒ³ãƒ‰ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’å®Ÿè¡Œã™ã‚‹ã‚¹ãƒ‹ãƒšãƒƒãƒˆ
 
 #before
 @cmd dir *.txt /s /b
@@ -11,10 +11,10 @@ C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\c-mode\#if.
 C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\c-mode\#if.txt
 
 #Format
-@cmd ƒRƒ}ƒ“ƒhƒvƒƒ“ƒvƒg‚ÌƒRƒ}ƒ“ƒh‚Æˆø”
+@cmd ã‚³ãƒãƒ³ãƒ‰ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®ã‚³ãƒãƒ³ãƒ‰ã¨å¼•æ•°
 
 #memo
-ƒfƒBƒŒƒNƒgƒŠˆÚ“®‚Ío—ˆ‚Ü‚¹‚ñB
+ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªç§»å‹•ã¯å‡ºæ¥ã¾ã›ã‚“ã€‚
 */
 
 call Main;
@@ -39,27 +39,27 @@ Main:
 	return;
 
 
-/*•¶š—ñ‚Ì”²‚«o‚µ
+/*æ–‡å­—åˆ—ã®æŠœãå‡ºã—
 
-—á
-“ü—ÍFdir *.txt /s
-o—ÍF*.txt /s
+ä¾‹
+å…¥åŠ›ï¼šdir *.txt /s
+å‡ºåŠ›ï¼š*.txt /s
 
-à–¾
-num=”’l
-string=‹ó”’ƒ^ƒu‚ğŠÜ‚Ş•¶š—ñ
+èª¬æ˜
+num=æ•°å€¤
+string=ç©ºç™½ã‚¿ãƒ–ã‚’å«ã‚€æ–‡å­—åˆ—
 */
 ParseString:
 	$$str = $$1;
 	##len = strlen($$str);
 	##i=0;
 
-	//‹ó”’‚ªŒ©‚Â‚©‚é‚Ü‚Å“Ç‚İ”ò‚Î‚·BiƒRƒ}ƒ“ƒh•”‚ğ“Ç‚İ”ò‚Î‚·j
+	//ç©ºç™½ãŒè¦‹ã¤ã‹ã‚‹ã¾ã§èª­ã¿é£›ã°ã™ã€‚ï¼ˆã‚³ãƒãƒ³ãƒ‰éƒ¨ã‚’èª­ã¿é£›ã°ã™ï¼‰
 	##c = ascii(midstr($$str,##i,1));
 	while((##i < ##len) && (0x20 < ##c)){
 		##i=##i+1;
 		##c = ascii(midstr($$str,##i,1));
 	}
-	//ƒRƒ}ƒ“ƒhˆø”‚ğ•Ô‚·
+	//ã‚³ãƒãƒ³ãƒ‰å¼•æ•°ã‚’è¿”ã™
 	return rightstr($$str,##len-##i);
 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 #   # before
 class vector float x float y float z
 

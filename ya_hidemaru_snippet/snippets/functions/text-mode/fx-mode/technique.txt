@@ -1,4 +1,4 @@
-%0 %|{
+﻿%0 %|{
 	pass p0{
 		VertexProgram	= compile vp40 vs_main();
 		FragmentProgram = compile fp40 ps_main();

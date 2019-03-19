@@ -1,4 +1,4 @@
-/*GŠÛƒGƒfƒBƒ^‚Ìƒtƒ@ƒCƒ‹ƒqƒXƒgƒŠ‚ğæ“¾‚·‚éB
+ï»¿/*ç§€ä¸¸ã‚¨ãƒ‡ã‚£ã‚¿ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒ’ã‚¹ãƒˆãƒªã‚’å–å¾—ã™ã‚‹ã€‚
 
 #Before
 @his file
@@ -11,13 +11,13 @@ C:\GitHub\ya_hidemaru_snippet\ya_hidemaru_snippet\snippets\text-mode\python-mode
 
 #Command
 @his [type]
-	 type 	file		fi		//ƒtƒ@ƒCƒ‹ƒqƒXƒgƒŠ‚Ì•\¦
-	 		folder		fo		//ƒtƒHƒ‹ƒ_ƒqƒXƒgƒŠ‚Ì•\¦
+	 type 	file		fi		//ãƒ•ã‚¡ã‚¤ãƒ«ãƒ’ã‚¹ãƒˆãƒªã®è¡¨ç¤º
+	 		folder		fo		//ãƒ•ã‚©ãƒ«ãƒ€ãƒ’ã‚¹ãƒˆãƒªã®è¡¨ç¤º
 	 		directory 	di		//Same as folder.
 	 		//desktop		de	//Reserved.
 	 		//project		p	//Reserved.
 
-	 È—ª‚Í‘S‚Ä•\¦‚µ‚Ü‚·B
+	 çœç•¥æ™‚ã¯å…¨ã¦è¡¨ç¤ºã—ã¾ã™ã€‚
 */
 disabledraw;
 begingroupundo;
@@ -27,7 +27,7 @@ endmacro;
 
 
 main:
-	$$type = getarg(16);	//ˆø”2
+	$$type = getarg(16);	//å¼•æ•°2
 	if($$type==""){
 		call print_file_history;
 		call print_path_history;

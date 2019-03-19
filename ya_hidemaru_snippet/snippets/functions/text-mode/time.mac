@@ -1,2 +1,2 @@
-insert(time + "%|");
+﻿insert(time + "%|");
 endmacro str(true);

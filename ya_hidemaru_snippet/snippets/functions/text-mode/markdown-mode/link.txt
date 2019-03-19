@@ -1,4 +1,4 @@
-#Description:linkのスニペット
+﻿#Description:linkのスニペット
 #   #before
 #   link
 #

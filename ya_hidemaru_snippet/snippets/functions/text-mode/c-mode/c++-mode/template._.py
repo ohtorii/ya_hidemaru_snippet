@@ -1,4 +1,4 @@
-"""template<>
+﻿"""template<>
 
 # before
 te foo bar spam

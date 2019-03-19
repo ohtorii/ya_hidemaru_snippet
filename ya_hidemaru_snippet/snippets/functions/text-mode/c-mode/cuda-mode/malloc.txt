@@ -1,4 +1,4 @@
-#Description:cudaMallocに対するスニペット
+﻿#Description:cudaMallocに対するスニペット
 #
 #   # before
 #   malloc.txt
