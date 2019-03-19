@@ -1,7 +1,6 @@
 ﻿/*マッチするスニペットファイルを返す
 
-引数	コマンド名
-		コマンド数
+引数	コマンド名 コマンド数 スニペットディレクトリ(option)
 return	スニペットファイルの絶対パス
 		(例) "c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
 */
@@ -35,16 +34,20 @@ $g_snippet_file_basename[0]	= "";
 
 
 
-call main getarg(0),val(getarg(1));
+call main getarg(0),val(getarg(1)), getarg(2);
 endmacro $$return;
 
 main:
 	$$cmd=$$1;
 	##num=##2;
-	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
-	$$abs_snippets_dir = getresultex(-1);
+	$$abs_snippets_dir=$$3;
+	
 	if($$abs_snippets_dir==""){
-		return "";
+		execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+		$$abs_snippets_dir = getresultex(-1);
+		if($$abs_snippets_dir==""){
+			return "";
+		}
 	}
 
 	##count=32;//無限ループ防止（念のため）
