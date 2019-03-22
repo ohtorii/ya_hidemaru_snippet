@@ -1,11 +1,5 @@
-﻿#
-#argv[0]="uniform"
-#argv[1]=type
-#argv[2]=name
-#       :
-#       :
-#argv[N]=argN
-#
+﻿# -*- coding: utf-8 -*-
+
 import sys
 
 _g_name=""
@@ -122,11 +116,11 @@ def Main():
 
     _g_name="%|"
     try:
-        _g_name = argv[2]
+        _g_name = sys.argv[3]
     except IndexError:
         pass
 
-    uniform_type = argv[1].lower()
+    uniform_type = sys.argv[2].lower()
     func = _g_jump_tbl[uniform_type]
     func()
 

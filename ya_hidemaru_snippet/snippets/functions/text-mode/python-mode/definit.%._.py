@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 # before
 definit x y z __flag
 
@@ -12,7 +13,7 @@ def __init__(self,x,y,z,flag):
 """
 import sys
 
-def Main():
+def Main(argv):
     args=argv[1:]
     strped_arg=[s.lstrip("_") for s in args]
     head = "def __init__(self,";
@@ -25,4 +26,4 @@ def Main():
     s=s+"\t%|"
     sys.stdout.write(s)
 
-Main()
+Main(sys.argv[1:])

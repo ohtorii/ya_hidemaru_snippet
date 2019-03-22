@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 # before
 def invoke x y z
 
@@ -8,7 +9,7 @@ def invoke(x,y,z):
     |
 
 """
-def Main():
+def Main(argv):
     head = "def %s(" % argv[1]
     body = ",".join(argv[2:])
     tail = "):\n"
@@ -16,4 +17,4 @@ def Main():
     impl = "\t%|"
     print(head + body + tail + doc + impl)
 
-Main()
+Main(sys.argv[1:])

@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 # before
 struct vector float x float y float z
 
@@ -12,7 +13,7 @@ struct vector{
 """
 import sys
 
-def Main():
+def Main(argv):
     head={"class":argv[0], "name":argv[1]}
     
     #
@@ -44,4 +45,4 @@ def Main():
     #print("};");
     sys.stdout.write("};");
 
-Main()
+Main(sys.argv[1:])

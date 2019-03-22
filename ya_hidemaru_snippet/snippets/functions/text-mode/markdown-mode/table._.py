@@ -1,4 +1,6 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+
+"""
 #Description:GitHub Flavored Markdown(GFM)
 
 =========
@@ -103,7 +105,7 @@ def MakeTable(column_num,row_num):
         row_list.clear()
 
 
-def Main():
+def Main(argv):
     n=len(argv)
     if n==0:
         return;
@@ -119,4 +121,4 @@ def Main():
         row_num=ToInt(argv[2])
         MakeTable(column_num,row_num)
 
-Main()
+Main(sys.argv[1:])

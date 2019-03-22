@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 #   # before
 class vector float x float y float z
 
@@ -20,16 +21,6 @@ private:
     float y;
     float z;
 };
-
-#
-#memo
-#
-argv[0]="class"
-argv[1]=class_name
-argv[2]=arg0
-       :
-       :
-argv[N]=argN
 """
 import sys
 
@@ -42,7 +33,7 @@ g_double=set(("double","f64","float64"))
 g_scaler=g_int|g_float|g_double;
 g_member_prefix = "m_";
 
-def Main():
+def Main(argv):
     head={"class":argv[0], "name":argv[1]}
 
     #
@@ -123,4 +114,4 @@ def Main():
     #print("};");
     sys.stdout.write("};");
 
-Main()
+Main(sys.argv[1:])

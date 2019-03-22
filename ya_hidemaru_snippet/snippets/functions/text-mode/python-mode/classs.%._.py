@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 # before
 class hoge x y z __flag
 
@@ -13,7 +14,7 @@ class hoge(object):
         |
 """
 import sys
-def Main():
+def Main(argv):
     ClassName = argv[1]
     args=argv[2:]
     strped_arg=[s.lstrip("_") for s in args]
@@ -26,4 +27,4 @@ def Main():
     s4="\t\t%|"
     sys.stdout.write(s1+slots+s2+s3+s4)
 
-Main()
+Main(sys.argv[1:])

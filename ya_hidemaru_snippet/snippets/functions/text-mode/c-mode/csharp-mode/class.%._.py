@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 #   # before
 class vector float x float y float z
 
@@ -14,20 +15,10 @@ public class vector{
     private float y;
     private float z;
 }
-
-#
-#memo
-#
-argv[0]="class"
-argv[1]=class_name
-argv[2]=arg0
-       :
-       :
-argv[N]=argN
 """
 import sys
 
-def Main():
+def Main(argv):
     head={"class":argv[0], "name":argv[1]}
 
     #
@@ -82,4 +73,4 @@ def Main():
     #print("};");
     sys.stdout.write("}");
 
-Main()
+Main(sys.argv[1:])
