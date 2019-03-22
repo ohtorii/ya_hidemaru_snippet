@@ -45,14 +45,12 @@
 
 【言語毎の引数】
 	＊Python
-		argv[0]=コマンド名
-		argv[1]=引数1
-		argv[2]=引数2
+		sys.argv[0]=コマンド名
+		sys.argv[1]=引数1
+		sys.argv[2]=引数2
 			   :
 			   :
-		argv[N]=argN
-
-		（argvはグローバル変数です。）
+		sys.argv[N]=argN
 
 	＊JavaScript
 		var arg0 = WScript.Arguments(0);	コマンド名
@@ -68,7 +66,7 @@
 		getarg(1)	##old_hidemaru_handle
 		getarg(2)	コマンドを除いた一行の文字列
 		getarg(3)	Python.exeの絶対パス
-		getarg(4)	Pythonのバージョン(2|3)
+		getarg(4)	予約
 		getarg(5)	スニペットモジュールへの絶対パス
 		getarg(6)	internalディレクトリへの絶対パス
 		getarg(7)	reserved
