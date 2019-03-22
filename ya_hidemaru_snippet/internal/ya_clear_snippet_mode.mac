@@ -1,9 +1,9 @@
-/*Yet another snippet for hidemaru editor.
+ï»¿/*Yet another snippet for hidemaru editor.
 
-ya_change_snippet_mode.mac ‚Åw’è‚µ‚½ƒXƒjƒyƒbƒg‚Ìƒ‚[ƒh‚ğƒNƒŠƒA‚·‚éB
+ya_change_snippet_mode.mac ã§æŒ‡å®šã—ãŸã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ãƒ¢ãƒ¼ãƒ‰ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹ã€‚
 
-yƒƒ‚z
-–{ƒ}ƒNƒ‚ğÀs‚·‚é‚ÆAƒtƒ@ƒCƒ‹Šg’£q‚É‰‚¶‚½ƒXƒjƒyƒbƒgƒ‚[ƒh‚É–ß‚è‚Ü‚·B
+ã€ãƒ¡ãƒ¢ã€‘
+æœ¬ãƒã‚¯ãƒ­ã‚’å®Ÿè¡Œã™ã‚‹ã¨ã€ãƒ•ã‚¡ã‚¤ãƒ«æ‹¡å¼µå­ã«å¿œã˜ãŸã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰ã«æˆ»ã‚Šã¾ã™ã€‚
 */
 
 $g_static_variable_name	= "ya_hidemaru_snippet_path";

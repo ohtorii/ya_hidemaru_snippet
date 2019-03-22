@@ -1,14 +1,14 @@
-/* ƒXƒjƒyƒbƒg‚Ì“WŠJ‚Æ‘}“ü‚ğs‚¤B
+ï»¿/* ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®å±•é–‹ã¨æŒ¿å…¥ã‚’è¡Œã†ã€‚
 
-ˆø”
-1	ƒXƒjƒyƒbƒgƒtƒ@ƒCƒ‹–¼
-2	ƒXƒjƒyƒbƒg‚ª‹N“®‚³‚ê‚½s‚Ì•¶š—ñ
-3	ˆø”‚ÌŒÂ”
-4	ˆø”0
-5	ˆø”1
+å¼•æ•°
+1	ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«å
+2	ã‚¹ãƒ‹ãƒšãƒƒãƒˆãŒèµ·å‹•ã•ã‚ŒãŸè¡Œã®æ–‡å­—åˆ—
+3	å¼•æ•°ã®å€‹æ•°
+4	å¼•æ•°0
+5	å¼•æ•°1
 	 :
 	 :
-20	ˆø”15
+20	å¼•æ•°15
 
 
 
@@ -16,7 +16,7 @@
 $g_snippets_abs_dir_name	= currentmacrodirectory;
 
 ////////////////////////////////////////////
-//		Šg’£q–ˆ‚Ìˆ—ƒ}ƒNƒ“o˜^
+//		æ‹¡å¼µå­æ¯ã®å‡¦ç†ãƒã‚¯ãƒ­ç™»éŒ²
 ////////////////////////////////////////////
 #g_expand_files_num=0;
 
@@ -46,20 +46,20 @@ $g_expand_files_ext[#g_expand_files_num]=".js";
 
 
 ////////////////////////////////////////////
-//	Python‚Ìî•ñiiniƒtƒ@ƒCƒ‹‚Ì“à—e‚Åã‘‚«‚³‚ê‚Ü‚·j
+//	Pythonã®æƒ…å ±ï¼ˆiniãƒ•ã‚¡ã‚¤ãƒ«ã®å†…å®¹ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ï¼‰
 ////////////////////////////////////////////
-//Python‚Ö‚ÌƒpƒX
+//Pythonã¸ã®ãƒ‘ã‚¹
 //$g_python_exe = "C:\\Python27\\python.exe";
 //$g_python_exe = "C:\\Python32\\python.exe";
 $g_python_exe 		= "python.exe";
 
-//Python‚Ìƒo[ƒWƒ‡ƒ“B"2" or "3"
+//Pythonã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã€‚"2" or "3"
 $g_python_version 	= "3";
 
 
 
 ////////////////////////////////////////////
-//	“à•”—˜—p‚Ì’l
+//	å†…éƒ¨åˆ©ç”¨ã®å€¤
 ////////////////////////////////////////////
 $g_cursor_marker	= "%|";
 
@@ -103,12 +103,12 @@ Main:
 	$$head_str=$$return;
 
 	//
-	//V‚µ‚¢GŠÛ‚ğ”ñ•\¦‚ÅŠJ‚«A‚»‚±‚ÖƒXƒjƒyƒbƒg‚ğ“WŠJ‚·‚éB
+	//æ–°ã—ã„ç§€ä¸¸ã‚’éè¡¨ç¤ºã§é–‹ãã€ãã“ã¸ã‚¹ãƒ‹ãƒšãƒƒãƒˆã‚’å±•é–‹ã™ã‚‹ã€‚
 	//
 	##old_hidemaru = hidemaruhandle(0);
 	openfile "/h ", noaddhist;
 	if(! result){
-		message("”ñ•\¦ó‘Ô‚ÅGŠÛƒGƒfƒBƒ^‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B");
+		message("éè¡¨ç¤ºçŠ¶æ…‹ã§ç§€ä¸¸ã‚¨ãƒ‡ã‚£ã‚¿ã‚’é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚");
 		return false;
 	}
 	
@@ -129,15 +129,15 @@ Main:
 
 	disabledraw;
 	disableinvert;
-	/*ƒRƒ}ƒ“ƒhs‚ğíœ‚·‚é
+	/*ã‚³ãƒãƒ³ãƒ‰è¡Œã‚’å‰Šé™¤ã™ã‚‹
 	(before)
 		prev-line
-		|current-line	<-- ‚±‚Ìs‚ğíœ
+		|current-line	<-- ã“ã®è¡Œã‚’å‰Šé™¤
 		next-line
 
 	(after)
 		prev-line
-		|				<-- ‹ós‚ğì‚é
+		|				<-- ç©ºè¡Œã‚’ä½œã‚‹
 		next-line
 	*/
 	deleteline2;
@@ -145,14 +145,14 @@ Main:
 
 	##old_linecount2=linecount2;
 	insertfix($$expand_text);
-	//‘}“ü‚³‚ê‚½s”‚ğŒvZ‚·‚éB
+	//æŒ¿å…¥ã•ã‚ŒãŸè¡Œæ•°ã‚’è¨ˆç®—ã™ã‚‹ã€‚
 	##num_insert_lineno = linecount2 - ##old_linecount2;
 	call  AdjustCursorPos, ##num_insert_lineno;
 	return ##result;
 
 
-/*‘S‚Ä‚Ìæ“ªs‚É•¶š‚ğ‘}“ü‚·‚éB
-memo:ƒCƒ“ƒfƒ“ƒg‚ğ‡‚í‚¹‚Ä‚¢‚éB*/
+/*å…¨ã¦ã®å…ˆé ­è¡Œã«æ–‡å­—ã‚’æŒ¿å…¥ã™ã‚‹ã€‚
+memo:ã‚¤ãƒ³ãƒ‡ãƒ³ãƒˆã‚’åˆã‚ã›ã¦ã„ã‚‹ã€‚*/
 InsertHeadStr:
 	$$head_str=$$1;
 	##i=1;
@@ -165,7 +165,7 @@ InsertHeadStr:
 	return ;
 
 
-/*æ“ª‚Ì‹ó”’s‚ğæ“¾‚·‚é*/
+/*å…ˆé ­ã®ç©ºç™½è¡Œã‚’å–å¾—ã™ã‚‹*/
 GetHeadSpace:
 	if(selecting){
 		$$head = gettext2(0,seltoplineno,seltopcolumn,seltoplineno,1);
@@ -182,7 +182,7 @@ GetHeadSpace:
 		return "";
 	}
 
-	//æ“ªs‚Ì‹ó”’‚ğæ“¾‚·‚éB
+	//å…ˆé ­è¡Œã®ç©ºç™½ã‚’å–å¾—ã™ã‚‹ã€‚
 	/*escape;
 	beginsel;
 	golinetop2;
@@ -211,19 +211,19 @@ ExpandSnippetFile:
 		##i=##i+1;
 	}
 	if(""==$$filename){
-		message("–¢‘Î‰‚ÌŠg’£q‚Å‚·B\n" + $$abs_snippet_filename);
+		message("æœªå¯¾å¿œã®æ‹¡å¼µå­ã§ã™ã€‚\n" + $$abs_snippet_filename);
 		return false;
 	}
 	
 	execmacro currentmacrodirectory+"\\ya_util_get_snippet_modules_dir.mac";
 	$$modules_dir = getresultex(-1);
 	if($$modules_dir==""){
-		message("ƒXƒjƒyƒbƒg‚Ìƒ‚ƒWƒ…[ƒ‹ƒfƒBƒŒƒNƒgƒŠ‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B");
+		message("ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚");
 		return false;
 	}
 	
 	//
-	//Šg’£q–ˆ‚Ì“WŠJƒ}ƒNƒ‚ğŒÄ‚ÔB
+	//æ‹¡å¼µå­æ¯ã®å±•é–‹ãƒã‚¯ãƒ­ã‚’å‘¼ã¶ã€‚
 	//
 	$$abs_expand_file = $g_snippets_abs_dir_name + "\\" + $$filename;
 
@@ -263,15 +263,15 @@ ExpandSnippetFile:
 
 	##result = val(getresultex(-1));
 	if(! ##result){
-		message("ƒXƒjƒyƒbƒg‚Ì“WŠJ‚É¸”s‚µ‚½‚æ‚¤‚Å‚·B\n"					+
-				"yƒtƒ@ƒCƒ‹z\n"											+
+		message("ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®å±•é–‹ã«å¤±æ•—ã—ãŸã‚ˆã†ã§ã™ã€‚\n"					+
+				"ã€ãƒ•ã‚¡ã‚¤ãƒ«ã€‘\n"											+
 				$$abs_expand_file
 		);
 		return false;
 	}
 	return ##result;
 
-/*ƒtƒ@ƒCƒ‹Šg’£q‚ğæ“¾‚·‚é
+/*ãƒ•ã‚¡ã‚¤ãƒ«æ‹¡å¼µå­ã‚’å–å¾—ã™ã‚‹
 (ex)hoge.ext1.ext2.txt -> .txt
 */
 GetSnippetFileExt:
@@ -283,7 +283,7 @@ GetSnippetFileExt:
 	return $$fn;
 
 
-/*	%| ‚ÖƒJ[ƒ\ƒ‹‚ğˆÚ“®‚·‚éB
+/*	%| ã¸ã‚«ãƒ¼ã‚½ãƒ«ã‚’ç§»å‹•ã™ã‚‹ã€‚
 */
 AdjustCursorPos:
 	##num_insert_lineno = ##1;
@@ -292,10 +292,10 @@ AdjustCursorPos:
 
 	searchdown2 $g_cursor_marker,word,nocasesense,nohilight;
 	if(result && (lineno <= (##old_lineno + ##num_insert_lineno))){
-		//"%|" ‚ğÁ‚·B
+		//"%|" ã‚’æ¶ˆã™ã€‚
 		delete;
 	}else{
-		//ŒŸõ¸”sA‚Ü‚½‚ÍAƒ}[ƒJ[‚ªŒ©‚Â‚©‚ç‚È‚¢B
+		//æ¤œç´¢å¤±æ•—ã€ã¾ãŸã¯ã€ãƒãƒ¼ã‚«ãƒ¼ãŒè¦‹ã¤ã‹ã‚‰ãªã„ã€‚
 		movetolineno 1+##old_column, ##old_lineno;
 	}
 	return true;
@@ -303,13 +303,13 @@ AdjustCursorPos:
 ParseIni:
 	$$ini_abs_filename = $$1;
 	if($$ini_abs_filename==""){
-		message("“à•”ƒGƒ‰[Fgetstaticvariable(\"ini_abs_filename\",1)‚ª‹ó•¶š‚ğ•Ô‚µ‚½B\n"	+
-				"ìÒ‚Ö‚¨–â‚¢‡‚í‚¹‰º‚³‚¢B"
+		message("å†…éƒ¨ã‚¨ãƒ©ãƒ¼ï¼šgetstaticvariable(\"ini_abs_filename\",1)ãŒç©ºæ–‡å­—ã‚’è¿”ã—ãŸã€‚\n"	+
+				"ä½œè€…ã¸ãŠå•ã„åˆã‚ã›ä¸‹ã•ã„ã€‚"
 		);
 		return false;
 	}
 	if(! existfile($$ini_abs_filename)){
-		message("INIƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ\n"	+
+		message("INIãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“\n"	+
 				"file=" + $$ini_abs_filename
 		);
 		return false;

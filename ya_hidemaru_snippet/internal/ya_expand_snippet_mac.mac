@@ -1,12 +1,12 @@
-/* Yet another snippet for hidemaru editor.
-“à•”À‘•B
+ï»¿/* Yet another snippet for hidemaru editor.
+å†…éƒ¨å®Ÿè£…ã€‚
 
-(.mac)‚Ì“WŠJB
+(.mac)ã®å±•é–‹ã€‚
 */
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		“à•”ˆ—
+//		å†…éƒ¨å‡¦ç†
 ////////////////////////////////////////////////////////////////////////////
 call Main;
 endmacro str(##return);
@@ -51,7 +51,7 @@ Main:
 				$$args[29],
 				$$args[30];
 	/*if(! result){
-		message("execmacro‚Å¸”sB\nfile=" + $$args[0]);
+		message("execmacroã§å¤±æ•—ã€‚\nfile=" + $$args[0]);
 		return false;
 	}*/
 	return true;

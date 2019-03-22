@@ -1,95 +1,73 @@
-/* Yet another snippet for hidemaru editor.
-“à•”À‘•B
+ï»¿/* Yet another snippet for hidemaru editor.
+å†…éƒ¨å®Ÿè£…ã€‚
 
-(.py)‚Ì“WŠJB
+(.py)ã®å±•é–‹ã€‚
 
 
-–‚â‚Á‚Ä‚¢‚é‚±‚Æ
+ï¼Šã‚„ã£ã¦ã„ã‚‹ã“ã¨
 
 */
 
 ////////////////////////////////////////////////////////////////////////////
-//	Python‚Ìî•ñ
+//	Pythonã®æƒ…å ±ï¼ˆå¾Œã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ï¼‰
 ////////////////////////////////////////////////////////////////////////////
-//Python‚Ö‚ÌƒpƒX
+//Pythonã¸ã®ãƒ‘ã‚¹
 $g_python_exe 		= "python.exe";
-//Python‚Ìƒo[ƒWƒ‡ƒ“B"2" or "3"
-$g_python_version 	= "3";
 
 
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		’è”
+//		å®šæ•°
 ////////////////////////////////////////////////////////////////////////////
 #g_args_index_num	= 14;
 #g_args_index_start	= 15;
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		“à•”ˆ—
+//		å†…éƒ¨å‡¦ç†
 ////////////////////////////////////////////////////////////////////////////
 
-//ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹–¼iƒx[ƒX–¼j
-//ŠÂ‹«•Ï”TMP‚ÌƒfƒBƒŒƒNƒgƒŠ‚É¶¬‚·‚éBi‰Â”\‚ÈŒÀ‚èíœ‚³‚ê‚éj
-$g_tmpfile_base_name 	= "tmp_hidemaru_ya_snippet_py_macro";
+//ã‚¹ãƒ‹ãƒšãƒƒãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®çµ¶å¯¾ãƒ‘ã‚¹
+$g_abs_snippet_filename	= "";
 
-//ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹iâ‘ÎƒpƒXj
-$g_tmp_in_filename 		= "";
-
-#g_ht_tools_dll=0;
-
-
-call LoadDengaku;
-if(! ##return){
-	endmacro str(false);
-}
-call LoadHtToolsDll;
-if(! ##return){
-	endmacro str(false);
-}
-if(##return){
-	call Main;
-	call RemoveTmpFile;
-}
+call main;
 endmacro str(##return);
 
 
-Main:
-	/*$$ini_abs_filename = getstaticvariable("ini_abs_filename",1);
-	call ParseIni $$ini_abs_filename;
-	if(! ##return){
-		return false;
-	}*/
+main:
 	$g_python_exe			= getarg(3);
-	$g_python_version		= getarg(4);
+	$g_abs_snippet_filename	= getarg(0);
 	
-	$$abs_snippet_filename 	= getarg(0);
-
-	call MakePythonArrayString;
-	$$array_str = $$return;
-	//message($$array_str);
-
-	call MakePythonExecFileString $$abs_snippet_filename, $$array_str;
-	$$python_script_str = $$return;
-	if("" == $$python_script_str){
-		return false;
-	}
-
-	call GetTempFile ".py";
-	$g_tmp_in_filename=$$return;
-	if(""==$g_tmp_in_filename){
-		return false;
-	}
-
-	//PythonƒXƒNƒŠƒvƒg‚ğƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹‚Ö‘‚«o‚·B
-	call WriteFile $g_tmp_in_filename, $$python_script_str;
+	call LoadDengaku;
 	if(! ##return){
 		return false;
 	}
+	call Process;
+	##ret=##return;
 
-	//ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹‚ğÀs‚·‚é
-	$$cmd = $g_python_exe + " " + "\"" + $g_tmp_in_filename + "\"";
+	return ##ret;
+
+
+
+Process:
+	#g_args_num = val(getarg(#g_args_index_num));
+	$$args = "";
+	##i=0;
+	while(##i < #g_args_num){
+		$$str 	= getarg(#g_args_index_start + ##i);
+
+		// " -> \"
+		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
+
+		if(0 < ##i){
+			$$args = $$args + " ";
+		}
+		$$args = $$args + "\"" + $$str + "\"";
+		##i=##i+1;
+	}
+	$$py_filename = "\"" + $g_abs_snippet_filename + "\"";
+	$$cmd = $g_python_exe + " " + $$py_filename + " " + $$args;
 	runex $$cmd
 		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
@@ -101,117 +79,25 @@ Main:
 		, 0 			//unicode 0:ansi 2:unicode
 		;
 	if(! result){
-		message("runex‚Å¸”s‚µ‚Ü‚µ‚½B[Python]\n"	+
-				"INIƒtƒ@ƒCƒ‹’†‚Ì [python] ƒZƒNƒVƒ‡ƒ“‚Ì‹Lq‚ğŠm”F‚µ‚Ä‰º‚³‚¢B\n"	+
-				"‘½•ªAexe‚ÌƒpƒX‚ªŠÔˆá‚Á‚Ä‚¢‚é‚Ì‚©‚àEEE"
+		message("runexã§å¤±æ•—ã—ã¾ã—ãŸã€‚[Python]\n"	+
+				"INIãƒ•ã‚¡ã‚¤ãƒ«ä¸­ã® [python] ã‚»ã‚¯ã‚·ãƒ§ãƒ³ã®è¨˜è¿°ã‚’ç¢ºèªã—ã¦ä¸‹ã•ã„ã€‚\n"	+
+				"å¤šåˆ†ã€exeã®ãƒ‘ã‚¹ãŒé–“é•ã£ã¦ã„ã‚‹ã®ã‹ã‚‚ãƒ»ãƒ»ãƒ»"
 		);
 		return false;
 	}
 	return true;
-
-
-/*
-return	execfile("hoge.py",{},{"argv":argv});
-*/
-MakePythonExecFileString:
-	$$file_name = $$1;
-	//\ -> \\
-	$$file_name = dllfuncstr("GSUB",$$file_name,"\\","\\\\",-1);
-
-	$$array_str = $$2;
-	$$result = "";
-	$$result = $$result + "# -*- coding: cp932 -*-\n";
-	$$result = $$result + $$array_str + "\n";
-	if("3" == $g_python_version){
-		//Python3
-		//exec(compile(open('a_filename').read(), 'a_filename', 'exec'), )
-		$$result = $$result + "exec(compile(open('" + $$file_name + "').read(), '" + $$file_name + "', 'exec'),{\"argv\":argv})";
-	}else if("2" == $g_python_version){
-		//Python2
-		$$result = $$result + "execfile(\"" + $$file_name + "\",{\"argv\":argv});";
-	}else{
-		message("‘Î‰‚µ‚Ä‚¢‚È‚¢Python‚Ìƒo[ƒWƒ‡ƒ“‚Å‚·B\n"	+
-				"INIƒtƒ@ƒCƒ‹’†‚Ì‹Lq‚ğŠÔˆá‚¦‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B\n"	+
-				"[python] ¨ ver"
-		);
-		$$result="";
-	}
-	return $$result;
-
-/*
-return	argv=["arg1","arg2"]
-*/
-MakePythonArrayString:
-	#g_args_num = val(getarg(#g_args_index_num));
-	##i=0;
-	$$result="argv=[";
-
-	while(##i < #g_args_num){
-		$$str 	= getarg(#g_args_index_start + ##i);
-
-		// " -> \"
-		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
-
-		if(0 < ##i){
-			$$result = $$result + ",";
-		}
-		$$result= $$result + "\"" + $$str + "\"";
-		##i=##i+1;
-	}
-	$$result=$$result+"]";
-	return $$result;
-
-
-//ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹ì¬ƒTƒuƒ‹[ƒ`ƒ“
-GetTempFile:
-	$$ext = $$1;
-	$$tempdir = getenv("tmp");
-	if( rightstr( $$tempdir, 1 ) != "\\" ) {
-		$$tempdir = $$tempdir + "\\";
-	}
-	##n		= tickcount;
-	##end 	= ##n + 1000;
-	while(##n < ##end){
-	 	$$tempfile = $$tempdir + $g_tmpfile_base_name + str(##n) + $$ext;
-	 	if( !existfile( $$tempfile ) ) {
-			return $$tempfile;
-		}
-	 	##n = ##n + 1;
-	}
-	message "ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ@ƒCƒ‹‚ªì¬‚Å‚«‚Ü‚¹‚ñ\n" + $$tempfile;
-	return "";
-
-
-WriteFile:
-	##file = dllfunc(#g_ht_tools_dll, "FileOpen", $$1, "w");
-	if(##file==0){
-		return false;
-	}
-	##n = dllfunc(#g_ht_tools_dll, "WrFile", ##file, $$2);
-	if(##n==0){
-		return false;
-	}
-	##n = dllfunc(#g_ht_tools_dll,"FileClose",##file);
-	return true;
-
-
-RemoveTmpFile:
-	if(strlen($g_tmp_in_filename)){
-		deletefile $g_tmp_in_filename;
-		$g_tmp_in_filename="";
-	}
-	return ;
+	
 
 ParseIni:
 	$$ini_abs_filename = $$1;
 	if(! strlen($$ini_abs_filename)){
-		message("“à•”ƒGƒ‰[Fgetstaticvariable(\"ini_abs_filename\",1)‚ª‹ó•¶š‚ğ•Ô‚µ‚½B\n"	+
-				"ìÒ‚Ö‚¨–â‚¢‡‚í‚¹‰º‚³‚¢B"
+		message("å†…éƒ¨ã‚¨ãƒ©ãƒ¼ï¼šgetstaticvariable(\"ini_abs_filename\",1)ãŒç©ºæ–‡å­—ã‚’è¿”ã—ãŸã€‚\n"	+
+				"ä½œè€…ã¸ãŠå•ã„åˆã‚ã›ä¸‹ã•ã„ã€‚"
 		);
 		return false;
 	}
 	if(! existfile($$ini_abs_filename)){
-		message("INIƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ\n"	+
+		message("INIãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“\n"	+
 				"file=" + $$ini_abs_filename
 		);
 		return false;
@@ -219,11 +105,7 @@ ParseIni:
 	
 	$$section = "python";
 	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
-	$$ver = getinistr($$ini_abs_filename,$$section,"version");
-	
-	
-	$g_python_exe		= $$exe;
-	$g_python_version	= $$ver;
+	$g_python_exe = $$exe;
 	return true;
 
 LoadDengaku:
@@ -235,17 +117,5 @@ LoadDengaku:
 	if (result) {
 		return true;
 	}
-	message "“cŠyDLL‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "DengakuDLL.dll‚ªGŠÛƒ}ƒNƒƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
-	return false;
-
-LoadHtToolsDll:
-	#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
-	if (result) {
-		return true;
-	}
-	#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
-	if (result) {
-		return true;
-	}
-	message "ht_tool.dll‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "ht_tool.dll‚ªGŠÛ‚ÌƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
+	message "ç”°æ¥½DLLã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸ\n" + "DengakuDLL.dllãŒç§€ä¸¸ãƒã‚¯ãƒ­ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å­˜åœ¨ã™ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„";
 	return false;

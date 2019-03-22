@@ -1,10 +1,10 @@
-/*Yet another snippet for hidemaru editor.
+ï»¿/*Yet another snippet for hidemaru editor.
 
-ƒXƒjƒyƒbƒg‚Ìƒ‚[ƒhitext-mode/c-mode/cs-mode...j‚ğˆê“I‚É•ÏX‚·‚éB
+ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®ãƒ¢ãƒ¼ãƒ‰ï¼ˆtext-mode/c-mode/cs-mode...ï¼‰ã‚’ä¸€æ™‚çš„ã«å¤‰æ›´ã™ã‚‹ã€‚
 
-yå‚È—p“rz
-EV‹Kƒtƒ@ƒCƒ‹iŠg’£q–³‚µj‚ÌƒfƒtƒHƒ‹ƒg‚ÌƒXƒjƒyƒbƒg‚ğ•ÏX‚·‚éB
-Eˆê“I‚É‘¼‚Ìƒ‚[ƒh‚Ö•ÏX‚µ‚½‚¢‚Æ‚«‚Ég—p‚µ‚Ü‚·B
+ã€ä¸»ãªç”¨é€”ã€‘
+ãƒ»æ–°è¦ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆæ‹¡å¼µå­ç„¡ã—ï¼‰ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚¹ãƒ‹ãƒšãƒƒãƒˆã‚’å¤‰æ›´ã™ã‚‹ã€‚
+ãƒ»ä¸€æ™‚çš„ã«ä»–ã®ãƒ¢ãƒ¼ãƒ‰ã¸å¤‰æ›´ã—ãŸã„ã¨ãã«ä½¿ç”¨ã—ã¾ã™ã€‚
 */
 
 
@@ -18,7 +18,7 @@ $g_menu_text			= "";
 #g_menu_text_len		= 0;
 
 
-//ƒXƒjƒyƒbƒg‚Ìâ‘ÎƒpƒX
+//ã‚¹ãƒ‹ãƒšãƒƒãƒˆã®çµ¶å¯¾ãƒ‘ã‚¹
 $g_abs_snippets_dir		="";
 #g_abs_snippets_dir_len	= 0;
 
@@ -82,7 +82,7 @@ MakeMenuText:
 		$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$abs_path;
 		#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;
 
-		call MakeMenuText $$abs_path, $$space+"@@@@";
+		call MakeMenuText $$abs_path, $$space+"ã€€ã€€ã€€ã€€";
 		##index = ##index + 1;
 	}
 
@@ -100,7 +100,7 @@ LoadDengaku:
 	if (result) {
 		return true;
 	}
-	message "“cŠyDLL‚Ìƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½\n" + "DengakuDLL.dll‚ªGŠÛƒ}ƒNƒƒfƒBƒŒƒNƒgƒŠ‚É‘¶İ‚·‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢";
+	message "ç”°æ¥½DLLã®ãƒ­ãƒ¼ãƒ‰ã«å¤±æ•—ã—ã¾ã—ãŸ\n" + "DengakuDLL.dllãŒç§€ä¸¸ãƒã‚¯ãƒ­ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å­˜åœ¨ã™ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„";
 	return false;
 
 GetShortPath:

@@ -1,0 +1,79 @@
+﻿/*一時ファイル名を作成する
+
+引数	ファイル名	（空白文字列の場合はディフォルト値を使用する）
+		拡張子		（空白文字列の場合はディフォルト値を使用する）
+		
+返値	一時ファイル名（絶対パス）
+		失敗時は空白文字列を返す。
+
+注意	ファイル名を返すだけで生成までは行いません。
+		そのため、この関数を同時に利用すると同一ファイル名を返すことがあリます。
+*/
+
+$g_tmpdir_base_name 	= "tmp_hidemaru_yasnippet";
+
+call main getarg(0),getarg(1);
+endmacro $$return;
+
+
+main:
+	$$tmp_filename_base = $$1;
+	$$tmp_filename_ext 	= $$2;
+	
+	//
+	//空白文字列の場合はディフォルト値を使用する
+	//
+	if($$tmp_filename_base==""){
+		$$tmp_filename_base="ya_snippet_" + year + month + day+hour+minute+second+str(tickcount);
+	}
+	$$tmp_filename_base = $$tmp_filename_base + "_";
+	
+	if($$tmp_filename_ext==""){
+		$$tmp_filename_ext=".temp";
+	}
+	
+	//
+	//一時ディレクトリを取得する
+	//
+	$$tempdir = getenv("tmp");
+	if(0==strlen($$tempdir)){
+		//message("環境変数 tmp が設定されていません、設定して下さい。");
+		return	false;
+	}
+
+	$$tempdir = $$tempdir + "\\" + $g_tmpdir_base_name;
+	call CreateDir $$tempdir;
+	if(! ##return){
+		return "";
+	}
+	$$tempdir = $$tempdir + "\\";
+
+	##n=0;
+	while(##n<1000){
+		$$tempfile = $$tempdir + $$tmp_filename_base + str(##n) + $$tmp_filename_ext;
+		if( !existfile( $$tempfile ) ) {
+			return $$tempfile;
+		}
+		##n = ##n + 1;
+	}
+
+	/*message "テンポラリファイルが作成できません\n" +
+			$$tempfile + "\n\n" +
+			"下記テンポラリディレクトリ内のファイルを全て削除してみて下さい。\n" +
+			$$tempdir;*/
+
+	return "";
+
+
+//ディレクトリ作成
+CreateDir:
+	$$abs_dirname = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	callmethod ##obj,"CreateFolder",$$abs_dirname;
+	##ret=callmethod_returnnum(##obj,"FolderExists",$$abs_dirname);
+	if(! ##ret){
+		message("テンポラリディレクトリの作成に失敗しました。\n" + $$abs_dirname);
+		return false;
+	}
+	releaseobject ##obj;
+	return ##ret;

@@ -1,11 +1,11 @@
-/* Yet another snippet for hidemaru editor.
-“à•”À‘•B
+ï»¿/* Yet another snippet for hidemaru editor.
+å†…éƒ¨å®Ÿè£…ã€‚
 
-(.txt)‚Ì“WŠJB
+(.txt)ã®å±•é–‹ã€‚
 */
 
 ////////////////////////////////////////////////////////////////////////////
-//		’è”
+//		å®šæ•°
 ////////////////////////////////////////////////////////////////////////////
 #g_args_index_num	= 14;
 #g_args_index_start	= 15;
@@ -15,7 +15,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////
-//		“à•”ˆ—
+//		å†…éƒ¨å‡¦ç†
 ////////////////////////////////////////////////////////////////////////////
 $g_args[0]	= "";
 #g_args_num	= 0;
@@ -43,7 +43,7 @@ SetupArgs:
 	$g_args_line = getarg(2);
 	return ;
 
-//ƒRƒƒ“ƒg‚Ìíœ
+//ã‚³ãƒ¡ãƒ³ãƒˆã®å‰Šé™¤
 RemoveComment:
 	gofiletop;
 	searchdown2 "^# --$",regular,nohilight;
@@ -58,7 +58,7 @@ RemoveComment:
 	backspace;
 	return;
 
-//%0 %1 %2 ...‚Ì’uŠ·
+//%0 %1 %2 ...ã®ç½®æ›
 DoReplaceArg:
 	##i = 0;
 	while(##i < #g_args_num){
@@ -69,7 +69,7 @@ DoReplaceArg:
 	}
 	return ;
 
-//%* ‚Ì’uŠ·
+//%* ã®ç½®æ›
 DoReplaceWild:
 	gofiletop;
 	replaceallfast "%*",$g_args_line,nocasesense,nohilight;
