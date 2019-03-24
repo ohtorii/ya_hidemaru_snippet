@@ -103,6 +103,13 @@ $g_snippet_mode_names[0]="";
 */
 #g_snippet_mode_index[0]=0;
 
+//--------------------------------------
+//未入力の固定引数に関する情報
+//--------------------------------------
+#g_effect_num_no_input_textbox	=0;			//個数
+$g_effect_no_input_textbox[0]	="";		//コントロール名
+$g_effect_original_color		="#ffffff";	//テキストコントロールの元の色（後で設定される）
+
 
 //--------------------------------------------------------------------------
 //状態
@@ -164,18 +171,27 @@ MessageLoop:
 	//(memo)リストコントロールで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
 	##interval_tick 		= 150;
 	##prev_tick 			= 0;
-
+	
+	//リストの選択アイテムに関する変数
 	##prev_select_item		= -1;
 	##current_list_index	= -1;
+	
+	//固定引数を入力していないときの警告に関する変数
+	##use_warning_effect			=false;	//警告演出を行うかどうか
+	##warning_effect_tick			=1000;	//警告演出を行う時間
+	##warning_effect_start_tick	=-1;	//警告演出を開始した時間
+	
+	
 	while(1){
-		$$name = "";
-		while ($$name == "") {
+		$$notify = "";
+		while ($$notify == "") {
 			##current_tick = tickcount;
 			if(##interval_tick < (##current_tick - ##prev_tick)){
 				$$select_item		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name);
 				##current_list_index= val($$select_item) - 1;
 				if(##current_list_index != ##prev_select_item){
-					if(##current_list_index == 0){
+					if(##current_list_index < 0){
+						//非選択状態
 						call ClearTextViewer;
 						call ClearCommandViewer;
 					}else{
@@ -187,17 +203,33 @@ MessageLoop:
 				call UpdateCommandViewer ##current_list_index;
 				##prev_tick = ##current_tick;
 			}
-			$$name = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
+			if(##use_warning_effect){
+				if(##current_tick < (##warning_effect_start_tick+##warning_effect_tick)){
+					call UpdateWarningEffect  ##current_tick-##warning_effect_start_tick;
+				}else{
+					call ResetWarningEffect;
+					##use_warning_effect=false;
+				}
+			}
+			
+			$$notify = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
 		}
 
-		if($$name == "0"){
+		if($$notify == "0"){
 			//キャンセル
 			return "";
-		}else if($$name == "1"){
-			break;
+		}else if($$notify == "1"){
+			//Enter キー押下
+			call CheckFillAllFixedArguments ##current_list_index;
+			if(##return){
+				break;
+			}else{
+				##use_warning_effect		=true;
+				##warning_effect_start_tick=tickcount;
+			}
 		}
 	}
-
+	
 	call GetCommandLine ##current_list_index;
 	return $g_abs_snippets_filename[##current_list_index] + "\t" + $$return;
 
@@ -209,10 +241,6 @@ ClearTextViewer:
 
 UpdateTextViewer:
 	##index = ##1;
-	if(##index < 0){
-		return ;
-	}
-
 	$$path = $g_abs_snippets_filename[##index];
 	if($$path==""){
 		call ClearTextViewer;
@@ -327,7 +355,7 @@ UpdateCommandViewer:
 	*/
 	##list_index = ##1;
 	if($g_abs_snippets_filename[##list_index]==""){
-		#n = dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_command_ctrl_name,"");
+		call ClearCommandViewer;
 		return ;
 	}
 
@@ -405,12 +433,85 @@ GetCommandLine:
 	return $$argument;
 
 
+CheckFillAllFixedArguments:
+	/*固定引数のテキストを全て入力したかどうか調べる
+	*/
+	##list_index 	= ##1;
+	##argument_num	= #g_fixed_argumet_num[##list_index];
+	
+	#g_effect_num_no_input_textbox = 0;
+	
+	//
+	//固定引数をループする
+	//
+	##frame_no=0;
+	while(##frame_no<##argument_num){
+		$$ctrl_name = sprintf("edit%d_0",##frame_no);
+		$$text 		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",$$ctrl_name);
+		if($$text==""){
+			$g_effect_no_input_textbox[#g_effect_num_no_input_textbox]=$$ctrl_name;
+			#g_effect_num_no_input_textbox = #g_effect_num_no_input_textbox + 1;
+		}
+		##frame_no = ##frame_no + 1;
+	}
+	if(#g_effect_num_no_input_textbox==0){
+		return true;
+	}
+	return false;
+
+
+UpdateWarningEffect:
+	/*警告の効果を更新する
+	
+	ユーザーに未入力の固定引数を分かりやすく伝えるのが目的です。
+	*/
+	##current_tick	= ##1;
+	
+	##brightness	= 64;	//少し明るい色にする
+	##rate			= ##brightness + (##current_tick % (256-##brightness));
+	
+	##i=0;
+	while(##i<#g_effect_num_no_input_textbox){
+		//色を変える
+		$$color=hex(##rate);
+		if(strlen($$color)==1){
+			$$color="0"+$$color;
+		}
+		$$ctrl_name = $g_effect_no_input_textbox[##i];
+		##n = dllfunc("SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",sprintf("#FF%s%s",$$color,$$color));
+		
+		##i = ##i + 1;
+	}
+	return ;
+
+
+ResetWarningEffect:
+	/*警告の効果を初期状態に戻す*/
+	
+	##i=0;
+	while(##i<#g_effect_num_no_input_textbox){
+		//色を元に戻す
+		$$ctrl_name = $g_effect_no_input_textbox[##i];
+		##n = dllfunc("SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",$g_effect_original_color);
+		##i = ##i + 1;
+	}
+	#g_effect_num_no_input_textbox=0;
+	return ;
+
+
 CreateDialog:
 	call CreatePageAll #g_snippets_text_width;
 	if(! ##return){
 		call FailedCreateDialog;
 		return false;
 	}
+	
+	/*何故か空白文字列が返るためコメントアウト中
+	
+	$g_effect_original_color = dllfuncstr(#g_dengaku_dll, "GETCTRLEXPROPERTY","edit0_0","bgcolor");
+	debuginfo 1;
+	debuginfo "$g_effect_original_color="+$g_effect_original_color;*/
+	
 	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	"スニペット挿入",#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
 		/*スニペット一覧*/
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
