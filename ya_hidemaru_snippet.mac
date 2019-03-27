@@ -14,7 +14,7 @@ disablehistory;
 ////////////////////////////////////////////////////////////////////////////
 //		グローバル変数
 ////////////////////////////////////////////////////////////////////////////
-$g_internal_sub_dir = "ya_hidemaru_snippet\\internal";
+$g_internal_sub_dir = "internal";
 $g_internal_abs_dir = currentmacrodirectory + "\\" + $g_internal_sub_dir;
 
 execmacro $g_internal_abs_dir + "\\ya_util_get_snippet_dir.mac";

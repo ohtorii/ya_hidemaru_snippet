@@ -1,0 +1,14 @@
+﻿/*絶対パスを取得する
+*/
+$path=getarg(0);
+#obj=createobject("Scripting.FileSystemObject");
+if(#obj==0){
+	endmacro "";
+}
+$f = callmethod_returnstr( #obj, "GetAbsolutePathName", $path);
+if(getresultex(10)==false){
+	releaseobject #obj;
+	endmacro "";
+}
+releaseobject #obj;
+endmacro $f;

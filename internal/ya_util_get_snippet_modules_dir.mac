@@ -7,7 +7,9 @@
 		パス末尾にディレクトリ区切り(\/)は付きません。
 */
 $path=currentmacrodirectory+"\\..\\snippets\\modules";
-#obj=createobject("Scripting.FileSystemObject");
+execmacro currentmacrodirectory+"\\ya_util_get_abs_path_name.mac", $path;
+endmacro getresultex(-1);
+/*#obj=createobject("Scripting.FileSystemObject");
 if(#obj==0){
 	endmacro "";
 }
@@ -17,4 +19,4 @@ if(getresultex(10)==false){
 	endmacro "";
 }
 releaseobject #obj;
-endmacro $f;
+endmacro $f;*/
