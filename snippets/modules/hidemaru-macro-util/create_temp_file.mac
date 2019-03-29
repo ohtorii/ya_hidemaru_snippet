@@ -1,0 +1,122 @@
+﻿/*一時ファイルを作成する
+
+一時ファイルを作成しそのファイル名を返します。
+このマクロで作成された一時ファイルは deletefile 文で削除して下さい。
+
+
+引数	ファイル名	（空白文字列の場合はディフォルト値を使用する）
+		拡張子		（空白文字列の場合はディフォルト値を使用する）
+
+返値	生成した一時ファイルの名前（絶対パス）
+		失敗時は空白文字列を返す。
+*/
+
+#g_ht_tools_dll=0;
+$g_tmpdir_base_name 	= "tmp_hidemaru_yas_mod";
+
+call main getarg(0),getarg(1);
+endmacro $$return;
+
+
+main:
+	$$tmp_filename_base = $$1;
+	$$tmp_filename_ext 	= $$2;
+
+	//
+	//空白文字列の場合はディフォルト値を使用する
+	//
+	if($$tmp_filename_base==""){
+		$$tmp_filename_base="y";
+	}
+	$$tmp_filename_base = $$tmp_filename_base + "_" + year + month + day+hour+minute+second+str(tickcount) + "_";
+
+	if($$tmp_filename_ext==""){
+		$$tmp_filename_ext=".temp";
+	}
+
+	//
+	//一時ディレクトリを取得する
+	//
+	$$tempdir = getenv("tmp");
+	if(0==strlen($$tempdir)){
+		message("環境変数 tmp が設定されていません、設定して下さい。");
+		return	"";
+	}
+
+	$$tempdir = $$tempdir + "\\" + $g_tmpdir_base_name;
+	call CreateDir $$tempdir;
+	if(! ##return){
+		return "";
+	}
+	$$tempdir = $$tempdir + "\\";
+
+	##n=0;
+	while(##n<100){
+		$$tempfile = $$tempdir + $$tmp_filename_base + str(##n) + $$tmp_filename_ext;
+		if( !existfile( $$tempfile ) ) {
+			call CreateEmptyFile $$tempfile;
+			if(! ##return){
+				return "";
+			}
+			return $$tempfile;
+		}
+		##n = ##n + 1;
+	}
+
+	/*message "テンポラリファイルが作成できません\n" +
+			$$tempfile + "\n\n" +
+			"下記テンポラリディレクトリ内のファイルを全て削除してみて下さい。\n" +
+			$$tempdir;*/
+
+	return "";
+
+
+//ディレクトリ作成
+CreateDir:
+	$$abs_dirname = $$1;
+	##obj = createobject("Scripting.FileSystemObject");
+	callmethod ##obj,"CreateFolder",$$abs_dirname;
+	##ret=callmethod_returnnum(##obj,"FolderExists",$$abs_dirname);
+	if(! ##ret){
+		message("テンポラリディレクトリの作成に失敗しました。\n" + $$abs_dirname);
+		return false;
+	}
+	releaseobject ##obj;
+	return ##ret;
+
+
+CreateEmptyFile:
+	$$tempfile = $$1;
+	call LoadDll;
+	if(! ##return){
+		return false;
+	}
+	##handle=dllfunc(#g_ht_tools_dll,"FileOpen",$$tempfile,"w");
+	if(##handle==0){
+		call FreeDll;
+		return false;
+	}
+	##n=dllfunc(#g_ht_tools_dll,"FileClose",##handle);
+	call FreeDll;
+	return existfile( $$tempfile );
+
+
+LoadDll:
+	if(#g_ht_tools_dll!=0){
+		return true;
+	}
+	#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
+	if(#g_ht_tools_dll!=0){
+		return true;
+	}
+	#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
+	if (#g_ht_tools_dll!=0) {
+		return true;
+	}
+	message "ht_tool.dllのロードに失敗しました\n" + "ht_tool.dllが秀丸のディレクトリに存在するか確認してください";
+	return false;
+
+FreeDll:
+	freedll #g_ht_tools_dll;
+	#g_ht_tools_dll=0;
+	return ;
