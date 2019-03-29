@@ -10,7 +10,7 @@
 		そのため、この関数を同時に利用すると同一ファイル名を返すことがあリます。
 */
 
-$g_tmpdir_base_name 	= "tmp_hidemaru_yasnippet";
+$g_tmpdir_base_name 	= "tmp_hidemaru_yas";
 
 call main getarg(0),getarg(1);
 endmacro $$return;
