@@ -22,7 +22,7 @@ https://github.com/stakiran/intoc
 https://qiita.com/sta/items/9481c94e0fc36f27fa92
 */
 
-$g_tmpfile_base_name = "hidemaru_ya_md_toc_tmp";
+$g_tmpfile_base_name = "toc";
 
 
 disabledraw;
@@ -34,27 +34,29 @@ endmacro;
 
 
 main:
-	//編集中のテキストをテンポラリファイルへコピーする。
-	call GetTempFile $g_tmpfile_base_name, ".md";
-	if(0==strlen($$return)){
-		return false;
-	}
-	$$tmp_in_filename_cs = $$return;
 	##edit_hidemaru_handle = val(getarg(1));
-	call MakeFile  $$tmp_in_filename_cs, ##edit_hidemaru_handle, hidemaruhandle(0);
-	if(! ##return){
-		return false;
-	}
-	$modules_dir = getarg(5);
-	
-	##depth = val(getarg(16));	//引数2
+	$$python		= getarg(3);
+	$$modules_dir	= getarg(5);
+	##depth 		= val(getarg(16));	//引数2
 	if(##depth<=0){
 		##depth=2;
 	}
-	$$python=getarg(3);
-	
+
+	//
+	//編集中のテキスト（未保存 or 保存済）をテンポラリファイルへコピーする。
+	//
+	execmacro $$modules_dir+"\\hidemaru-macro-util\\create_temp_file.mac", $g_tmpfile_base_name, ".md";
+	$$tmp_in_filename_cs=getresultex(-1);
+	if($$tmp_in_filename_cs==""){
+		return false;
+	}
+	execmacro $$modules_dir+"\\hidemaru-macro-util\\hidemaru_to_file.mac",$$tmp_in_filename_cs, str(##edit_hidemaru_handle);
+	if(getresultex(-1) != "1"){
+		return false;
+	}
+
 	$$arg = $$python +
-			" " + $modules_dir+"\\intoc\\intoc.py" +
+			" " + $$modules_dir+"\\intoc\\intoc.py" +
 			" " + "-i " + $$tmp_in_filename_cs +
 			" " + "--parse-depth " + str(##depth);
 	runex $$arg
@@ -75,7 +77,7 @@ MakeFile:
 	$$tmp_filename			= $$1;
 	##edit_hidemaru_handle 	= ##2;
 	##prev_hidemaru 		= ##3;
-	
+
 	//スニペット編集中の秀丸からテキストを全て取得する。
 	{
 		setactivehidemaru ##edit_hidemaru_handle;
@@ -87,7 +89,7 @@ MakeFile:
 		//全選択で変化したカーソル位置を元に戻す
 		movetolineno ##old_column+1, ##old_lineno;
 	}
-	
+
 	//非表示で秀丸を開き $$text を保存する。
 	{
 		openfile "/h " + $$tmp_filename;
@@ -95,14 +97,14 @@ MakeFile:
 			message("テンポラリファイルのオープンに失敗。\n" + $$tmp_filename);
 			return false;
 		}
-		
+
 		##new_hidemaru = hidemaruhandle(0);
 		setencode ##old_charset,1;
 		insert $$text;
-	
+
 		save;
 	}
-	
+
 	//元の秀丸に戻す
 	setactivehidemaru	##prev_hidemaru;
 	closehidemaruforced ##new_hidemaru;
