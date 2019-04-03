@@ -42,7 +42,6 @@ header1|header2|header3|
 """
 import sys
 
-
 def Clip(x):
     if x < 1:
         return 1
@@ -105,20 +104,21 @@ def MakeTable(column_num,row_num):
         row_list.clear()
 
 
-def Main(argv):
-    n=len(argv)
+def main(argv):
+    command_name=argv[0]
+    args        =argv[1:]
+    n           =len(args)
     if n==0:
-        return;
-    if n==1:
         MakeDefaultTable()
         return
-    if n==2:
-        column_num=ToInt(argv[1])
+    if n==1:
+        column_num=ToInt(args[0])
         MakeHeaderOnlyTable(column_num)
         return
-    if n==3:
-        column_num=ToInt(argv[1])
-        row_num=ToInt(argv[2])
+    if n==2:
+        column_num=ToInt(args[0])
+        row_num=ToInt(args[1])
         MakeTable(column_num,row_num)
 
-Main(sys.argv[1:])
+if __name__ == "__main__":
+    main(sys.argv[1:])
