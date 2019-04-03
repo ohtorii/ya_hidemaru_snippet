@@ -47,7 +47,7 @@ main:
 	$g_module_dir			= getarg(5);
 	$g_internal_dir			= getarg(6);
 	
-		call LoadDengaku;
+	call LoadDengaku;
 	if(! ##return){
 		return false;
 	}
@@ -63,94 +63,11 @@ main:
 		$g_args = $g_args + "\"" + $$str + "\" ";
 		##i=##i+1;
 	}
-	
-	
-	//call Process;
-	//call ProcessPy;
+
 	call ProcessBat;
 	return ##return;
 
 
-ProcessPy:
-	$$args=	"\"" +$g_line_string+"\""+
-			" \""+$g_module_dir+"\""+
-			" \""+$g_internal_dir+"\""+
-			" \""+$g_abs_snippet_filename+"\"";
-	
-	#g_args_num = val(getarg(#g_args_index_num));
-	##i=0;
-	while(##i < #g_args_num){
-		$$str 	= getarg(#g_args_index_start + ##i);
-
-		// " -> \"
-		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
-
-		/*if(0 < ##i){
-			$$args = $$args + " ";
-		}*/
-		$$args = $$args + " \"" + $$str + "\"";
-		##i=##i+1;
-	}
-	
-	$$py_filename = "\"" + currentmacrodirectory + "\\ya_expand_snippet_py.py\"";
-	$$cmd = $g_python_exe + " " + $$py_filename + " " + $$args;
-	runex $$cmd
-		, 1 			//sync	  0:async 1:sync
-		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
-		, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
-		, 1, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
-		, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
-		, 2 			//show	  0:auto 1:show 2:hide
-		, 1 			//nodraw  0:draw 1:no draw
-		, 0 			//unicode 0:ansi 2:unicode
-		, 0x0001;		//%をそのまま書けるようにする
-	if(! result){
-		message("runexで失敗しました。[Python]\n"	+
-				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
-				"多分、exeのパスが間違っているのかも・・・"
-		);
-		return false;
-	}
-	return true;
-	
-Process:
-	#g_args_num = val(getarg(#g_args_index_num));
-	$$args = "";
-	##i=0;
-	while(##i < #g_args_num){
-		$$str 	= getarg(#g_args_index_start + ##i);
-
-		// " -> \"
-		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
-
-		if(0 < ##i){
-			$$args = $$args + " ";
-		}
-		$$args = $$args + "\"" + $$str + "\"";
-		##i=##i+1;
-	}
-	$$py_filename = "\"" + $g_abs_snippet_filename + "\"";
-	$$cmd = $g_python_exe + " " + $$py_filename + " " + $$args;
-	runex $$cmd
-		, 1 			//sync	  0:async 1:sync
-		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
-		, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
-		, 1, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
-		, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
-		, 2 			//show	  0:auto 1:show 2:hide
-		, 1 			//nodraw  0:draw 1:no draw
-		, 0 			//unicode 0:ansi 2:unicode
-		;
-	if(! result){
-		message("runexで失敗しました。[Python]\n"	+
-				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
-				"多分、exeのパスが間違っているのかも・・・"
-		);
-		return false;
-	}
-	return true;
-	
-	
 ProcessBat:
 	//
 	//秀丸エディタ側の設定を一時ファイルへ保存する
