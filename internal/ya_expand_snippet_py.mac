@@ -30,26 +30,89 @@ $g_python_exe 		= "python.exe";
 
 //スニペットファイルの絶対パス
 $g_abs_snippet_filename	= "";
+$g_line_string			= "";
+$g_python_exe			= "";
+$g_module_dir			= "";
+$g_internal_dir			= "";
+$g_args					= "";
 
 call main;
 endmacro str(##return);
 
 
 main:
-	$g_python_exe			= getarg(3);
 	$g_abs_snippet_filename	= getarg(0);
+	$g_line_string			= getarg(2);
+	$g_python_exe			= getarg(3);
+	$g_module_dir			= getarg(5);
+	$g_internal_dir			= getarg(6);
 	
-	call LoadDengaku;
+		call LoadDengaku;
 	if(! ##return){
 		return false;
 	}
-	call Process;
-	##ret=##return;
 
-	return ##ret;
+	#g_args_num = val(getarg(#g_args_index_num));
+	$g_args 	= "";
+	##i			= 0;
+	while(##i < #g_args_num){
+		$$str 	= getarg(#g_args_index_start + ##i);
+
+		// " -> \"
+		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
+		$g_args = $g_args + "\"" + $$str + "\" ";
+		##i=##i+1;
+	}
+	
+	
+	//call Process;
+	//call ProcessPy;
+	call ProcessBat;
+	return ##return;
 
 
+ProcessPy:
+	$$args=	"\"" +$g_line_string+"\""+
+			" \""+$g_module_dir+"\""+
+			" \""+$g_internal_dir+"\""+
+			" \""+$g_abs_snippet_filename+"\"";
+	
+	#g_args_num = val(getarg(#g_args_index_num));
+	##i=0;
+	while(##i < #g_args_num){
+		$$str 	= getarg(#g_args_index_start + ##i);
 
+		// " -> \"
+		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
+
+		/*if(0 < ##i){
+			$$args = $$args + " ";
+		}*/
+		$$args = $$args + " \"" + $$str + "\"";
+		##i=##i+1;
+	}
+	
+	$$py_filename = "\"" + currentmacrodirectory + "\\ya_expand_snippet_py.py\"";
+	$$cmd = $g_python_exe + " " + $$py_filename + " " + $$args;
+	runex $$cmd
+		, 1 			//sync	  0:async 1:sync
+		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+		, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+		, 2 			//show	  0:auto 1:show 2:hide
+		, 1 			//nodraw  0:draw 1:no draw
+		, 0 			//unicode 0:ansi 2:unicode
+		, 0x0001;		//%をそのまま書けるようにする
+	if(! result){
+		message("runexで失敗しました。[Python]\n"	+
+				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
+				"多分、exeのパスが間違っているのかも・・・"
+		);
+		return false;
+	}
+	return true;
+	
 Process:
 	#g_args_num = val(getarg(#g_args_index_num));
 	$$args = "";
@@ -87,26 +150,59 @@ Process:
 	}
 	return true;
 	
-
-ParseIni:
-	$$ini_abs_filename = $$1;
-	if(! strlen($$ini_abs_filename)){
-		message("内部エラー：getstaticvariable(\"ini_abs_filename\",1)が空文字を返した。\n"	+
-				"作者へお問い合わせ下さい。"
-		);
-		return false;
-	}
-	if(! existfile($$ini_abs_filename)){
-		message("INIファイルが見つかりません\n"	+
-				"file=" + $$ini_abs_filename
-		);
-		return false;
-	}
 	
-	$$section = "python";
-	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
-	$g_python_exe = $$exe;
+ProcessBat:
+	//
+	//秀丸エディタ側の設定を一時ファイルへ保存する
+	//
+	execmacro currentmacrodirectory + "\\ya_util_create_temp_filename.mac";
+	$$ini_filename=getresultex(-1);
+	if($$ini_filename==""){
+		return false;
+	}
+	call CreateHidemaruIniFile $$ini_filename;
+	if(! ##return){
+		deletefile $$ini_filename;
+		return false;
+	}
+
+	//
+	//引数を作る
+	//
+	$$bat		=$g_internal_dir+"\\ya_expand_snippe_py.bat";
+	$$pythonpath=$g_module_dir+"\\python-util";
+
+	$$cmd = $$bat+" " + $g_python_exe + " " + $g_abs_snippet_filename + " " + $$pythonpath + " " + $$ini_filename + " " + $g_args;
+	runex $$cmd
+		, 1 			//sync	  0:async 1:sync
+		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
+		, 5, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
+		, 1, "" 		//folder  0:none 1:current 2:specify 3:(reserve) 4:exe's folder
+		, 2 			//show	  0:auto 1:show 2:hide
+		, 1 			//nodraw  0:draw 1:no draw
+		, 0 			//unicode 0:ansi 2:unicode
+		;
+	##ret=result;
+	deletefile $$ini_filename;
+	if(! ##ret){
+		message("runexで失敗しました。[Python]\n"	+
+				"INIファイル中の [python] セクションの記述を確認して下さい。\n"	+
+				"多分、exeのパスが間違っているのかも・・・"
+		);
+	}
+	return ##ret;
+
+
+CreateHidemaruIniFile:
+	/*	秀丸エディタ側の情報を記述したiniファイルを生成する
+	*/
+	$$out_filename=$$1;
+	writeinistrw $$out_filename, "hidemaru", "line_string" , $g_line_string;
+	writeinistrw $$out_filename, "hidemaru", "module_dir"  , $g_module_dir;
+	writeinistrw $$out_filename, "hidemaru", "internal_dir", $g_internal_dir;
 	return true;
+
 
 LoadDengaku:
 	loaddll macrodir + "\\DengakuDLL.dll";
