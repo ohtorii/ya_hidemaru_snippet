@@ -24,14 +24,17 @@
 #g_snippets_list_width	=50;
 #g_snippets_list_height =25;
 #g_snippets_text_width	=100;
-#g_dialog_width 		=50;
-
+#g_dialog_width 		=#g_snippets_list_width;
+$g_notify_help			="99";
 
 ////////////////////////////////////////////////////////////////////////////
 //		グローバル変数(Not const)
 ////////////////////////////////////////////////////////////////////////////
 //スニペット引数の最大個数
 #g_max_args_num=0;
+
+//キーの押下判定
+#g_IsKeyDown[0]=false;
 
 
 //--------------------------------------------------------------------------
@@ -139,6 +142,20 @@ Main:
 	return $$result_string;
 
 
+Initialize:
+	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
+	$g_snippets_abs_dir = getresultex(-1);
+
+	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+	$g_current_snippet_mode=getresultex(-1);
+
+	call LoadDll;
+	if(! ##return){
+		return false;
+	}
+	return true;
+
+
 Run:
 	call GatherSnippetInfo $g_snippets_abs_dir, "";
 	if(! ##return){
@@ -177,11 +194,11 @@ MessageLoop:
 	##current_list_index	= -1;
 	
 	//固定引数を入力していないときの警告に関する変数
-	##use_warning_effect			=false;	//警告演出を行うかどうか
+	##use_warning_effect			=false; //警告演出を行うかどうか
 	##warning_effect_tick			=1000;	//警告演出を行う時間
-	##warning_effect_start_tick	=-1;	//警告演出を開始した時間
+	##warning_effect_start_tick =-1;		//警告演出を開始した時間
 	
-	
+	disablebreak;
 	while(1){
 		$$notify = "";
 		while ($$notify == "") {
@@ -211,8 +228,41 @@ MessageLoop:
 					##use_warning_effect=false;
 				}
 			}
-			
 			$$notify = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
+			
+			##ctrl =iskeydown(0x11);
+			if(##ctrl){
+				//<c-c>
+				call IskeyDown 0x43;
+				if(##return){
+					return "";
+				}
+				//<c-m> //Enter
+				call IskeyDown 0x4d;
+				if(##return){
+					$$notify="1";
+					continue;
+				}
+				/*
+				//<c-p>
+				call IskeyDown 0x50;
+				if(##return){
+					call SelectSnippet -1;
+					continue;
+				}
+				//<c-n>
+				call IskeyDown 0x4e;
+				if(##return){
+					call SelectSnippet 1;
+				}*/
+			}
+			
+			//<f1>
+			call IskeyDown 0x70 ;
+			if(##return){
+				call ShowHelp;
+				continue;
+			}
 		}
 
 		if($$notify == "0"){
@@ -227,13 +277,120 @@ MessageLoop:
 				##use_warning_effect		=true;
 				##warning_effect_start_tick=tickcount;
 			}
+		}else if($$notify==$g_notify_help){
+			//ヘルプボタン押下
+			call ShowHelp;
 		}
 	}
 	
 	call GetCommandLine ##current_list_index;
 	return $g_abs_snippets_filename[##current_list_index] + "\t" + $$return;
 
+CheckFillAllFixedArguments:
+	/*固定引数のテキストを全て入力したかどうか調べる
+	*/
+	##list_index 	= ##1;
+	##argument_num	= #g_fixed_argumet_num[##list_index];
+	
+	#g_effect_num_no_input_textbox = 0;
+	
+	//
+	//固定引数をループする
+	//
+	##frame_no=0;
+	while(##frame_no<##argument_num){
+		$$ctrl_name = sprintf("edit%d_0",##frame_no);
+		$$text 		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",$$ctrl_name);
+		if($$text==""){
+			$g_effect_no_input_textbox[#g_effect_num_no_input_textbox]=$$ctrl_name;
+			#g_effect_num_no_input_textbox = #g_effect_num_no_input_textbox + 1;
+		}
+		##frame_no = ##frame_no + 1;
+	}
+	if(#g_effect_num_no_input_textbox==0){
+		return true;
+	}
+	return false;
 
+
+GetCommandLine:
+	/* ユーザーが入力したコマンドラインを取得する
+	返値	コマンドライン文字列
+			(例) "for i < 10"
+	*/
+	##list_index			= ##1;
+	##argument_num			= #g_fixed_argumet_num[##list_index];
+	##has_variable_argument = #g_has_variable_argument[##list_index];
+	$$argument				= "";
+
+	//
+	//コマンド名の取得
+	//
+	$$argument = $g_command_name[##list_index];
+
+	//
+	//固定引数の取得
+	//
+	##frame_no=0;
+	while(##frame_no<##argument_num){
+		$$argument=$$argument+" " + dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_0",##frame_no));
+		##frame_no = ##frame_no + 1;
+	}
+
+	//
+	//可変引数の取得
+	//
+	if(##has_variable_argument){
+		if(0<##argument_num){
+			$$argument = $$argument + " ";
+		}
+		##variable_argument_frame_no = ##argument_num;
+		$$argument=$$argument+" "+dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_1",##variable_argument_frame_no));
+	}
+
+	return $$argument;
+
+
+/*****************************************************************************
+	キーの押下判定
+*****************************************************************************/
+IskeyDown:
+	if(iskeydown(##1)){
+		if(!#g_IsKeyDown[##1]){
+			//キーが押された瞬間
+			#g_IsKeyDown[##1]=true;
+			return true;
+		}
+		//キーを押している
+	}else{
+		//キーを離している
+		#g_IsKeyDown[##1]=false;
+	}
+	return false;
+
+
+SelectSnippet:
+	##delta=##1;
+	##index = val(dllfuncstr(#g_dengaku_dll,"GETCTRLSTATE",$g_list_ctrl_name));
+	##next_index=##index+##delta;
+	##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,str(##next_index));
+
+	return;
+
+
+ShowHelp:
+	message
+	"<F1>                 ヘルプの表示\n"+
+	"\n"+
+	"<Enter>,<Ctrl-m>     確定する\n"+
+	"<ESC>,<Ctrl-c>       終了する\n"
+	, "ヘルプ"
+	, 0x20;
+	return;
+//	"<Ctrl-n>,<Ctrl-p>    「次・前」のスニペットを選択する\n"+
+	
+
+//#region テキストビュアー
 ClearTextViewer:
 	##n=dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_text_ctrl_name,"");
 	return;
@@ -283,8 +440,10 @@ LoadText:
 	##ret = dllfunc(#g_ht_tools_dll,"SetUTF16ConvertString", $$text);
 	$$text=dllfuncstrw(#g_ht_tools_dll,"GetResultW");
 	return $$text;
+//#endregion
 
 
+//#region 引数エディタ
 UpdateArgumentEditor:
 	/* 引数エディタのGUIを更新する
 	*/
@@ -341,8 +500,10 @@ DisableAllFrame:
 		##frame_no = ##frame_no + 1;
 	}
 	return ;
+//#endregion
 
 
+//#region コマンドビューアー
 ClearCommandViewer:
 	/*コマンドビューアーをクリアする
 	*/
@@ -394,72 +555,7 @@ UpdateCommandViewer:
 	#n = dllfunc(#g_dengaku_dll,"SETCTRLSTRING",$g_command_ctrl_name,$$text);
 	return ;
 
-
-GetCommandLine:
-	/* ユーザーが入力したコマンドラインを取得する
-	返値	コマンドライン文字列
-			(例) "for i < 10"
-	*/
-	##list_index			= ##1;
-	##argument_num			= #g_fixed_argumet_num[##list_index];
-	##has_variable_argument = #g_has_variable_argument[##list_index];
-	$$argument				= "";
-
-	//
-	//コマンド名の取得
-	//
-	$$argument = $g_command_name[##list_index];
-
-	//
-	//固定引数の取得
-	//
-	##frame_no=0;
-	while(##frame_no<##argument_num){
-		$$argument=$$argument+" " + dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_0",##frame_no));
-		##frame_no = ##frame_no + 1;
-	}
-
-	//
-	//可変引数の取得
-	//
-	if(##has_variable_argument){
-		if(0<##argument_num){
-			$$argument = $$argument + " ";
-		}
-		##variable_argument_frame_no = ##argument_num;
-		$$argument=$$argument+" "+dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",sprintf("edit%d_1",##variable_argument_frame_no));
-	}
-
-	return $$argument;
-
-
-CheckFillAllFixedArguments:
-	/*固定引数のテキストを全て入力したかどうか調べる
-	*/
-	##list_index 	= ##1;
-	##argument_num	= #g_fixed_argumet_num[##list_index];
-	
-	#g_effect_num_no_input_textbox = 0;
-	
-	//
-	//固定引数をループする
-	//
-	##frame_no=0;
-	while(##frame_no<##argument_num){
-		$$ctrl_name = sprintf("edit%d_0",##frame_no);
-		$$text 		= dllfuncstr(#g_dengaku_dll,"GETCTRLSTRING",$$ctrl_name);
-		if($$text==""){
-			$g_effect_no_input_textbox[#g_effect_num_no_input_textbox]=$$ctrl_name;
-			#g_effect_num_no_input_textbox = #g_effect_num_no_input_textbox + 1;
-		}
-		##frame_no = ##frame_no + 1;
-	}
-	if(#g_effect_num_no_input_textbox==0){
-		return true;
-	}
-	return false;
-
-
+//#region 注意エフェクト
 UpdateWarningEffect:
 	/*警告の効果を更新する
 	
@@ -478,7 +574,7 @@ UpdateWarningEffect:
 			$$color="0"+$$color;
 		}
 		$$ctrl_name = $g_effect_no_input_textbox[##i];
-		##n = dllfunc("SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",sprintf("#FF%s%s",$$color,$$color));
+		##n = dllfunc(#g_dengaku_dll,"SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",sprintf("#FF%s%s",$$color,$$color));
 		
 		##i = ##i + 1;
 	}
@@ -492,72 +588,15 @@ ResetWarningEffect:
 	while(##i<#g_effect_num_no_input_textbox){
 		//色を元に戻す
 		$$ctrl_name = $g_effect_no_input_textbox[##i];
-		##n = dllfunc("SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",$g_effect_original_color);
+		##n = dllfunc(#g_dengaku_dll,"SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",$g_effect_original_color);
 		##i = ##i + 1;
 	}
 	#g_effect_num_no_input_textbox=0;
 	return ;
+//#endregion
 
 
-CreateDialog:
-	call CreatePageAll #g_snippets_text_width;
-	if(! ##return){
-		call FailedCreateDialog;
-		return false;
-	}
-	
-	/*何故か空白文字列が返るためコメントアウト中
-	
-	$g_effect_original_color = dllfuncstr(#g_dengaku_dll, "GETCTRLEXPROPERTY","edit0_0","bgcolor");
-	debuginfo 1;
-	debuginfo "$g_effect_original_color="+$g_effect_original_color;*/
-	
-	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	"スニペット挿入",#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
-		/*スニペット一覧*/
-		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
-		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", "", 				#g_snippets_list_height)	==0 ||
-		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH",	"", 				#g_snippets_list_width) 	==0 ||
-		/*複数行テキスト表示*/
-		dllfunc(#g_dengaku_dll,"NEWCOLUMN", 						#g_snippets_text_width) 	==0 ||
-		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"mledit",			$g_text_ctrl_name)			==0 ||
-		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", $g_text_ctrl_name,	#g_snippets_list_height)	==0 ||
-		dllfunc(#g_dengaku_dll,"ENABLECTRL",	false,				$g_text_ctrl_name)			==0 ||
-		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"text", 			$g_command_ctrl_name,"")	==0
-	){
-		call FailedCreateDialog;
-		return false;
-	}
-	call NewFrameAll;
-	if(! ##return){
-		call FailedCreateDialog;
-		return false;
-	}
-
-	##frame_no=0;
-	while(##frame_no<#g_max_args_num){
-		//引数エディタは空欄ページを表示する
-		$$frame=sprintf("frame%d",##frame_no);
-		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
-		##frame_no = ##frame_no + 1;
-	}
-
-	call MakeSnippetTree;
-	if(! ##return){
-		return false;
-	}
-
-	call SelectSnippetModeItem $g_current_snippet_mode;
-	if(! ##return){
-		//未選択状態なので最初のアイテムを選択する。
-		##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,"1");
-	}
-	if (!dllfunc(#g_dengaku_dll,"SHOWDIALOG",hidemaruhandle(0),1)){
-		message("SHOWDIALOG に失敗しました");
-		return false;
-	}
-	return true;
-
-
+//#retion スニペットの情報収集
 GatherSnippetInfo:
 	/*スニペットの情報を集める。
 	集めた情報はグロバール変数へ格納する。
@@ -622,6 +661,140 @@ GatherSnippetInfo:
 return	> 0 	追加したアイテム数
 		== -1	失敗
 */
+MakeSnippetModeNameAndIndex:
+	$$abs_path=$$1;
+	##index=##2;
+	$g_snippet_mode_names[#g_snippet_mode_num]=$$abs_path;
+	#g_snippet_mode_index[#g_snippet_mode_num]=##index;
+	#g_snippet_mode_num = #g_snippet_mode_num + 1;
+	return ;
+
+
+MakeSnippetsArgumentInfo:
+	/*スニペットの引数情報を全て作る
+
+	（入力）$g_abs_snippets_filename[]
+
+	（出力）$g_command_name[]
+			#g_fixed_argumet_num[]
+			#g_has_variable_argument[]
+	*/
+	##i=0;
+	while (##i<#g_abs_snippets_filename_len) {
+		call MakeSnippetsArgumentInfoOne ##i;
+		##i = ##i + 1;
+	}
+	return true;
+
+
+MakeSnippetsArgumentInfoOne:
+	/*スニペットの引数情報を１つ作る
+	*/
+	##index=##1;
+
+	execmacro currentmacrodirectory+"\\ya_util_parse_snippet_command.mac", $g_abs_snippets_filename[##index];
+	$$parsed=getresultex(-1);
+
+	##has_variable_argument =val(midstr($$parsed,0,1));
+	##num_argument			=val(midstr($$parsed,1,2));
+	$$command				=midstr($$parsed,3);
+	$g_command_name[##index]			=$$command;
+	#g_fixed_argumet_num[##index]		=##num_argument;
+	#g_has_variable_argument[##index]	=##has_variable_argument;
+	return;
+
+
+CalcMaxArgNum:
+	/*スニペット引数の最大個数を計算する
+	*/
+	##max_args	=0;
+	##i 		=0;
+	while (##i<#g_abs_snippets_filename_len) {
+		##n=#g_fixed_argumet_num[##i];
+		if(#g_has_variable_argument[##i]){
+			##n = ##n + 1;
+		}
+		if(##max_args<##n){
+			##max_args=##n;
+		}
+		##i = ##i + 1;
+	}
+	return ##max_args;
+//#endregion
+
+
+//#region ダイアログ作成
+CreateDialog:
+	##dialog_width=#g_snippets_list_width+#g_snippets_text_width;
+	call CreatePageAll ##dialog_width;
+	if(! ##return){
+		call FailedCreateDialog;
+		return false;
+	}
+
+	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	"スニペット挿入",#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
+		/*スニペット一覧*/
+		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", "", 				#g_snippets_list_height)	==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLWIDTH",	"", 				#g_snippets_list_width) 	==0 ||
+		/*複数行テキスト表示*/
+		dllfunc(#g_dengaku_dll,"NEWCOLUMN", 						#g_snippets_text_width) 	==0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"mledit",			$g_text_ctrl_name)			==0 ||
+		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", $g_text_ctrl_name,	#g_snippets_list_height)	==0 ||
+		dllfunc(#g_dengaku_dll,"ENABLECTRL",	false,				$g_text_ctrl_name)			==0 ||
+		dllfunc(#g_dengaku_dll,"NEWPAGE",		##dialog_width)												==0 ||
+		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"text", 			$g_command_ctrl_name,"")	==0
+	){
+		call FailedCreateDialog;
+		return false;
+	}
+	call NewFrameAll;
+	if(! ##return){
+		call FailedCreateDialog;
+		return false;
+	}
+	
+	//ヘルプボタンの作成
+	if(1){
+		if(	dllfunc(#g_dengaku_dll,"NEWCONTROL","text", "","Press F1 for help.") ==0 ){
+			call FailedCreateDialog;
+			return false;
+		}
+	}else{
+		//(memo)タブキー押下でヘルプボタンにフォーカスが移動し使いにくい
+		if( dllfunc(#g_dengaku_dll,"NEWCONTROL",	"button",	"yas@Help", "?") == 0	||
+			dllfunc(#g_dengaku_dll,"SETCTRLWIDTH", "", 		8) == 0 				||
+			dllfunc(#g_dengaku_dll,"SETCTRLNOTIFY","", 		$g_notify_help) == 0	){
+			call FailedCreateDialog;
+			return false;
+		}
+	}
+	
+	##frame_no=0;
+	while(##frame_no<#g_max_args_num){
+		//引数エディタは空欄ページを表示する
+		$$frame=sprintf("frame%d",##frame_no);
+		##n=dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$$frame,"3");
+		##frame_no = ##frame_no + 1;
+	}
+
+	call MakeSnippetTree;
+	if(! ##return){
+		return false;
+	}
+
+	call SelectSnippetModeItem $g_current_snippet_mode;
+	if(! ##return){
+		//未選択状態なので最初のアイテムを選択する。
+		##n = dllfunc(#g_dengaku_dll,"SETCTRLSTATE",$g_list_ctrl_name,"1");
+	}
+	if (!dllfunc(#g_dengaku_dll,"SHOWDIALOG",hidemaruhandle(0),1)){
+		message("SHOWDIALOG に失敗しました");
+		return false;
+	}
+	return true;
+
+
 MakeFileItems:
 	$$root_dir	= $$1;
 	$$space 	= $$2;
@@ -663,15 +836,6 @@ AppendListItem:
 	#g_abs_snippets_filename_len= #g_abs_snippets_filename_len + 1;
 	#g_list_ctrl_item_num		= #g_list_ctrl_item_num + 1;
 	return true;
-
-
-MakeSnippetModeNameAndIndex:
-	$$abs_path=$$1;
-	##index=##2;
-	$g_snippet_mode_names[#g_snippet_mode_num]=$$abs_path;
-	#g_snippet_mode_index[#g_snippet_mode_num]=##index;
-	#g_snippet_mode_num = #g_snippet_mode_num + 1;
-	return ;
 
 
 MakeSnippetTree:
@@ -783,58 +947,6 @@ NewFrameAll:
 	return true;
 
 
-MakeSnippetsArgumentInfo:
-	/*スニペットの引数情報を全て作る
-
-	（入力）$g_abs_snippets_filename[]
-
-	（出力）$g_command_name[]
-			#g_fixed_argumet_num[]
-			#g_has_variable_argument[]
-	*/
-	##i=0;
-	while (##i<#g_abs_snippets_filename_len) {
-		call MakeSnippetsArgumentInfoOne ##i;
-		##i = ##i + 1;
-	}
-	return true;
-
-
-MakeSnippetsArgumentInfoOne:
-	/*スニペットの引数情報を１つ作る
-	*/
-	##index=##1;
-
-	execmacro currentmacrodirectory+"\\ya_util_parse_snippet_command.mac", $g_abs_snippets_filename[##index];
-	$$parsed=getresultex(-1);
-
-	##has_variable_argument =val(midstr($$parsed,0,1));
-	##num_argument			=val(midstr($$parsed,1,2));
-	$$command				=midstr($$parsed,3);
-	$g_command_name[##index]			=$$command;
-	#g_fixed_argumet_num[##index]		=##num_argument;
-	#g_has_variable_argument[##index]	=##has_variable_argument;
-	return;
-
-
-CalcMaxArgNum:
-	/*スニペット引数の最大個数を計算する
-	*/
-	##max_args	=0;
-	##i 		=0;
-	while (##i<#g_abs_snippets_filename_len) {
-		##n=#g_fixed_argumet_num[##i];
-		if(#g_has_variable_argument[##i]){
-			##n = ##n + 1;
-		}
-		if(##max_args<##n){
-			##max_args=##n;
-		}
-		##i = ##i + 1;
-	}
-	return ##max_args;
-
-
 FailedCreateDialog:
 	message "ダイアログの生成に失敗しました";
 	return;
@@ -844,6 +956,13 @@ SurroundDoubleQuotation:
 	return "\"" + $$1 + "\"";
 
 
+EndDialog:
+	##n=dllfunc(#g_dengaku_dll,"ENDDIALOG");
+	return ;
+//#endregion
+
+
+//#region デバッグ
 DebugPrintSnippetModeNameAndIndex:
 	debuginfo 1;
 	debuginfo "==== DebugPrintSnippetModeNameAndIndex ====";
@@ -866,24 +985,7 @@ DebugPrintAbsSnippetsFilename:
 	return ;
 
 
-Initialize:
-	execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
-	$g_snippets_abs_dir = getresultex(-1);
-
-	execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
-	$g_current_snippet_mode=getresultex(-1);
-
-	call LoadDll;
-	if(! ##return){
-		return false;
-	}
-	return true;
-
-
-EndDialog:
-	##n=dllfunc(#g_dengaku_dll,"ENDDIALOG");
-	return ;
-
+//#region DLL
 LoadDll:
 	if(#g_dengaku_dll==0){
 		#g_dengaku_dll=loaddll(macrodir + "\\DengakuDLL.dll");
@@ -919,3 +1021,4 @@ UnloadDll:
 		#g_ht_tools_dll=0;
 	}
 	return;
+//#endregion
