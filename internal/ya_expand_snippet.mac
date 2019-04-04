@@ -53,8 +53,6 @@ $g_expand_files_ext[#g_expand_files_num]=".js";
 //$g_python_exe = "C:\\Python32\\python.exe";
 $g_python_exe 		= "python.exe";
 
-//Pythonのバージョン。"2" or "3"
-$g_python_version 	= "3";
 
 
 
@@ -233,7 +231,7 @@ ExpandSnippetFile:
 				str(##old_hidemaru_handle),	//[1]
 				$g_args_line,
 				$g_python_exe,
-				$g_python_version,
+				"",							//予約
 				$$modules_dir,
 				currentmacrodirectory,
 				$$reserve,
@@ -317,9 +315,6 @@ ParseIni:
 	
 	$$section = "python";
 	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
-	$$ver = getinistr($$ini_abs_filename,$$section,"version");
-	
 	
 	$g_python_exe		= $$exe;
-	$g_python_version	= $$ver;
 	return true;
