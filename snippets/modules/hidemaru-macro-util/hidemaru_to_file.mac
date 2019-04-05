@@ -19,35 +19,12 @@ main:
 	$$dst_filename			= $$1;
 	##edit_hidemaru_handle 	= val($$2);
 	##prev_hidemaru 		= hidemaruhandle(0);
-
-	//編集中の秀丸からテキストを全て取得する。
-	{
-		setactivehidemaru ##edit_hidemaru_handle;
-		##old_charset	= charset;
-		##old_column=column;
-		##old_lineno=lineno;
-		selectall;
-		$$text=gettext(seltopx,seltopy,selendx,selendy);
-		//全選択で変化したカーソル位置を元に戻す
-		movetolineno ##old_column+1, ##old_lineno;
+	
+	setactivehidemaru ##edit_hidemaru_handle;
+	appendsave $$dst_filename;
+	if(! result){
+		return "";
 	}
-
-	//非表示で秀丸を開き $$text を保存する。
-	{
-		openfile "/h " + $$dst_filename;
-		if(! result){
-			message("テンポラリファイルのオープンに失敗。\n" + $$dst_filename);
-			return "";
-		}
-
-		##new_hidemaru = hidemaruhandle(0);
-		setencode ##old_charset,1;
-		insert $$text;
-
-		save;
-	}
-
 	//元の秀丸に戻す
 	setactivehidemaru	##prev_hidemaru;
-	closehidemaruforced ##new_hidemaru;
 	return "1";
