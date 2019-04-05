@@ -30,11 +30,11 @@ def Main(argv):
     s=""
     index=0
     for i in range(2,n,2):
-        typen_name = argv[i]
+        type_name  = argv[i]
         value_name = argv[i+1]
         if index:
             s=s+"\n";
-        tmp="\t%s %s;" % (typen_name,value_name)
+        tmp="\t%s %s;" % (type_name,value_name)
         s=s+tmp;
         index=index+1;
     print(s)
