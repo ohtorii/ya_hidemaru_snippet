@@ -11,8 +11,9 @@ set YA_HIDEMARU_FILE=%4
 
 set COUNTER=1
 set ARGS=
+
 for %%a in (%*) do (
-    if "4" LSS "!COUNTER!" (
+    if 4 LSS !COUNTER! (
     	call :join %%a
     )
     set /a COUNTER+=1
