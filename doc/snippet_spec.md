@@ -98,7 +98,7 @@
 
 行頭から # -- までをコメントとして扱います。
 
-（例）
+	（例）
 	#contributor : foo<foo@example.com>
 	#name : foo
 	# --
