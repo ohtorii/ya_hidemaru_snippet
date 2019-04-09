@@ -86,10 +86,9 @@ ProcessBat:
 	//
 	//引数を作る
 	//
-	$$bat		=$g_internal_dir+"\\ya_expand_snippe_py.bat";
-	$$pythonpath=$g_module_dir+"\\python-util";
-
-	$$cmd = $$bat+" " + $g_python_exe + " " + $g_abs_snippet_filename + " " + $$pythonpath + " " + $$ini_filename + " " + $g_args;
+	$$cmd = "cmd.exe /c setlocal enabledelayedexpansion&&set PYTHONPATH=%PYTHONPATH%;" + 
+		    $$pythonpath + "&&set YA_HIDEMARU_FILE="+$$ini_filename + "&&" + 
+		    $g_python_exe + " " + $g_abs_snippet_filename + " " + $g_args;
 	runex $$cmd
 		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
