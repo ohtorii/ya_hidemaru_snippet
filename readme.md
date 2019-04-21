@@ -1,6 +1,10 @@
 ﻿秀丸エディタの動的スニペット (Yet Another Hidemaru Snippet)
 ========
 
+![GitHub release](https://img.shields.io/github/release/ohtorii/ya_hidemaru_snippet.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 - [これは何？](#これは何)
 - [開発の経緯](#開発の経緯)
 - [特徴](#特徴)
