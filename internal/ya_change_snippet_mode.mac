@@ -17,6 +17,8 @@ $g_snippets_abs_dir = $$return;
 $g_menu_text			= "";
 #g_menu_text_len		= 0;
 
+//田楽DLLのハンドル
+#g_dll_dengaku=0;
 
 //スニペットの絶対パス
 $g_abs_snippets_dir		="";
@@ -24,6 +26,7 @@ $g_abs_snippets_dir		="";
 
 
 call Main;
+call FreeDengaku;
 endmacro;
 
 
@@ -57,9 +60,9 @@ MakeMenuText:
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$enume_root_dir = $$return;
 	
-	##r = dllfunc("ENUMDIR",$$enume_root_dir);
+	##r = dllfunc(#g_dll_dengaku,"ENUMDIR",$$enume_root_dir);
 	while (1) {
-	    $$dir = dllfuncstr("FINDNEXT");
+	    $$dir = dllfuncstr(#g_dll_dengaku,"FINDNEXT");
 	    if ($$dir == "") break;
 	    else if ($$dir == "." || $$dir == "..") continue;
 
@@ -92,17 +95,24 @@ SurroundDoubleQuotation:
 	return "\"" + $$1 + "\"";
 	
 LoadDengaku:
-	loaddll macrodir + "\\DengakuDLL.dll";
-	if (result) {
+	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
 		return true;
 	}
-	loaddll hidemarudir + "\\DengakuDLL.dll";
-	if (result) {
+	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
 		return true;
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
 
+FreeDengaku:
+	if(#g_dll_dengaku!=0){
+		freedll #g_dll_dengaku;
+		#g_dll_dengaku=0;
+	}
+	return true;
+	
 GetShortPath:
 	$$path=$$1;
 	##obj=createobject("Scripting.FileSystemObject");

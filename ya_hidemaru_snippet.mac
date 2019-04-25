@@ -33,8 +33,8 @@ $g_args[0]	= "";
 $g_args_line="";
 $g_snippet_abs_filename="";
 
-//田楽DLLを読み込んだかどうか
-#g_dengaku_loaded=false;
+//田楽DLLのハンドル
+#g_dll_dengaku=0;
 
 
 $_g_old_searchbuffer = searchbuffer;
@@ -51,9 +51,9 @@ if(##return){
 		call Main;
 		call ClearGlovalValue;
 		setsearch $_g_old_searchbuffer, #_g_searchoption;
-		call UnLoadDengaku;
 	}
 }
+call UnLoadDengaku;
 endmacro;
 
 
@@ -169,31 +169,31 @@ TokenizeArg:
 		return false;
 	}
 	$$linetext = $$1;
-	$$linetext = dllfuncstr("LTRIM",$$linetext);
+	$$linetext = dllfuncstr(#g_dll_dengaku,"LTRIM",$$linetext);
 	$$linetext_lt = $$linetext;
-	$$linetext = dllfuncstr("RTRIM",$$linetext);
+	$$linetext = dllfuncstr(#g_dll_dengaku,"RTRIM",$$linetext);
 	if($$linetext==""){
 		return false;
 	}
 
 	#g_args_num=0;
 	$$tok = " ";
-	$$token = dllfuncstr("GETTOKEN",$$linetext,$$tok);
-	$$token = dllfuncstr("RTRIM",$$token);
-	$$token = dllfuncstr("LTRIM",$$token);
+	$$token = dllfuncstr(#g_dll_dengaku,"GETTOKEN",$$linetext,$$tok);
+	$$token = dllfuncstr(#g_dll_dengaku,"RTRIM",$$token);
+	$$token = dllfuncstr(#g_dll_dengaku,"LTRIM",$$token);
 	if(""!=$$token)
 	{
 		$g_args[#g_args_num]=$$token;
 		#g_args_num=1;
 	}
 	while (1) {
-	    if (dllfunc("HASMORETOKENS") == 0) {
+	    if (dllfunc(#g_dll_dengaku,"HASMORETOKENS") == 0) {
 			break;
 		}
 
-	    $$token = dllfuncstr("GETTOKEN","",$$tok);
-	    $$token = dllfuncstr("RTRIM",$$token);
-		$$token = dllfuncstr("LTRIM",$$token);
+	    $$token = dllfuncstr(#g_dll_dengaku,"GETTOKEN","",$$tok);
+	    $$token = dllfuncstr(#g_dll_dengaku,"RTRIM",$$token);
+		$$token = dllfuncstr(#g_dll_dengaku,"LTRIM",$$token);
 		if(""!=$$token)
 		{
 			$g_args[#g_args_num]=$$token;
@@ -204,7 +204,7 @@ TokenizeArg:
 		return false;
 	}
 	$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
-	$g_args_line = dllfuncstr("LTRIM",$g_args_line);
+	$g_args_line = dllfuncstr(#g_dll_dengaku,"LTRIM",$g_args_line);
 	return true;
 
 
@@ -244,26 +244,24 @@ ClearGlovalValue:
 	return ;
 
 LoadDengaku:
-	if(#g_dengaku_loaded){
-		//return true;
-	}
-	loaddll macrodir + "\\DengakuDLL.dll";
-	if (result) {
-		#g_dengaku_loaded=true;
+	if(#g_dll_dengaku){
 		return true;
 	}
-	loaddll hidemarudir + "\\DengakuDLL.dll";
-	if (result) {
-		#g_dengaku_loaded=true;
+	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
+		return true;
+	}
+	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
 		return true;
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
 
 UnLoadDengaku:
-	if(#g_dengaku_loaded){
-		freedll;
-		#g_dengaku_loaded=false;
+	if(#g_dll_dengaku){
+		freedll #g_dll_dengaku;
+		#g_dll_dengaku=0;
 	}
 	return;
 	

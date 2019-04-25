@@ -5,6 +5,8 @@ return	スニペットファイルの絶対パス
 		(例) "c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
 */
 
+//田楽DLLのハンドル
+#g_dll_dengaku=0;
 
 $g_file_attr_arg	= ".%";
 $g_file_attr_varg	= "._";
@@ -38,6 +40,16 @@ call main getarg(0),val(getarg(1)), getarg(2);
 endmacro $$return;
 
 main:
+	call LoadDengaku;
+	if(! ##return){
+		return false;
+	}
+	call start $$1,##2,$$3;
+	$$ret=$$return;
+	call FreeDengaku;
+	return $$ret;
+	
+start:
 	$$cmd=$$1;
 	##num=##2;
 	$$abs_snippets_dir=$$3;
@@ -144,14 +156,14 @@ EnumeSnippetFileNames:
 	$$pattern 			= $$abs_snippets_dir + $$cmd + "*.*";
 
 	#g_snippet_file_num=0;
-	##r = dllfunc("ENUMFILE",$$pattern);
+	##r = dllfunc(#g_dll_dengaku,"ENUMFILE",$$pattern);
 	if(! ##r){
 		return false;
 	}
 
 	##count = 1000;
 	while (##count) {
-		$$file = dllfuncstr("FINDNEXT");
+		$$file = dllfuncstr(#g_dll_dengaku,"FINDNEXT");
 		if ($$file == "") {
 			break
 		}
@@ -227,3 +239,23 @@ GetParentFolderName:
 	releaseobject ##obj;
 	return $$result;
 
+
+LoadDengaku:
+	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
+		return true;
+	}
+	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
+		return true;
+	}
+	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
+	return false;
+
+FreeDengaku:
+	if(#g_dll_dengaku!=0){
+		freedll #g_dll_dengaku;
+		#g_dll_dengaku=0;
+	}
+	return true;
+	

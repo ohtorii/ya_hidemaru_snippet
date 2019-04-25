@@ -28,6 +28,9 @@ $g_python_exe 		= "python.exe";
 //		内部処理
 ////////////////////////////////////////////////////////////////////////////
 
+//田楽DLLのハンドル
+#g_dll_dengaku=0;
+
 //スニペットファイルの絶対パス
 $g_abs_snippet_filename	= "";
 $g_line_string			= "";
@@ -59,13 +62,15 @@ main:
 		$$str 	= getarg(#g_args_index_start + ##i);
 
 		// " -> \"
-		$$str 	= dllfuncstr("GSUB",$$str,"\"","\\\"",-1);
+		$$str 	= dllfuncstr(#g_dll_dengaku,"GSUB",$$str,"\"","\\\"",-1);
 		$g_args = $g_args + "\"" + $$str + "\" ";
 		##i=##i+1;
 	}
 
 	call ProcessBat;
-	return ##return;
+	##ret=##return;
+	call FreeDengaku;
+	return ##ret;
 
 
 ProcessBat:
@@ -121,13 +126,24 @@ CreateHidemaruIniFile:
 
 
 LoadDengaku:
-	loaddll macrodir + "\\DengakuDLL.dll";
-	if (result) {
+	if(#g_dll_dengaku!=0){
 		return true;
 	}
-	loaddll hidemarudir + "\\DengakuDLL.dll";
-	if (result) {
+	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
+		return true;
+	}
+	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+	if (#g_dll_dengaku!=0) {
 		return true;
 	}
 	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
 	return false;
+
+FreeDengaku:
+	if(#g_dll_dengaku!=0){
+		freedll #g_dll_dengaku;
+		#g_dll_dengaku=0;
+	}
+	return true;
+	
