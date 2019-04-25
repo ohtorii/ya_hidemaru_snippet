@@ -87,7 +87,7 @@ ProcessBat:
 		deletefile $$ini_filename;
 		return false;
 	}
-
+	$$pythonpath=$g_module_dir+"\\python-util";
 	//
 	//引数を作る
 	//
