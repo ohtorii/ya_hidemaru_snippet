@@ -830,7 +830,11 @@ AppendListItem:
 	}else{
 		$g_abs_snippets_filename[#g_abs_snippets_filename_len]	= $$abs_filename;
 	}
-	$$listctrl_item_name=$$space+$$rel_filename;
+	if(##is_folder){
+		$$listctrl_item_name=$$space+$$rel_filename;
+	}else{
+		$$listctrl_item_name=$$space+dllfuncstr(#g_ht_tools_dll,"GetFileBaseName", $$rel_filename);
+	}
 	$g_snippets_list_item[#g_abs_snippets_filename_len]=$$listctrl_item_name;
 
 	#g_abs_snippets_filename_len= #g_abs_snippets_filename_len + 1;
