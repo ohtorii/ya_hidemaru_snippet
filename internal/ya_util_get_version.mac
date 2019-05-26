@@ -1,0 +1,37 @@
+﻿#g_ht_tools_dll=0;
+
+call Main;
+endmacro $$return;
+
+
+Main:
+	call LoadDll;
+	if(! ##return){
+		return "";
+	}
+
+	$$filename		= currentmacrodirectory+"\\..\\version.txt";
+	##file_size		= dllfunc(#g_ht_tools_dll	, "GetFileSizeByte" , $$filename);
+	##file_handle	= dllfunc(#g_ht_tools_dll	, "FileOpen"		, $$filename 	, "r");
+	$$text			= dllfuncstr(#g_ht_tools_dll, "RdFileByte"		, ##file_handle	, ##file_size);
+	##dummy			= dllfunc(#g_ht_tools_dll	, "FileClose"		, ##file_handle);
+	return $$text;
+
+
+LoadDll:
+	if(#g_ht_tools_dll!=0){
+		return true;
+	}
+	
+	#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
+	if (#g_ht_tools_dll!=0) {
+		return true;
+	}
+	
+	#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
+	if (#g_ht_tools_dll!=0) {
+		return true;
+	}
+	
+	message "ht_tool.dllのロードに失敗しました\n" + "ht_tool.dllが秀丸のディレクトリに存在するか確認してください";
+	return false;

@@ -731,8 +731,11 @@ CreateDialog:
 		call FailedCreateDialog;
 		return false;
 	}
-
-	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	"スニペット挿入",#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
+	
+	execmacro currentmacrodirectory+"\\ya_util_get_version.mac";
+	$$version=getresultex(-1);
+	
+	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	sprintf("スニペット挿入[version %s]",$$version),#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
 		/*スニペット一覧*/
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
 		dllfunc(#g_dengaku_dll,"SETCTRLHEIGHT", "", 				#g_snippets_list_height)	==0 ||
