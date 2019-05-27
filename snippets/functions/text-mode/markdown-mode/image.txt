@@ -1,9 +1,9 @@
-﻿#Description:linkのスニペット
+﻿#Description:imageのスニペット
 #
 #   #before
 #   image
 #
 #   #after
-#   [|Title](https://)
+#   ![|代替テキスト](foo.jpg "画像タイトル")
 # --
 ![%|代替テキスト](foo.jpg "画像タイトル")
