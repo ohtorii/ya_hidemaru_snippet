@@ -17,7 +17,7 @@ table
 #after
 |header1|
 |:--:|
-|a1|
+||
 
 =========
 Example1
@@ -37,8 +37,8 @@ table 3 2
 
 header1|header2|header3|
 |:--:|:--:|:--:|
-|a1|a2|a3|
-|b1|b2|b3|
+||||
+||||
 """
 import sys
 
@@ -58,17 +58,15 @@ def MakeDefaultTable():
     print(\
     "|%|header1|\n"
     "|:--:|\n"
-    "|a1|\n")
+    "||\n")
 
 def MakeHeaderOnlyTable(column_num):
     column_num=Clip(column_num)
     header=[]
     align=[]
-    #row0=[]
     for column in range(1,1+column_num):
         header.append("|header%d"%column)
         align.append("|:--:")
-    #   row0.append("a%d"%column)
 
     #close tail.
     header.append("|")
@@ -87,15 +85,10 @@ def MakeTable(column_num,row_num):
     MakeHeaderOnlyTable(column_num)
     sys.stdout.write("\n")
 
-    char_a=ord('a')
     row_list=[]
     for row in range(row_num):
         for column in range(1,column_num+1):
-            row_list.append("|%s%d"%(chr(char_a),column))
-
-        char_a=char_a+1
-        if ord('z')<char_a:
-            char_a=ord('a')
+            row_list.append("|")
 
         #close tail.
         row_list.append("|")

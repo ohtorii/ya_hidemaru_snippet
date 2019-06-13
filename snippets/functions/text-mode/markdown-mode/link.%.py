@@ -2,13 +2,12 @@
 """
 # [1/2] Before
 link https://www.google.com
-
 # [1/2] After
 [|Title](https://www.google.com)
 
+
 # [2/2] Before
 link google
-
 # [1/2] After
 [google](https://|)
 

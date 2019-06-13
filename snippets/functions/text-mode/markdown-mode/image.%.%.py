@@ -1,19 +1,15 @@
 ﻿# -*- coding: utf-8 -*-
 """
-# [1/2] Before
-image foo.jpg
-# [1/2] After
-![|代替テキスト](foo.jpg "画像タイトル")
+# Before
+image foo.jpg 代替テキスト
+image 代替テキスト foo.jpg
 
-
-# [2/2] Before
-image 花の画像
-# [2/2] After
-![花の画像](|foo.jpg "花の画像")
-
+# After
+![代替テキスト](foo.jpg "|画像タイトル")
 """
 import sys,os
 import ya_hidemaru_snippet
+
 
 def image_file(ext):
     import image_extensions
@@ -22,14 +18,16 @@ def image_file(ext):
 def main(argv):
     import_path=os.path.normpath(ya_hidemaru_snippet.module_dir()+"\\markdown\\image\\")
     sys.path.append(import_path)
-    
-    first=argv[1]
+
+    first   =argv[1]
+    second  =argv[2]
+
     other,ext=os.path.splitext(first)
     if image_file(ext):
-        sys.stdout.write('![%%|代替テキスト](%s "画像タイトル")' % first)
+        sys.stdout.write('![%s](%s "%%|画像タイトル")' % (second,first))
         return ;
-    
-    sys.stdout.write('![%s](%%|foo.jpg "%s")' % (first,first))
+
+    sys.stdout.write('![%s](%s "%%|画像タイトル")' % (first,second))
 
 
 if __name__ == "__main__":
