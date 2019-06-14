@@ -55,10 +55,10 @@ def ToInt(s):
     return 1
 
 def MakeDefaultTable():
-    print(\
+    sys.stdout.write(\
     "|%|header1|\n"
     "|:--:|\n"
-    "||\n")
+    "||")
 
 def MakeHeaderOnlyTable(column_num):
     column_num=Clip(column_num)
@@ -75,7 +75,8 @@ def MakeHeaderOnlyTable(column_num):
     #"|header1|" -> "|%|header1|"
     header[0]="|%|"+header[0][1:]
 
-    print("".join(header))
+    sys.stdout.write("".join(header))
+    sys.stdout.write("\n")
     sys.stdout.write("".join(align))
 
 def MakeTable(column_num,row_num):
@@ -83,8 +84,7 @@ def MakeTable(column_num,row_num):
     row_num=Clip(row_num)
 
     MakeHeaderOnlyTable(column_num)
-    sys.stdout.write("\n")
-
+    
     row_list=[]
     for row in range(row_num):
         for column in range(1,column_num+1):
@@ -92,8 +92,12 @@ def MakeTable(column_num,row_num):
 
         #close tail.
         row_list.append("|")
-
-        print("".join(row_list))
+        
+        sys.stdout.write("\n")
+        sys.stdout.write("".join(row_list))
+        
+        
+        #sys.stdout.write("\n")
         row_list.clear()
 
 

@@ -11,7 +11,7 @@ link google https://www.google.com
 import sys
 
 def insert(title,link):
-    print("[%s](%s)%%|"%(title,link))
+    sys.stdout.write("[%s](%s)%%|"%(title,link))
 
 def main(argv):
     first=argv[1]

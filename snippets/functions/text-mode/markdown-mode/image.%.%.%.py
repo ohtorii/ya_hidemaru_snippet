@@ -26,20 +26,20 @@ def main(argv):
 
     other,ext=os.path.splitext(first)
     if image_file(ext):
-        sys.stdout.write('![%s](%s "%s")' % (second,first,third))
+        sys.stdout.write('![%s](%s "%s")%%|' % (second,first,third))
         return ;
 
     other,ext=os.path.splitext(second)
     if image_file(ext):
-        sys.stdout.write('![%s](%s "%s")' % (first,second,third))
+        sys.stdout.write('![%s](%s "%s")%%|' % (first,second,third))
         return ;
 
     other,ext=os.path.splitext(third)
     if image_file(ext):
-        sys.stdout.write('![%s](%s "%s")' % (first,third,second))
+        sys.stdout.write('![%s](%s "%s")%%|' % (first,third,second))
         return ;
 
-    sys.stdout.write('![%s](%s "%s")' % (first,second,third))
+    sys.stdout.write('![%s](%s "%s")%%|' % (first,second,third))
 
 
 if __name__ == "__main__":

@@ -65,7 +65,21 @@
 
 ## スクリーンショット(MarkDown)
 
-![markdown snippet](doc/image/markdown.gif "markdown snippet")
+### toc
+
+![markdown snippet](doc/image/markdown_toc.gif "markdown snippet")
+
+### table
+
+![markdown snippet](doc/image/markdown_table.gif "markdown snippet")
+
+### image
+
+![markdown snippet](doc/image/markdown_image.gif "markdown snippet")
+
+### link
+
+![markdown snippet](doc/image/markdown_link.gif "markdown snippet")
 
 |コマンド|動作|
 |:--:|:--:|
@@ -73,6 +87,11 @@
 |table	|テーブルの挿入|
 |image	|imageのテンプレートを挿入|
 |link	|linkのテンプレートを挿入|
+
+### 補足
+
+imageとlinkは引数の並び順を覚えなくても使えるようにしました。（[scrapbox](https://scrapbox.io)の表記を参考にしました）
+
 
 ## スクリーンショット(Hidemaru macro)
 

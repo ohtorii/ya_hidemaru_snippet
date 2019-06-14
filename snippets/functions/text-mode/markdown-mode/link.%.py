@@ -17,9 +17,9 @@ import sys
 def main(argv):
     first=argv[1]
     if "://" in first:
-        print("[%%|Title](%s)"%first)
+        sys.stdout.write("[%%|Title](%s)"%first)
     else:
-        print("[%s](https://%%|)"%first)
+        sys.stdout.write("[%s](https://%%|)"%first)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
