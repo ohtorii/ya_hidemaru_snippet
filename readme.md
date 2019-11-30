@@ -240,14 +240,21 @@ masterブランチを取得しても多分動作しないです。<br>
 |revision|バグ修正のように機能そのものに変化が無い軽微な更新を表します|
 
 
+# 謝辞
+
+- [TextMate](https://macromates.com/) スニペット書式をかなり参考にしました。
+- [emacs yasnippet](http://code.google.com/p/yasnippet/)
+- [YASnippet Hidemarized](https://github.com/mobitan/yas/)
+
 # 連絡先
 
 <https://ohtorii.hatenadiary.jp> <br>
 <https://twitter.com/ohtorii> <br>
 <https://github.com/ohtorii>
 
-# 謝辞
+# 寄付
 
-- [TextMate](https://macromates.com/) スニペット書式をかなり参考にしました。
-- [emacs yasnippet](http://code.google.com/p/yasnippet/)
-- [YASnippet Hidemarized](https://github.com/mobitan/yas/)
+もし気に入ってくれたらSteamからゲームを寄付してくれるとうれしいです😘
+- https://store.steampowered.com/wishlist/id/ohtorii
+
+開発の励みになります。
