@@ -188,16 +188,16 @@ MessageLoop:
 	//(memo)リストコントロールで上下キーを押し続けたときに適度な間隔でファイル内容を更新する。
 	##interval_tick 		= 150;
 	##prev_tick 			= 0;
-	
+
 	//リストの選択アイテムに関する変数
 	##prev_select_item		= -1;
 	##current_list_index	= -1;
-	
+
 	//固定引数を入力していないときの警告に関する変数
 	##use_warning_effect			=false; //警告演出を行うかどうか
 	##warning_effect_tick			=1000;	//警告演出を行う時間
 	##warning_effect_start_tick =-1;		//警告演出を開始した時間
-	
+
 	disablebreak;
 	while(1){
 		$$notify = "";
@@ -229,7 +229,7 @@ MessageLoop:
 				}
 			}
 			$$notify = dllfuncstr(#g_dengaku_dll,"WAITCTRLNOTIFY",10);
-			
+
 			##ctrl =iskeydown(0x11);
 			if(##ctrl){
 				//<c-c>
@@ -256,7 +256,7 @@ MessageLoop:
 					call SelectSnippet 1;
 				}*/
 			}
-			
+
 			//<f1>
 			call IskeyDown 0x70 ;
 			if(##return){
@@ -282,7 +282,7 @@ MessageLoop:
 			call ShowHelp;
 		}
 	}
-	
+
 	call GetCommandLine ##current_list_index;
 	return $g_abs_snippets_filename[##current_list_index] + "\t" + $$return;
 
@@ -291,9 +291,9 @@ CheckFillAllFixedArguments:
 	*/
 	##list_index 	= ##1;
 	##argument_num	= #g_fixed_argumet_num[##list_index];
-	
+
 	#g_effect_num_no_input_textbox = 0;
-	
+
 	//
 	//固定引数をループする
 	//
@@ -388,7 +388,7 @@ ShowHelp:
 	, 0x20;
 	return;
 //	"<Ctrl-n>,<Ctrl-p>    「次・前」のスニペットを選択する\n"+
-	
+
 
 //#region テキストビュアー
 ClearTextViewer:
@@ -558,14 +558,14 @@ UpdateCommandViewer:
 //#region 注意エフェクト
 UpdateWarningEffect:
 	/*警告の効果を更新する
-	
+
 	ユーザーに未入力の固定引数を分かりやすく伝えるのが目的です。
 	*/
 	##current_tick	= ##1;
-	
+
 	##brightness	= 64;	//少し明るい色にする
 	##rate			= ##brightness + (##current_tick % (256-##brightness));
-	
+
 	##i=0;
 	while(##i<#g_effect_num_no_input_textbox){
 		//色を変える
@@ -575,7 +575,7 @@ UpdateWarningEffect:
 		}
 		$$ctrl_name = $g_effect_no_input_textbox[##i];
 		##n = dllfunc(#g_dengaku_dll,"SETCTRLEXPROPERTY",$$ctrl_name,"bgcolor",sprintf("#FF%s%s",$$color,$$color));
-		
+
 		##i = ##i + 1;
 	}
 	return ;
@@ -583,7 +583,7 @@ UpdateWarningEffect:
 
 ResetWarningEffect:
 	/*警告の効果を初期状態に戻す*/
-	
+
 	##i=0;
 	while(##i<#g_effect_num_no_input_textbox){
 		//色を元に戻す
@@ -731,10 +731,10 @@ CreateDialog:
 		call FailedCreateDialog;
 		return false;
 	}
-	
+
 	execmacro currentmacrodirectory+"\\ya_util_get_version.mac";
 	$$version=getresultex(-1);
-	
+
 	if( dllfunc(#g_dengaku_dll,"NEWDIALOG", 	sprintf("スニペット挿入[version %s]",$$version),#g_dialog_width,"0 0 center 'ＭＳ ゴシック'")	== 0 ||
 		/*スニペット一覧*/
 		dllfunc(#g_dengaku_dll,"NEWCONTROL",	"list", 			$g_list_ctrl_name,"")		==0 ||
@@ -756,7 +756,7 @@ CreateDialog:
 		call FailedCreateDialog;
 		return false;
 	}
-	
+
 	//ヘルプボタンの作成
 	if(1){
 		if(	dllfunc(#g_dengaku_dll,"NEWCONTROL","text", "","Press F1 for help.") ==0 ){
@@ -772,7 +772,7 @@ CreateDialog:
 			return false;
 		}
 	}
-	
+
 	##frame_no=0;
 	while(##frame_no<#g_max_args_num){
 		//引数エディタは空欄ページを表示する
@@ -995,13 +995,10 @@ DebugPrintAbsSnippetsFilename:
 //#region DLL
 LoadDll:
 	if(#g_dengaku_dll==0){
-		#g_dengaku_dll=loaddll(macrodir + "\\DengakuDLL.dll");
-		if (#g_dengaku_dll==0) {
-			#g_dengaku_dll=loaddll(hidemarudir + "\\DengakuDLL.dll");
-			if (#g_dengaku_dll==0) {
-				message "田楽DLLのロードに失敗しました\nDengakuDLL.dllが秀丸のディレクトリに存在するか確認してください";
-				return false;
-			}
+		execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
+		#g_dengaku_dll=val(getresultex(-1));
+		if(#g_dengaku_dll==0){
+			return false;
 		}
 	}
 

@@ -154,11 +154,11 @@ Candidate:
 	if(##tab_index <= 0){
 		return false;
 	}
-	
+
 	$g_snippet_abs_filename=midstr($$result_string,0,##tab_index);
 	call GetDirectoryName $g_snippet_abs_filename;
 	$g_snippet_abs_filename=$$return;
-	
+
 	call TokenizeArg midstr($$result_string,##tab_index);
 	return ##return;
 
@@ -247,16 +247,13 @@ LoadDengaku:
 	if(#g_dll_dengaku){
 		return true;
 	}
-	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
-		return true;
+	execmacro currentmacrodirectory+"\\internal\\ya_util_load_dengaku_dll.mac";
+	#g_dll_dengaku=val(getresultex(-1));
+	if(#g_dll_dengaku==0){
+		return false;
 	}
-	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
-		return true;
-	}
-	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
-	return false;
+	return true;
+
 
 UnLoadDengaku:
 	if(#g_dll_dengaku){
@@ -264,4 +261,3 @@ UnLoadDengaku:
 		#g_dll_dengaku=0;
 	}
 	return;
-	

@@ -40,12 +40,12 @@ Main:
 	if(! ##return){
 		return false;
 	}
-	
+
 	menuarray $g_menu_text,#g_menu_text_len;
 	if(0==result){
 		return false;
 	}
-	
+
 	$$path_name = $g_abs_snippets_dir[result-1];
 	execmacro currentmacrodirectory+"\\ya_set_snippet_mode.mac", $$path_name;
 	return true;
@@ -56,32 +56,32 @@ MakeMenuText:
 	$$space 		= $$2;
 	$$sub_dir		= "";
 	##sub_dir_len 	= 0;
-	
+
 	call SurroundDoubleQuotation $$root_dir + "\\*.*";
 	$$enume_root_dir = $$return;
-	
+
 	##r = dllfunc(#g_dll_dengaku,"ENUMDIR",$$enume_root_dir);
 	while (1) {
 	    $$dir = dllfuncstr(#g_dll_dengaku,"FINDNEXT");
 	    if ($$dir == "") break;
 	    else if ($$dir == "." || $$dir == "..") continue;
 
-		
+
 		$$sub_dir[##sub_dir_len] = $$dir;
 		##sub_dir_len = ##sub_dir_len + 1;
 	}
-	
+
 	/*$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$root_dir;
 	#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;*/
-		
+
 	##index = 0;
 	while (##index < ##sub_dir_len){
 		$$current_sub_dir	= $$sub_dir[##index];
 		$$abs_path 			= $$root_dir + "\\" + $$current_sub_dir;
-		
+
 		$g_menu_text[#g_menu_text_len]	= $$space + $$current_sub_dir;
 		#g_menu_text_len 				= #g_menu_text_len + 1;
-		
+
 		$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$abs_path;
 		#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;
 
@@ -93,18 +93,20 @@ MakeMenuText:
 
 SurroundDoubleQuotation:
 	return "\"" + $$1 + "\"";
-	
+
+
 LoadDengaku:
-	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
+	if(#g_dll_dengaku){
 		return true;
 	}
-	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
-		return true;
+	execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
+	#g_dll_dengaku=val(getresultex(-1));
+	if(#g_dll_dengaku==0){
+		return false;
 	}
-	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
-	return false;
+	return true;
+
+
 
 FreeDengaku:
 	if(#g_dll_dengaku!=0){
@@ -112,7 +114,7 @@ FreeDengaku:
 		#g_dll_dengaku=0;
 	}
 	return true;
-	
+
 GetShortPath:
 	$$path=$$1;
 	##obj=createobject("Scripting.FileSystemObject");

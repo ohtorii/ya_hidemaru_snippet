@@ -1,0 +1,29 @@
+﻿/*田楽DLLをロードする
+*/
+
+#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+if (#g_dll_dengaku!=0) {
+	endmacro str(#g_dll_dengaku);
+}
+#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+endmacro str(#g_dll_dengaku);
+
+
+if(false){
+	if(platform & 0x00080000){
+		$dir="dengaku_x64";
+	}else{
+		$dir="dengaku_x86";
+	}
+
+	$dll_path=currentmacrodirectory+"\\3rd-party\\"+$dir+"\\DengakuDLL.dll";
+	#dll=loaddll($dll_path);
+	if(#dll==0){
+		message "田楽DLLの読み込みに失敗しました。\n"	+
+				"DLLが以下のファイルパスに存在するか確認してください\n"	+
+				"\n"	+
+				"(DLLのファイルパス)\n"	+
+				$dll_path;
+	}
+	endmacro str(#dll);
+}

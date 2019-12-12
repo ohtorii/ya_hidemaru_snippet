@@ -48,12 +48,12 @@ main:
 	$$ret=$$return;
 	call FreeDengaku;
 	return $$ret;
-	
+
 start:
 	$$cmd=$$1;
 	##num=##2;
 	$$abs_snippets_dir=$$3;
-	
+
 	if($$abs_snippets_dir==""){
 		execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
 		$$abs_snippets_dir = getresultex(-1);
@@ -85,7 +85,7 @@ FindSnippetFile:
 	$$abs_snippets_dir=$$1;
 	$$cmd=$$2;
 	##num=##3;
-	
+
 	//
 	//$$cmd にマッチするファイルを列挙する。
 	//
@@ -241,16 +241,16 @@ GetParentFolderName:
 
 
 LoadDengaku:
-	#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
+	if(#g_dll_dengaku){
 		return true;
 	}
-	#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
-	if (#g_dll_dengaku!=0) {
-		return true;
+	execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
+	#g_dll_dengaku=val(getresultex(-1));
+	if(#g_dll_dengaku==0){
+		return false;
 	}
-	message "田楽DLLのロードに失敗しました\n" + "DengakuDLL.dllが秀丸マクロディレクトリに存在するか確認してください";
-	return false;
+	return true;
+
 
 FreeDengaku:
 	if(#g_dll_dengaku!=0){
@@ -258,4 +258,3 @@ FreeDengaku:
 		#g_dll_dengaku=0;
 	}
 	return true;
-	
