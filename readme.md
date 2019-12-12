@@ -36,10 +36,12 @@
 - [動的なスニペット]　秀丸マクロ・Python・VBScript・JavaScript・WindowsBatch
 - [静的なスニペット]　テキストファイル
 
-の両方を使用できます。<br>
+の両方を使用できます。
+
 従来の静的スニペットに加えて「可変個の入力・テキストを書いている状況」に応じた**動的スニペット**を利用できます。
 
-論より証拠、<br>
+論より証拠、
+
 「動的スニペット・静的スニペット」の動作を以下スクリーンショットでご確認下さい。
 
 # スクリーンショット
@@ -128,7 +130,8 @@ imageとlinkは引数の並び順を覚えなくても使えるようにしま�
 空行でマクロを実行するとスニペット挿入GUIが起動します。
 
 ![スニペット挿入GUI](doc/image/gui.gif "スニペット挿入GUI")
-スニペットを選んでから引数を入力すると秀丸エディタへスニペットを挿入できます。<br>
+スニペットを選んでから引数を入力すると秀丸エディタへスニペットを挿入できます。
+
 このマクロを使い始めたとき「どんなスニペットがあるのか分からず途方に暮れる」という問題を解決するために用意しました。
 
 # マクロの思想
@@ -170,6 +173,7 @@ VisualStudioのスニペット定義を可能な範囲で移植しています�
 # マクロの導入方法
 
 まずは、動作確認を行った安定バージョンをダウンロードして下さい。
+
 https://github.com/ohtorii/ya_hidemaru_snippet/releases
 
 masterブランチを取得しても多分動作しないです。（動作確認を行っていないため）
@@ -191,7 +195,7 @@ masterブランチを取得しても多分動作しないです。（動作確�
 
 ## ショートカットキー割り当て
 
-`ya_hidemaru_snippet.mac` をショートカットキーに割り当てて下さい。<br>
+`ya_hidemaru_snippet.mac` をショートカットキーに割り当てて下さい。
 
 ### 割り当ての例
 
@@ -200,6 +204,23 @@ masterブランチを取得しても多分動作しないです。（動作確�
 
 ちなみに、私はCtrl-Enterに割り当てています。（なんか、えいやー という感じなので）
 
+
+## 依存DLLのインストール
+
+本マクロを動かすには以下のDLLが必要です、それぞれダウンロードして導入してください。
+
+- [田楽DLL 32bit](http://www.ceres.dti.ne.jp/~sugiura/hidemaru/macros/dgserver/#download64)
+- [田楽DLL 64bit](http://htom.in.coocan.jp/macro/macro_dll.html#label-5)
+- [ht_tools 32/64bit](http://htom.in.coocan.jp/macro/macro_dll.html)
+
+上記のリンク先は2019年12月12日現在のものです。
+
+###  DLLの説明
+
+|種類|説明|
+|--|--|
+|田楽DLL|GUI表示などを行うDLLです|
+|ht_tools.dll|文字列の操作を行うDLLです|
 
 ## 動作のカスタマイズ
 
@@ -213,18 +234,21 @@ masterブランチを取得しても多分動作しないです。（動作確�
 # 動作環境
 
 - 秀丸エディタ ver8以降
-- でんがくDLL (http://www.ceres.dti.ne.jp/~sugiura/)
+- 田楽DLL
 - ht_tools.dll (http://htom.in.coocan.jp/)
 
 それぞれ最新版をご利用下さい。
 
+
 # ダウンロード
 
-こちらから動作確認済みのパッケージをダウンロードして下さい。<br>
+こちらから動作確認済みのパッケージをダウンロードして下さい。
+
 https://github.com/ohtorii/ya_hidemaru_snippet/releases
 
 ### 注意
-masterブランチを取得しても多分動作しないです。<br>
+masterブランチを取得しても多分動作しないです。
+
 ブランチを作らずに気楽に開発してます。（仕事じゃないしね😉）
 
 ### バージョン番号のルール
@@ -246,11 +270,17 @@ masterブランチを取得しても多分動作しないです。<br>
 - [emacs yasnippet](http://code.google.com/p/yasnippet/)
 - [YASnippet Hidemarized](https://github.com/mobitan/yas/)
 
+## 作者に感謝
+
+- [田楽DLL 32bit](http://www.ceres.dti.ne.jp/~sugiura/hidemaru/macros/dgserver/#download64)
+- [田楽DLL 64bit](http://htom.in.coocan.jp/macro/macro_dll.html#label-5)
+- [ht_tools 32/64bit](http://htom.in.coocan.jp/macro/macro_dll.html)
+
 # 連絡先
 
-<https://ohtorii.hatenadiary.jp> <br>
-<https://twitter.com/ohtorii> <br>
-<https://github.com/ohtorii>
+- <https://ohtorii.hatenadiary.jp> 
+- <https://twitter.com/ohtorii> 
+- <https://github.com/ohtorii>
 
 # 寄付
 
