@@ -22,16 +22,9 @@ LoadDll:
 	if(#g_ht_tools_dll!=0){
 		return true;
 	}
-	
-	#g_ht_tools_dll = loaddll(macrodir + "\\ht_tools.dll");
+	execmacro currentmacrodirectory+"\\ya_util_load_ht_tools_dll.mac";
+	#g_ht_tools_dll=val(getresultex(-1));
 	if (#g_ht_tools_dll!=0) {
 		return true;
 	}
-	
-	#g_ht_tools_dll = loaddll(hidemarudir + "\\ht_tools.dll");
-	if (#g_ht_tools_dll!=0) {
-		return true;
-	}
-	
-	message "ht_tool.dllのロードに失敗しました\n" + "ht_tool.dllが秀丸のディレクトリに存在するか確認してください";
 	return false;

@@ -1,18 +1,17 @@
-﻿/*田楽DLLをロードする
+﻿/*ht_tools.dllをロードする
 */
 
-#g_dll_dengaku=loaddll(macrodir + "\\DengakuDLL.dll");
+#g_dll_dengaku=loaddll(macrodir + "\\ht_tools.dll");
 if (#g_dll_dengaku!=0) {
 	endmacro str(#g_dll_dengaku);
 }
-#g_dll_dengaku=loaddll(hidemarudir + "\\DengakuDLL.dll");
+#g_dll_dengaku=loaddll(hidemarudir + "\\ht_tools.dll");
 if(#g_dll_dengaku==0){
 	message
-		"田楽DLLの読み込みに失敗しました。\n"	+
+		"ht_tool.dllの読み込みに失敗しました。\n"	+
 		"以下のファイルパスにDLLが存在するか確認してください\n"	+
 		"\n"	+
 		"(DLLのファイルパス)\n"	+
 		$dll_path;
 }
-
 endmacro str(#g_dll_dengaku);
