@@ -193,6 +193,24 @@ masterブランチを取得しても多分動作しないです。（動作確�
 	     ├─internal
 	     └─snippets
 
+## 依存DLLのインストール
+
+本マクロを動かすには以下のDLLが必要です、それぞれダウンロードして導入してください。
+
+- [田楽DLL 32bit](http://www.ceres.dti.ne.jp/~sugiura/hidemaru/macros/dgserver/#download64)
+- [田楽DLL 64bit](http://htom.in.coocan.jp/macro/macro_dll.html#label-5)
+- [ht_tools 32/64bit](http://htom.in.coocan.jp/macro/macro_dll.html)
+
+それぞれ、32bitと64bit版があります、適切なDLLを導入してください。
+
+###  DLLの説明
+
+|種類|説明|
+|--|--|
+|田楽DLL|GUI表示などを行うDLL|
+|ht_tools.dll|文字列の操作を行うDLL|
+
+
 ## ショートカットキー割り当て
 
 `ya_hidemaru_snippet.mac` をショートカットキーに割り当てて下さい。
@@ -203,24 +221,6 @@ masterブランチを取得しても多分動作しないです。（動作確�
 - Alt-Enter
 
 ちなみに、私はCtrl-Enterに割り当てています。（なんか、えいやー という感じなので）
-
-
-## 依存DLLのインストール
-
-本マクロを動かすには以下のDLLが必要です、それぞれダウンロードして導入してください。
-
-- [田楽DLL 32bit](http://www.ceres.dti.ne.jp/~sugiura/hidemaru/macros/dgserver/#download64)
-- [田楽DLL 64bit](http://htom.in.coocan.jp/macro/macro_dll.html#label-5)
-- [ht_tools 32/64bit](http://htom.in.coocan.jp/macro/macro_dll.html)
-
-上記のリンク先は2019年12月12日現在のものです。
-
-###  DLLの説明
-
-|種類|説明|
-|--|--|
-|田楽DLL|GUI表示などを行うDLLです|
-|ht_tools.dll|文字列の操作を行うDLLです|
 
 ## 動作のカスタマイズ
 
