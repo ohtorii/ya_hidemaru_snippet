@@ -1,17 +1,52 @@
 ﻿/*ht_tools.dllをロードする
 */
 
-#g_dll_dengaku=loaddll(macrodir + "\\ht_tools.dll");
-if (#g_dll_dengaku!=0) {
-	endmacro str(#g_dll_dengaku);
+if(platform & 0x00080000){
+	//
+	//64bit
+	//
+	call TryLoad, "\\x64";
+	if(##return){
+		endmacro str(##return);
+	}
+	call TryLoad;
+	#dll=##return;
+	if(#dll==0){
+		call ErrorMessage;
+	}
+	endmacro str(#dll);
 }
-#g_dll_dengaku=loaddll(hidemarudir + "\\ht_tools.dll");
-if(#g_dll_dengaku==0){
+
+//
+//32bit
+//
+call TryLoad;
+#dll=##return;
+if(#dll==0){
+	call ErrorMessage;
+}
+endmacro str(#dll);
+
+
+
+
+TryLoad:
+	$$sub_dir=$$1;
+	##handle=loaddll(macrodir + $$sub_dir + "\\ht_tools.dll");
+	if (##handle!=0) {
+		return ##handle;
+	}
+	return loaddll(hidemarudir + $$sub_dir + "\\ht_tools.dll");
+
+
+ErrorMessage:
 	message
 		"ht_tool.dllの読み込みに失敗しました。\n"	+
-		"以下のファイルパスにDLLが存在するか確認してください\n"	+
+		"秀丸マクロディレクトリ、または、秀丸エディタのフォルダに ht_tool.dll が存在するか確認してください\n"	+
 		"\n"	+
-		"(DLLのファイルパス)\n"	+
-		$dll_path;
-}
-endmacro str(#g_dll_dengaku);
+		"（秀丸マクロディレクトリ）\n"+
+		macrodir+"\n"+
+		"\n"+
+		"（秀丸エディタ）\n"+
+		hidemarudir+"\n";
+	return ;
