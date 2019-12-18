@@ -9,10 +9,13 @@ if (#g_dll_dengaku!=0) {
 if(#g_dll_dengaku==0){
 	message
 		"田楽DLLの読み込みに失敗しました。\n"	+
-		"以下のファイルパスにDLLが存在するか確認してください\n"	+
+		"秀丸マクロディレクトリ、または、秀丸エディタのフォルダに田楽DLLが存在するか確認してください\n"	+
 		"\n"	+
-		"(DLLのファイルパス)\n"	+
-		$dll_path;
+		"（秀丸マクロディレクトリ）\n"+
+		macrodir+"\n"+
+		"\n"+
+		"（秀丸エディタ）\n"+
+		hidemarudir+"\n";
 }
 
 endmacro str(#g_dll_dengaku);
