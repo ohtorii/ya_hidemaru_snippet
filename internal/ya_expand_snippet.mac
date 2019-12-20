@@ -59,6 +59,18 @@ $g_python_exe 		= "python.exe";
 ////////////////////////////////////////////
 //	内部利用の値
 ////////////////////////////////////////////
+
+//
+//動作環境を固定化する。
+//
+setcompatiblemode
+	0x00000002 |	/* 折りたたみを無視してなるべく維持 */
+	0x00000008 |	/* 部分編集を無視してなるべく維持 */
+	0x00000030 |	/* 同じファイルを２つ開くことを禁止する（ジャンプする） */
+	0x00000200 |	/*検索での表示　→　範囲選択*/
+	0x00002000 |	/*貼り付け後のカーソル位置　→　最後に移動 */
+	0x00020000 ;	/*マクロ終了後に検索条件をマクロ実行前と同じに戻します。（V8.20以降） */
+
 $g_cursor_marker	= "%|";
 
 $g_args[0]	= "";
@@ -75,7 +87,7 @@ Main:
 	if(! ##return){
 		return false;
 	}
-	
+
 	$$abs_snippet_filename	= getarg(0);
 	$g_args_line			= getarg(1);
 	#g_args_num				= val(getarg(2));
@@ -96,7 +108,7 @@ Main:
 	$g_args[14]				= getarg(17);
 	$g_args[15]				= getarg(18);
 
-	
+
 	call GetHeadSpace;
 	$$head_str=$$return;
 
@@ -109,10 +121,20 @@ Main:
 		message("非表示状態で秀丸エディタを開けませんでした。");
 		return false;
 	}
-	
+	//
+	//動作環境を固定化する。
+	//
+	setcompatiblemode
+		0x00000002 |	/* 折りたたみを無視してなるべく維持 */
+		0x00000008 |	/* 部分編集を無視してなるべく維持 */
+		0x00000030 |	/* 同じファイルを２つ開くことを禁止する（ジャンプする） */
+		0x00000200 |	/*検索での表示　→　範囲選択*/
+		0x00002000 ;	/*貼り付け後のカーソル位置　→　最後に移動 */
+		//0x00020000 ;	/*マクロ終了後に検索条件をマクロ実行前と同じに戻します。（V8.20以降） */
+
 	disabledraw;
 	disableinvert;
-	
+
 	##cur_hidemaru = hidemaruhandle(0);
 	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
 	##result=##return;
@@ -212,14 +234,14 @@ ExpandSnippetFile:
 		message("未対応の拡張子です。\n" + $$abs_snippet_filename);
 		return false;
 	}
-	
+
 	execmacro currentmacrodirectory+"\\ya_util_get_snippet_modules_dir.mac";
 	$$modules_dir = getresultex(-1);
 	if($$modules_dir==""){
 		message("スニペットのモジュールディレクトリを取得できませんでした。");
 		return false;
 	}
-	
+
 	//
 	//拡張子毎の展開マクロを呼ぶ。
 	//
@@ -312,9 +334,9 @@ ParseIni:
 		);
 		return false;
 	}
-	
+
 	$$section = "python";
 	$$exe = getinistr($$ini_abs_filename,$$section,"exe");
-	
+
 	$g_python_exe		= $$exe;
 	return true;

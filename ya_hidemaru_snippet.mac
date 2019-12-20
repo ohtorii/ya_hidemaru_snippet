@@ -36,21 +36,25 @@ $g_snippet_abs_filename="";
 //田楽DLLのハンドル
 #g_dll_dengaku=0;
 
-
-$_g_old_searchbuffer = searchbuffer;
-#_g_searchoption 	 = searchoption;
 disablehistory 0xff;
+
+//
 //動作環境を固定化する。
-//折りたたみを維持,部分編集を維持,範囲選択,最後に移動
-//マクロ終了時に元に戻る。
-setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
+//
+setcompatiblemode
+	0x00000002 |	/* 折りたたみを無視してなるべく維持 */
+	0x00000008 |	/* 部分編集を無視してなるべく維持 */
+	0x00000030 |	/* 同じファイルを２つ開くことを禁止する（ジャンプする） */
+	0x00000200 |	/*検索での表示　→　範囲選択*/
+	0x00002000 |	/*貼り付け後のカーソル位置　→　最後に移動 */
+	0x00020000 ;	/*マクロ終了後に検索条件をマクロ実行前と同じに戻します。（V8.20以降） */
+
 call CheckEnvironment;
 if(##return){
 	call LoadDengaku;
 	if(##return){
 		call Main;
 		call ClearGlovalValue;
-		setsearch $_g_old_searchbuffer, #_g_searchoption;
 	}
 }
 call UnLoadDengaku;
