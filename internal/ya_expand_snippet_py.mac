@@ -39,27 +39,32 @@ $g_module_dir			= "";
 $g_internal_dir			= "";
 $g_args					= "";
 
+//getargのバックアップ
+$g_arg_backup[0]		= "";
+
+
 call main;
 endmacro str(##return);
 
 
 main:
-	$g_abs_snippet_filename	= getarg(0);
-	$g_line_string			= getarg(2);
-	$g_python_exe			= getarg(3);
-	$g_module_dir			= getarg(5);
-	$g_internal_dir			= getarg(6);
-
+	call BackupGetArg;
 	call LoadDengaku;
 	if(! ##return){
 		return false;
 	}
 
-	#g_args_num = val(getarg(#g_args_index_num));
+	$g_abs_snippet_filename	= $g_arg_backup[0];
+	$g_line_string			= $g_arg_backup[2];
+	$g_python_exe			= $g_arg_backup[3];
+	$g_module_dir			= $g_arg_backup[5];
+	$g_internal_dir			= $g_arg_backup[6];
+
+	#g_args_num = val($g_arg_backup[#g_args_index_num]);
 	$g_args 	= "";
 	##i			= 0;
 	while(##i < #g_args_num){
-		$$str 	= getarg(#g_args_index_start + ##i);
+		$$str 	= $g_arg_backup[#g_args_index_start + ##i];
 
 		// " -> \"
 		$$str 	= dllfuncstr(#g_dll_dengaku,"GSUB",$$str,"\"","\\\"",-1);
@@ -71,6 +76,16 @@ main:
 	##ret=##return;
 	call FreeDengaku;
 	return ##ret;
+
+
+BackupGetArg:
+	##n=argcount;
+	##i=0;
+	while(##i<##n){
+		$g_arg_backup[##i]=getarg(##i);
+		##i = ##i + 1;
+	}
+	return ;
 
 
 ProcessBat:
