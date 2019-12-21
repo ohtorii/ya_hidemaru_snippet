@@ -7,6 +7,19 @@
 	・スニペットのコマンド数は１６個まで。($0-$15)
 	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
 */
+
+//
+//動作環境を固定化する。
+//
+setcompatiblemode
+	0x00000002 |	/* 折りたたみを無視してなるべく維持 */
+	0x00000008 |	/* 部分編集を無視してなるべく維持 */
+	0x00000030 |	/* 同じファイルを２つ開くことを禁止する（ジャンプする） */
+	0x00000200 |	/*検索での表示　→　範囲選択*/
+	0x00002000 |	/*貼り付け後のカーソル位置　→　最後に移動 */
+	0x00020000 ;	/*マクロ終了後に検索条件をマクロ実行前と同じに戻します。（V8.20以降） */
+
+
 disableinvert;
 disablebreak;
 disablehistory;
@@ -36,28 +49,17 @@ $g_snippet_abs_filename="";
 //田楽DLLのハンドル
 #g_dll_dengaku=0;
 
+
 disablehistory 0xff;
-
-//
-//動作環境を固定化する。
-//
-setcompatiblemode
-	0x00000002 |	/* 折りたたみを無視してなるべく維持 */
-	0x00000008 |	/* 部分編集を無視してなるべく維持 */
-	0x00000030 |	/* 同じファイルを２つ開くことを禁止する（ジャンプする） */
-	0x00000200 |	/*検索での表示　→　範囲選択*/
-	0x00002000 |	/*貼り付け後のカーソル位置　→　最後に移動 */
-	0x00020000 ;	/*マクロ終了後に検索条件をマクロ実行前と同じに戻します。（V8.20以降） */
-
 call CheckEnvironment;
 if(##return){
-	call LoadDengaku;
+	call LoadDll;
 	if(##return){
 		call Main;
 		call ClearGlovalValue;
 	}
 }
-call UnLoadDengaku;
+call UnLoadDll;
 endmacro;
 
 
@@ -168,47 +170,37 @@ Candidate:
 
 
 TokenizeArg:
-	call LoadDengaku;
+	call LoadDll;
 	if(! ##return){
 		return false;
 	}
 	$$linetext = $$1;
-	$$linetext = dllfuncstr(#g_dll_dengaku,"LTRIM",$$linetext);
+
+	call TrimL $$linetext;
+	$$linetext=$$return;
+
 	$$linetext_lt = $$linetext;
-	$$linetext = dllfuncstr(#g_dll_dengaku,"RTRIM",$$linetext);
+
+	call TrimR $$linetext;
+	$$linetext=$$return;
 	if($$linetext==""){
 		return false;
 	}
 
-	#g_args_num=0;
-	$$tok = " ";
-	$$token = dllfuncstr(#g_dll_dengaku,"GETTOKEN",$$linetext,$$tok);
-	$$token = dllfuncstr(#g_dll_dengaku,"RTRIM",$$token);
-	$$token = dllfuncstr(#g_dll_dengaku,"LTRIM",$$token);
-	if(""!=$$token)
-	{
-		$g_args[#g_args_num]=$$token;
-		#g_args_num=1;
-	}
-	while (1) {
-	    if (dllfunc(#g_dll_dengaku,"HASMORETOKENS") == 0) {
-			break;
-		}
-
-	    $$token = dllfuncstr(#g_dll_dengaku,"GETTOKEN","",$$tok);
-	    $$token = dllfuncstr(#g_dll_dengaku,"RTRIM",$$token);
-		$$token = dllfuncstr(#g_dll_dengaku,"LTRIM",$$token);
-		if(""!=$$token)
-		{
-			$g_args[#g_args_num]=$$token;
-			#g_args_num = #g_args_num+1;
-		}
-	}
+	#g_args_num=split($g_args,$$linetext," ");
 	if(#g_args_num==0){
 		return false;
 	}
+
+	//
+	//$g_args_line 変数の作成
+	//
 	$g_args_line = rightstr($$linetext_lt, strlen($$linetext_lt)-strlen($g_args[0]));
-	$g_args_line = dllfuncstr(#g_dll_dengaku,"LTRIM",$g_args_line);
+	call TrimL $g_args_line;
+	$g_args_line=$$return;
+
+	//call DumpArgs;
+
 	return true;
 
 
@@ -247,21 +239,45 @@ ClearGlovalValue:
 	setstaticvariable "ini_abs_filename","",1;
 	return ;
 
-LoadDengaku:
-	if(#g_dll_dengaku){
-		return true;
-	}
-	execmacro currentmacrodirectory+"\\internal\\ya_util_load_dengaku_dll.mac";
-	#g_dll_dengaku=val(getresultex(-1));
-	if(#g_dll_dengaku==0){
-		return false;
+LoadDll:
+	if(! #g_dll_dengaku){
+		execmacro currentmacrodirectory+"\\internal\\ya_util_load_dengaku_dll.mac";
+		#g_dll_dengaku=val(getresultex(-1));
+		if(#g_dll_dengaku==0){
+			return false;
+		}
 	}
 	return true;
 
 
-UnLoadDengaku:
+UnLoadDll:
 	if(#g_dll_dengaku){
 		freedll #g_dll_dengaku;
 		#g_dll_dengaku=0;
 	}
 	return;
+
+Trim:
+	call TrimL, $$1;
+	call TrimR, $$return;
+	return $$return;
+
+TrimL:		// ホワイトスペース除去
+	while (unicode(leftstr($$1, 1))  <= ' ' && unicode(leftstr($$1, 1)) > 0) $$1 = rightstr($$1, strlen($$1) - 1);
+	return $$1;
+
+TrimR:
+	while (unicode(rightstr($$1, 1)) <= ' ' && unicode(rightstr($$1, 1)) > 0) $$1 = leftstr($$1, strlen($$1) - 1);
+	return $$1;
+
+DumpArgs:
+	debuginfo 1;
+	debuginfo "==== $g_args[] ====";
+	debuginfo sprintf("#g_args_num=%d",#g_args_num);
+	##i=0;
+	while(##i<#g_args_num){
+		debuginfo sprintf("$g_args[%d]=%s",##i,$g_args[##i]);
+		##i = ##i + 1;
+	}
+	debuginfo sprintf("$g_args_line=%s",$g_args_line);
+	return ;
