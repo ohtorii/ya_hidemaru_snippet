@@ -186,11 +186,7 @@ TokenizeArg:
 	if($$linetext==""){
 		return false;
 	}
-
-	#g_args_num=split($g_args,$$linetext," ");
-	if(#g_args_num==0){
-		return false;
-	}
+	call CreateArgs, $$linetext;
 
 	//
 	//$g_args_line 変数の作成
@@ -202,6 +198,25 @@ TokenizeArg:
 	//call DumpArgs;
 
 	return true;
+
+
+/*引数の変数を作る
+「#g_args_num, $g_args」のグローバル変数を作る。
+*/
+CreateArgs:
+	##num=split($$args,$$1," ");
+	if(##num==0){
+		return false;
+	}
+	#g_args_num=0;
+	while(##i < ##num){
+		if($$args[##i]!=""){
+			$g_args[#g_args_num] = $$args[##i];
+			#g_args_num = #g_args_num + 1;
+		}
+		##i = ##i + 1;
+	}
+	return ;
 
 
 GetDirectoryName:
@@ -232,10 +247,12 @@ GetShortPath:
     return $$ret;
 
 SetGlovalValue:
+	setstaticvariable "yas_root_dir",currentmacrodirectory,1;
 	setstaticvariable "ini_abs_filename",$g_ini_abs_filename,1;
 	return result;
 
 ClearGlovalValue:
+	setstaticvariable "yas_root_dir","",1;
 	setstaticvariable "ini_abs_filename","",1;
 	return ;
 
