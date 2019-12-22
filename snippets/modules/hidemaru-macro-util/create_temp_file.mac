@@ -105,7 +105,8 @@ LoadDll:
 	if(#g_ht_tools_dll!=0){
 		return true;
 	}
-	execmacro currentmacrodirectory+"\\ya_util_load_ht_tools_dll.mac";
+	$$macro_dir=getstaticvariable( "yas_root_dir", 1 );
+	execmacro $$macro_dir+"\\internal\\ya_util_load_ht_tools_dll.mac";
 	#g_ht_tools_dll=val(getresultex(-1));
 	if (#g_ht_tools_dll!=0) {
 		return true;
