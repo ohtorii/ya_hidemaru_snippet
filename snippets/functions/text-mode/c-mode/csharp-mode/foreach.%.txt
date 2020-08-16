@@ -8,6 +8,6 @@
 #   }
 #
 # --
-foreach(var item in %|){
+foreach(var %1 in %|){
 	
 }
