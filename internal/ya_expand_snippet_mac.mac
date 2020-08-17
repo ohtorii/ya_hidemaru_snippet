@@ -50,9 +50,5 @@ Main:
 				$$args[28],
 				$$args[29],
 				$$args[30];
-	/*if(! result){
-		message("execmacroで失敗。\nfile=" + $$args[0]);
-		return false;
-	}*/
 	return true;
 

@@ -71,9 +71,6 @@ MakeMenuText:
 		##sub_dir_len = ##sub_dir_len + 1;
 	}
 
-	/*$g_abs_snippets_dir[#g_abs_snippets_dir_len]= $$root_dir;
-	#g_abs_snippets_dir_len 					= #g_abs_snippets_dir_len + 1;*/
-
 	##index = 0;
 	while (##index < ##sub_dir_len){
 		$$current_sub_dir	= $$sub_dir[##index];

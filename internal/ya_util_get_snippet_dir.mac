@@ -2,23 +2,10 @@
 
 返値	スニペットのディレクトリを文字列で返しますが、
 		処理に失敗すると空白文字を返します。
-		
+
 		(返値の例) c:\hidemaru-macro\ya-hidemaru-snippets\functions
 		パス末尾にディレクトリ区切り(\/)は付きません。
 */
 $path=currentmacrodirectory+"\\..\\snippets\\functions";
 execmacro currentmacrodirectory+"\\ya_util_get_abs_path_name.mac", $path;
 endmacro getresultex(-1);
-
-/*
-#obj=createobject("Scripting.FileSystemObject");
-if(#obj==0){
-	endmacro "";
-}
-$f = callmethod_returnstr( #obj, "GetAbsolutePathName", $path);
-if(getresultex(10)==false){
-	releaseobject #obj;
-	endmacro "";
-}
-releaseobject #obj;
-endmacro $f;*/

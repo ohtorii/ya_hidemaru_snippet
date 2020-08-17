@@ -70,10 +70,6 @@ Main:
 		return false;
 	}
 
-	/*if(rectselecting){
-		message("矩形選択は未対応です。\n");
-		return false;
-	}*/
 	begingroupundo;
 	call ParseLine;
 	if(! ##return){

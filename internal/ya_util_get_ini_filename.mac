@@ -6,4 +6,3 @@ execmacro "ya_util_get_ini_filename.mac";
 $path=currentmacrodirectory+"\\..\\config.ini";
 execmacro currentmacrodirectory+"\\ya_util_get_abs_path_name.mac", $path;
 endmacro getresultex(-1);
-//endmacro currentmacrodirectory+"\\config.ini";

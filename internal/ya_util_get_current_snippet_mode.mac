@@ -1,7 +1,7 @@
 ﻿/*現在のスニペットモードを取得する
 引数	"abs"	絶対パスで取得する (ディフォルト)
 		"rel"	相対パスで取得する
-		
+
 返値	スニペットモード
 		（絶対パスの例）	c:\hidemaru-macro\ya-hidemaru-snippet\snippets\functions\text-mode\c-mode\cpp-mode
 		（相対パスの例）	text-mode\c-mode\cpp-mode
@@ -37,12 +37,11 @@ InitGlobalVariable:
 		endmacro "";
 	}
 	$g_snippets_abs_dir=$g_snippets_abs_dir+"\\";
-	
+
 	execmacro currentmacrodirectory+"\\ya_util_get_ini_filename.mac";
 	$g_ini_abs_filename = getresultex(-1);
-	//$g_ini_abs_filename = currentmacrodirectory+"\\config.ini";
 	return;
-	
+
 /* ya_change_snippet_mode.mac マクロでスニペットが明示されているかどうか。
 */
 GetExplicitSnippetMode:
