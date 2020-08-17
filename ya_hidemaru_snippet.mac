@@ -8,6 +8,8 @@
 	  設定を変更したらExpandSnippetFile関数中のexecmacroを修正すること。
 */
 
+debuginfo 0;
+
 //
 //動作環境を固定化する。
 //
@@ -72,22 +74,27 @@ Main:
 
 	begingroupundo;
 	call ParseLine;
-	if(! ##return){
-		//
-		//パースした結果、空白行だった場合
-		//
-		//補完候補を挿入する
+	if(##return){
+		//ya_match_snippet.mac のディフォルト設定に任せる
+		$g_snippet_abs_filename = "";
+	}else{
+		//パースした結果、空白行の場合
+		//補完候補をGUIから選択する
 		call Candidate;
 		if(! ##return){
 			return false;
 		}
+		//(memo)$g_snippet_abs_filename変数はCandidateラベル中で設定される
 	}
 
 	//ここでdisabledraw処理を行うこと。
 	//（メモ）main関数前でdisabledraw処理を行うとウインドウが再描画されなくなり、
 	//		  Candidate処理でメニューを表示したときにウインドウが黒一色になり見た目が悪い。
 	disabledraw;
-	execmacro currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_match_snippet.mac", $g_args[0],str(#g_args_num),$g_snippet_abs_filename;
+	execmacro 	currentmacrodirectory+"\\"+$g_internal_sub_dir+"\\ya_match_snippet.mac",
+				$g_args[0],
+				str(#g_args_num),
+				$g_snippet_abs_filename;
 	$$abs_snippet_filename = getresultex(-1);
 	if("" == $$abs_snippet_filename){
 		return false;
@@ -284,7 +291,6 @@ TrimR:
 	return $$1;
 
 DumpArgs:
-	debuginfo 1;
 	debuginfo "==== $g_args[] ====";
 	debuginfo sprintf("#g_args_num=%d",#g_args_num);
 	##i=0;

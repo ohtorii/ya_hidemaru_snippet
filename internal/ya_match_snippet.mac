@@ -1,6 +1,9 @@
 ﻿/*マッチするスニペットファイルを返す
 
-引数	コマンド名 コマンド数 スニペットディレクトリ(option)
+引数	[0]コマンド名
+		[1]コマンド数
+		[2]GUIから設定したスニペットファイル(option)
+
 return	スニペットファイルの絶対パス
 		(例) "c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
 */
@@ -35,9 +38,28 @@ $g_snippet_file_basename[0]	= "";
 #g_snippet_file_num	= 0;
 
 
+/*スニペットのパス
 
-call main getarg(0),val(getarg(1)), getarg(2);
+$g_snippeth_paths[0]	 = GUIから設定したスニペットファイル
+$g_snippeth_paths[1..10] = ユーザー スニペットディレクトリ
+
+ユーザー スニペットディレクトリ(option)について
+	config.ini -> [snippets] -> user_path[0-9]に対応します。
+*/
+$g_snippeth_paths[0]="";
+#g_snippeth_path_num=0;
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//	メイン処理
+////////////////////////////////////////////////////////////////////////////
+call main 	getarg(0),val(getarg(1)), getarg(2);
 endmacro $$return;
+
 
 main:
 	call LoadDengaku;
@@ -52,19 +74,101 @@ main:
 start:
 	$$cmd=$$1;
 	##num=##2;
-	$$abs_snippets_dir=$$3;
-
-	if($$abs_snippets_dir==""){
-		execmacro currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
-		$$abs_snippets_dir = getresultex(-1);
-		if($$abs_snippets_dir==""){
+	$$system_snippet_path=$$3;
+	if($$system_snippet_path==""){
+		//システムスニペットとユーザースニペットのパスを検索対象にする
+		call SetSnippetPath;
+		if(! ##return){
 			return "";
 		}
+	}else{
+		//GUIからスニペットファイルを明示的に指定した場合
+		$g_snippeth_paths[0]=$$system_snippet_path;
+		#g_snippeth_path_num =1;
 	}
+	//call DumpSnippetPaths;
+
+	##i=0;
+	while(##i < #g_snippeth_path_num){
+		call FindSnippetFile $$cmd, ##num, $g_snippeth_paths[##i];
+		if($$return != ""){
+			return $$return;
+		}
+		##i = ##i + 1;
+	}
+	return "";
+
+
+SetSnippetPath:
+	#g_snippeth_path_num=0;
+	$$get_current_snippet_mode_macro=currentmacrodirectory+"\\ya_util_get_current_snippet_mode.mac";
+
+	//
+	//$g_snippeth_pathsへ、iniファイル中のユーザースニペットを設定する
+	//
+	execmacro $$get_current_snippet_mode_macro, "rel";
+	$$rel_path=getresultex(-1);
+
+	$$ini=getstaticvariable("ini_abs_filename",1);
+	##i=0;
+	while(##i < 10){
+		$$key  =sprintf("user_path%d",##i);
+		call GetCorrectUserSnippetPath $$ini, "snippets", $$key, $$rel_path;
+		$$value=$$return;
+		if($$value!=""){
+			$g_snippeth_paths[#g_snippeth_path_num] = $$value;
+			#g_snippeth_path_num  = #g_snippeth_path_num + 1;
+		}
+		##i = ##i + 1;
+	}
+
+	//
+	//$g_snippeth_pathsへ、システムパスを設定する
+	//
+	execmacro $$get_current_snippet_mode_macro,"abs";
+	$g_snippeth_paths[#g_snippeth_path_num] = getresultex(-1);
+	if($g_snippeth_paths[#g_snippeth_path_num]==""){
+		return false;
+	}
+	#g_snippeth_path_num = #g_snippeth_path_num + 1;
+
+	return true;
+
+
+GetCorrectUserSnippetPath:
+	$$ini		=$$1;
+	$$section	=$$2;
+	$$key		=$$3;
+	$$rel_path	=$$4;
+
+	$$value=getinistrw($$ini,$$section,$$key);
+	if($$value==""){
+		return "";
+	}
+	$$user_snippet_dir=$$value+"\\"+$$rel_path;
+
+	//環境変数を展開する
+	execmacro currentmacrodirectory+"\\ya_util_expand_environment_strings.mac", $$user_snippet_dir;
+	$$user_snippet_dir=getresultex(-1);
+	if($$user_snippet_dir==""){
+		return "";
+	}
+	if((existfile($$user_snippet_dir,1) & 0x00000010) != 0){
+		return $$user_snippet_dir;
+	}
+	return "";
+
+
+/*ディレクトリを上りながらマッチするスニペットファイルを探す
+*/
+FindSnippetFile:
+	$$cmd=$$1;
+	##num=##2;
+	$$abs_snippets_dir = $$3;
 
 	##count=32;//無限ループ防止（念のため）
 	while((0 < ##count) && (""!=$$abs_snippets_dir)){
-		call FindSnippetFile $$abs_snippets_dir+"\\", $$cmd, ##num;
+		call FindSnippetFileOne $$abs_snippets_dir+"\\", $$cmd, ##num;
 		if("" != $$return){
 			return $$return;
 		}
@@ -72,7 +176,7 @@ start:
 		call GetParentFolderName $$abs_snippets_dir;
 		$$abs_snippets_dir = $$return;
 
-		call IsFolderFinish $$abs_snippets_dir;
+		call IsSameFolder $$abs_snippets_dir;
 		if(##return){
 			break;
 		}
@@ -81,7 +185,7 @@ start:
 	return "";
 
 
-FindSnippetFile:
+FindSnippetFileOne:
 	$$abs_snippets_dir=$$1;
 	$$cmd=$$2;
 	##num=##3;
@@ -215,14 +319,15 @@ MakeSnippetBaseName:
 	}
 	return $$name;
 
-/*スニペットが置いてあるディレクトリかどうか
+/*同じフォルダかどうか
 memo:「パス区切り(/\)・大文字小文字」の違いがあるのでファイルシステムに任せる。
 */
-IsFolderFinish:
-	$$dir = $$1;
+IsSameFolder:
+	$$dir1 = $$1;
+	$$dir2 = $$2;
 	##obj 	= createobject("Scripting.FileSystemObject");
-	##fld0 	= callmethod_returnobj( ##obj, "GetFolder", $g_snippets_abs_dir);
-	##fld1 	= callmethod_returnobj( ##obj, "GetFolder", $$dir);
+	##fld0 	= callmethod_returnobj( ##obj, "GetFolder", $$dir1);
+	##fld1 	= callmethod_returnobj( ##obj, "GetFolder", $$dir2);
 	$$path0	= getpropstr(##fld0,"Path");
 	$$path1	= getpropstr(##fld1,"Path");
 	releaseobject ##fld0;
@@ -258,3 +363,13 @@ FreeDengaku:
 		#g_dll_dengaku=0;
 	}
 	return true;
+
+
+DumpSnippetPaths:
+	debuginfo "====DumpSnippetPaths====";
+	##i=0;
+	while(##i<#g_snippeth_path_num){
+		debuginfo sprintf("[%d]%s",##i,$g_snippeth_paths[##i]);
+		##i = ##i + 1;
+	}
+	return ;
