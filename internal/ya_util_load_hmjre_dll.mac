@@ -1,0 +1,11 @@
+﻿/*HmJre.dllをロードする
+*/
+
+#g_dll=loaddll("HmJre.dll");
+if (#g_dll!=0) {
+	#dummy = dllfunc(#g_dll,"SetUnicodeIndexAutoConvert", 1);
+	//#dummy = dllfunc(#g_dll,"NotifyEncode", encode);
+	endmacro str(#g_dll);
+}
+message "秀丸エディタに同梱されている HmJre.dll の読み込みに失敗しました。";
+endmacro "0";

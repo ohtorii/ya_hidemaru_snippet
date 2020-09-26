@@ -48,20 +48,13 @@ $g_args[0]	= "";
 $g_args_line="";
 $g_snippet_abs_filename="";
 
-//田楽DLLのハンドル
-#g_dll_dengaku=0;
-
 
 disablehistory 0xff;
 call CheckEnvironment;
 if(##return){
-	call LoadDll;
-	if(##return){
-		call Main;
-		call ClearGlovalValue;
-	}
+	call Main;
+	call ClearGlovalValue;
 }
-call UnLoadDll;
 endmacro;
 
 
@@ -173,10 +166,6 @@ Candidate:
 
 
 TokenizeArg:
-	call LoadDll;
-	if(! ##return){
-		return false;
-	}
 	$$linetext = $$1;
 
 	call TrimL $$linetext;
@@ -258,24 +247,6 @@ ClearGlovalValue:
 	setstaticvariable "yas_root_dir","",1;
 	setstaticvariable "ini_abs_filename","",1;
 	return ;
-
-LoadDll:
-	if(! #g_dll_dengaku){
-		execmacro currentmacrodirectory+"\\internal\\ya_util_load_dengaku_dll.mac";
-		#g_dll_dengaku=val(getresultex(-1));
-		if(#g_dll_dengaku==0){
-			return false;
-		}
-	}
-	return true;
-
-
-UnLoadDll:
-	if(#g_dll_dengaku){
-		freedll #g_dll_dengaku;
-		#g_dll_dengaku=0;
-	}
-	return;
 
 Trim:
 	call TrimL, $$1;

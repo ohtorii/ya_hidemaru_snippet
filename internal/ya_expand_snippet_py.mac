@@ -29,7 +29,7 @@ $g_python_exe 		= "python.exe";
 ////////////////////////////////////////////////////////////////////////////
 
 //田楽DLLのハンドル
-#g_dll_dengaku=0;
+#g_dll_hmjre=0;
 
 //スニペットファイルの絶対パス
 $g_abs_snippet_filename	= "";
@@ -65,9 +65,8 @@ main:
 	##i			= 0;
 	while(##i < #g_args_num){
 		$$str 	= $g_arg_backup[#g_args_index_start + ##i];
-
 		// " -> \"
-		$$str 	= dllfuncstr(#g_dll_dengaku,"GSUB",$$str,"\"","\\\"",-1);
+		$$str=dllfuncstr(#g_dll_hmjre,"ReplaceRegular", R"(")", $$str,0,R"(\\")",2);
 		$g_args = $g_args + "\"" + $$str + "\" ";
 		##i=##i+1;
 	}
@@ -141,20 +140,20 @@ CreateHidemaruIniFile:
 
 
 LoadDengaku:
-	if(#g_dll_dengaku!=0){
+	if(#g_dll_hmjre!=0){
 		return true;
 	}
-	execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
-	#g_dll_dengaku=val(getresultex(-1));
-	if(#g_dll_dengaku==0){
+	execmacro currentmacrodirectory+"\\ya_util_load_hmjre_dll.mac";
+	#g_dll_hmjre=val(getresultex(-1));
+	if(#g_dll_hmjre==0){
 		return false;
 	}
 	return true;
 
 
 FreeDengaku:
-	if(#g_dll_dengaku!=0){
-		freedll #g_dll_dengaku;
-		#g_dll_dengaku=0;
+	if(#g_dll_hmjre!=0){
+		freedll #g_dll_hmjre;
+		#g_dll_hmjre=0;
 	}
 	return true;
