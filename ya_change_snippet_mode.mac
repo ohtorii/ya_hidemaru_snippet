@@ -1,0 +1,3 @@
+﻿/* スニペットモード変更GUIを起動する
+*/
+execmacro currentmacrodirectory+"\\internal\\ya_change_mode.mac";
