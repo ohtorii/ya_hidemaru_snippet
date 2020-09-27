@@ -8,9 +8,6 @@ return	スニペットファイルの絶対パス
 		(例) "c:/hidemaru_script/snippets/.c.cpp/for.%.%.txt"
 */
 
-//田楽DLLのハンドル
-#g_dll_dengaku=0;
-
 $g_file_attr_arg	= ".%";
 $g_file_attr_varg	= "._";
 
@@ -62,14 +59,9 @@ endmacro $$return;
 
 
 main:
-	call LoadDengaku;
-	if(! ##return){
-		return false;
-	}
 	call start $$1,##2,$$3;
-	$$ret=$$return;
-	call FreeDengaku;
-	return $$ret;
+	return $$return;
+
 
 start:
 	$$cmd=$$1;
@@ -255,28 +247,37 @@ MakeSnippetBaseFileName:
 	return $$result;
 
 EnumeSnippetFileNames:
+	/*
+	（引数の例）
+	$$1=C:\Users\foo\GitHub\ya_hidemaru_snippet\snippets\functions
+	$$2=time
+	*/
 	$$abs_snippets_dir	= $$1;
 	$$cmd 				= $$2;
-	$$pattern 			= $$abs_snippets_dir + $$cmd + "*.*";
+
+	##objFSO 		= createobject("Scripting.FileSystemObject");
+	##objFolder 	= member( ##objFSO, "GetFolder", $$abs_snippets_dir );
+	##objCollection = getpropobj(##objFolder,"Files");
 
 	#g_snippet_file_num=0;
-	##r = dllfunc(#g_dll_dengaku,"ENUMFILE",$$pattern);
-	if(! ##r){
-		return false;
+	while (true) {
+		##objFile = getcollection( ##objCollection );
+		if(##objFile==0){
+			break;
+		}
+		$$file = getpropstr(##objFile,"Name");
+		call StartsWith $$file, $$cmd;
+		if(##return){
+			$g_snippet_file[#g_snippet_file_num]=$$abs_snippets_dir + $$file;
+			call MakeSnippetBaseName $$file;
+			$g_snippet_file_basename[#g_snippet_file_num]=$$return;
+			#g_snippet_file_num=#g_snippet_file_num+1;
+		}
 	}
 
-	##count = 1000;
-	while (##count) {
-		$$file = dllfuncstr(#g_dll_dengaku,"FINDNEXT");
-		if ($$file == "") {
-			break
-		}
-		$g_snippet_file[#g_snippet_file_num]=$$abs_snippets_dir + $$file;
-		call MakeSnippetBaseName $$file;
-		$g_snippet_file_basename[#g_snippet_file_num]=$$return;
-		#g_snippet_file_num=#g_snippet_file_num+1;
-		##count=##count-1;
-	}
+	releaseobject ##objFSO;
+	##objFSO=0;
+
 	if(#g_snippet_file_num){
 		return true;
 	}
@@ -344,25 +345,14 @@ GetParentFolderName:
 	releaseobject ##obj;
 	return $$result;
 
-
-LoadDengaku:
-	if(#g_dll_dengaku){
+/*文字列$$1が$$2で開始しているか調べる
+*/
+StartsWith:
+	##index=strstr($$1,$$2);
+	if(##index==0){
 		return true;
 	}
-	execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
-	#g_dll_dengaku=val(getresultex(-1));
-	if(#g_dll_dengaku==0){
-		return false;
-	}
-	return true;
-
-
-FreeDengaku:
-	if(#g_dll_dengaku!=0){
-		freedll #g_dll_dengaku;
-		#g_dll_dengaku=0;
-	}
-	return true;
+	return false;
 
 
 DumpSnippetPaths:
