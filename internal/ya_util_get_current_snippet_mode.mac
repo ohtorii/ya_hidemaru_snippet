@@ -42,7 +42,7 @@ InitGlobalVariable:
 	$g_ini_abs_filename = getresultex(-1);
 	return;
 
-/* ya_change_snippet_mode.mac マクロでスニペットが明示されているかどうか。
+/* ya_change_mode.mac マクロでスニペットが明示されているかどうか。
 */
 GetExplicitSnippetMode:
 	execmacro currentmacrodirectory+"\\ya_get_snippet_mode.mac";

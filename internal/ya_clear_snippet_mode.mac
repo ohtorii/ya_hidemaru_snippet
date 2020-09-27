@@ -1,6 +1,5 @@
 ﻿/*Yet another snippet for hidemaru editor.
-
-ya_change_snippet_mode.mac で指定したスニペットのモードをクリアする。
+ya_change_mode.mac で指定したスニペットのモードをクリアする。
 
 【メモ】
 本マクロを実行すると、ファイル拡張子に応じたスニペットモードに戻ります。
