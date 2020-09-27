@@ -49,7 +49,7 @@ endmacro str(##return);
 
 main:
 	call BackupGetArg;
-	call LoadDengaku;
+	call LoadDll;
 	if(! ##return){
 		return false;
 	}
@@ -73,7 +73,7 @@ main:
 
 	call ProcessBat;
 	##ret=##return;
-	call FreeDengaku;
+	call FreeDll;
 	return ##ret;
 
 
@@ -139,7 +139,7 @@ CreateHidemaruIniFile:
 	return true;
 
 
-LoadDengaku:
+LoadDll:
 	if(#g_dll_hmjre!=0){
 		return true;
 	}
@@ -151,7 +151,7 @@ LoadDengaku:
 	return true;
 
 
-FreeDengaku:
+FreeDll:
 	if(#g_dll_hmjre!=0){
 		freedll #g_dll_hmjre;
 		#g_dll_hmjre=0;
