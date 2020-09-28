@@ -1,3 +1,9 @@
-﻿/* スニペットモード変更GUIを起動する
+﻿/* スニペットモード変更GUI
+
+スニペットのモード（text-mode/c-mode/cs-mode...）を一時的に変更する。
+
+【主な用途】
+・新規ファイル（拡張子無し）のデフォルトのスニペットを変更する。
+・一時的に他のモードへ変更したいときに使用します。
 */
 execmacro currentmacrodirectory+"\\internal\\ya_change_mode.mac";
