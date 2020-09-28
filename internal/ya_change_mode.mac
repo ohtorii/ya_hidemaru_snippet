@@ -1,13 +1,5 @@
 ﻿/*Yet another snippet for hidemaru editor.
-
-スニペットのモード（text-mode/c-mode/cs-mode...）を一時的に変更する。
-
-【主な用途】
-・新規ファイル（拡張子無し）のデフォルトのスニペットを変更する。
-・一時的に他のモードへ変更したいときに使用します。
 */
-
-
 execmacro currentmacrodirectory+"\\ya_util_get_snippet_dir.mac";
 $g_snippets_abs_dir = getresultex(-1);
 
@@ -17,25 +9,16 @@ $g_snippets_abs_dir = $$return;
 $g_menu_text			= "";
 #g_menu_text_len		= 0;
 
-//田楽DLLのハンドル
-#g_dll_dengaku=0;
-
 //スニペットの絶対パス
 $g_abs_snippets_dir		="";
 #g_abs_snippets_dir_len	= 0;
 
 
 call Main;
-call FreeDengaku;
 endmacro;
 
 
 Main:
-	call LoadDengaku;
-	if(! ##return){
-		return false;
-	}
-
 	call MakeMenuText $g_snippets_abs_dir,"";
 	if(! ##return){
 		return false;
@@ -57,19 +40,19 @@ MakeMenuText:
 	$$sub_dir		= "";
 	##sub_dir_len 	= 0;
 
-	call SurroundDoubleQuotation $$root_dir + "\\*.*";
-	$$enume_root_dir = $$return;
-
-	##r = dllfunc(#g_dll_dengaku,"ENUMDIR",$$enume_root_dir);
-	while (1) {
-	    $$dir = dllfuncstr(#g_dll_dengaku,"FINDNEXT");
-	    if ($$dir == "") break;
-	    else if ($$dir == "." || $$dir == "..") continue;
-
-
-		$$sub_dir[##sub_dir_len] = $$dir;
+	##objFSO 		=createobject("Scripting.FileSystemObject");
+	##objFolder		=member( ##objFSO, "GetFolder", $$root_dir );
+	##objCollection	=getpropobj(##objFolder,"subfolders");
+	while(1){
+		##objItem = getcollection( ##objCollection );
+		if(##objItem==0){
+			break;
+		}
+		$$sub_dir[##sub_dir_len] = getpropstr(##objItem,"Name");
 		##sub_dir_len = ##sub_dir_len + 1;
 	}
+	releaseobject ##objFSO;
+
 
 	##index = 0;
 	while (##index < ##sub_dir_len){
@@ -88,29 +71,6 @@ MakeMenuText:
 
 	return true;
 
-SurroundDoubleQuotation:
-	return "\"" + $$1 + "\"";
-
-
-LoadDengaku:
-	if(#g_dll_dengaku){
-		return true;
-	}
-	execmacro currentmacrodirectory+"\\ya_util_load_dengaku_dll.mac";
-	#g_dll_dengaku=val(getresultex(-1));
-	if(#g_dll_dengaku==0){
-		return false;
-	}
-	return true;
-
-
-
-FreeDengaku:
-	if(#g_dll_dengaku!=0){
-		freedll #g_dll_dengaku;
-		#g_dll_dengaku=0;
-	}
-	return true;
 
 GetShortPath:
 	$$path=$$1;
