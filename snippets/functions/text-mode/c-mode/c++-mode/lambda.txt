@@ -1,0 +1,15 @@
+﻿int    outside1 = 40;
+double outside2 = 0.195;
+auto full_lambda = [&outside1, outside2] // キャプチャ
+	(int param1, double param2) // 引数
+	[[nodiscard]] 				// 属性 (nodiscard は C++17 から)
+	mutable 					// mutable (ラムダ式はデフォルトが const)
+	/*constexpr*/ 				// constexpr (明示せずとも可能な場合は constexpr になる)
+	noexcept(false) 			// 例外仕様 (throw での記述は C++17 以降エラー)
+	-> double 					// 返値の型
+	{ 							// 本体
+		outside1 += 1;
+		outside2 += 1.0;
+		if (outside1 == 42) throw outside1;
+		return (outside1 * param1) + (outside2 * param2);
+	};

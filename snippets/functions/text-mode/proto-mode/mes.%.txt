@@ -1,0 +1,12 @@
+﻿#
+#    #Before
+#    mes Person
+#    
+#    #After
+#    message Person {
+#        |
+#    }
+# --
+message %1 {
+    %|
+}

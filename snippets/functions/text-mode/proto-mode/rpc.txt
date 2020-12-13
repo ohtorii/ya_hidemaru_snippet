@@ -1,0 +1,8 @@
+﻿#
+#    #Before
+#    rpc
+#    
+#    #After
+#    rpc | (Request) returns (Reply) {}
+# --
+rpc %| (Request) returns (Reply) {}
