@@ -1,8 +1,8 @@
 ﻿#
 #    #Before
-#    rpc
+#    rpc SayHello
 #    
 #    #After
-#    rpc SayHello (SayHelloRequest) returns (SayHelloReply) {}
+#    rpc SayHello (SayHelloRequest) returns (SayHelloReply) {};
 # --
-rpc %1 (%1Request) returns (%1Reply) {}%|
+rpc %1 (%1Request) returns (%1Reply) {};%|
