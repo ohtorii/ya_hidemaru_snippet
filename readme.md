@@ -2,7 +2,7 @@
 ========
 
 ![GitHub release](https://img.shields.io/github/release/ohtorii/ya_hidemaru_snippet.svg)
-![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 - [これは何？](#これは何)
