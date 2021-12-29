@@ -116,6 +116,7 @@ Main:
 	//新しい秀丸を非表示で開き、そこへスニペットを展開する。
 	//
 	##old_hidemaru = hidemaruhandle(0);
+	##enterASpaceCharacterWithTheTabKey = val(getconfig("Tab"))<0;
 	openfile "/h ", noaddhist;
 	if(! result){
 		message("非表示状態で秀丸エディタを開けませんでした。");
@@ -128,6 +129,7 @@ Main:
 	##cur_hidemaru = hidemaruhandle(0);
 	call ExpandSnippetFile $$abs_snippet_filename,##old_hidemaru;
 	##result=##return;
+	call ConvertsTabToSpaceDependingOnTheSetting ##enterASpaceCharacterWithTheTabKey;
 	call InsertHeadStr $$head_str;
 	selectall;
 	$$expand_text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno);
@@ -160,6 +162,22 @@ Main:
 	call  AdjustCursorPos, ##num_insert_lineno;
 	return ##result;
 
+/*秀丸エディタの設定（※）に応じてタブ文字を空白文字列に変換する。
+
+（※）秀丸エディタの設定
+    ファイルタイプ別の設定→体裁→タブ→タブキーで空白入力
+*/
+ConvertsTabToSpaceDependingOnTheSetting:
+    debuginfo 1;
+    ##enterASpaceCharacterWithTheTabKey=##1;
+    debuginfo "##enterASpaceCharacterWithTheTabKey="+str(##enterASpaceCharacterWithTheTabKey);
+    if(##enterASpaceCharacterWithTheTabKey){
+        //(Memo)”タブキーで空白入力”の設定が有効
+        selectall;
+        tospace;
+        escape;
+    }
+    return ;
 
 /*全ての先頭行に文字を挿入する。
 memo:インデントを合わせている。*/
