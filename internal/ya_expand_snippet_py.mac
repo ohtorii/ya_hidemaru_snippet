@@ -91,6 +91,11 @@ ProcessBat:
 	//
 	//秀丸エディタ側の設定を一時ファイルへ保存する
 	//
+
+	/*Memo: execmacroを呼び出すと$g_args変数が空になる不具合を回避するパッチ*/
+	$$args=$g_args;
+	$g_args="";
+
 	execmacro currentmacrodirectory + "\\ya_util_create_temp_filename.mac";
 	$$ini_filename=getresultex(-1);
 	if($$ini_filename==""){
@@ -107,7 +112,7 @@ ProcessBat:
 	//
 	$$cmd = "cmd.exe /c setlocal enabledelayedexpansion&&set PYTHONPATH=%PYTHONPATH%;" +
 		    $$pythonpath + "&&set YA_HIDEMARU_FILE="+$$ini_filename + "&&" +
-		    $g_python_exe + " " + $g_abs_snippet_filename + " " + $g_args;
+		    $g_python_exe + " " + $g_abs_snippet_filename + " " + $$args;
 	runex $$cmd
 		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
